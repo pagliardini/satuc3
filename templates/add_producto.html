@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Producto</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        /* Estilo para mejorar la apariencia de los inputs con datalist */
+        input::-webkit-calendar-picker-indicator {
+            opacity: 1;
+            color: #6c757d;
+        }
+        .form-control-with-datalist {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right .75rem center;
+            background-size: 16px 12px;
+            padding-right: 2.5rem;
+        }
+    </style>
+</head>
+<body class="container mt-4">
+
+    <h1 class="mb-4">➕ Agregar Producto</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('productos.add_producto') }}" method="POST" class="card p-4 shadow-sm">
+        <!-- Campo de Tipo con input + datalist -->
+        <div class="mb-3">
+            <label for="tipo_search" class="form-label">Tipo de Producto:</label>
+            <input list="tipos_list" id="tipo_search" name="tipo_search" 
+                   class="form-control form-control-with-datalist" 
+                   placeholder="Escriba para filtrar o seleccione" 
+                   autocomplete="off" required>
+            <datalist id="tipos_list">
+                {% for tipo in tipos %}
+                    <option value="{{ tipo.nombre }}" data-id="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                {% endfor %}
+            </datalist>
+            <input type="hidden" name="tipo_id" id="tipo_id">
+        </div>
+
+        <!-- Campo de Marca con input + datalist -->
+        <div class="mb-3">
+            <label for="marca_search" class="form-label">Marca:</label>
+            <input list="marcas_list" id="marca_search" name="marca_search" 
+                   class="form-control form-control-with-datalist" 
+                   placeholder="Escriba para filtrar o seleccione" 
+                   autocomplete="off" required>
+            <datalist id="marcas_list">
+                {% for marca in marcas %}
+                    <option value="{{ marca.nombre }}" data-id="{{ marca.id }}">{{ marca.nombre }}</option>
+                {% endfor %}
+            </datalist>
+            <input type="hidden" name="marca_id" id="marca_id">
+        </div>
+
+        <!-- Campo de Modelo con input + datalist -->
+        <div class="mb-3">
+            <label for="modelo_search" class="form-label">Modelo:</label>
+            <input list="modelos_list" id="modelo_search" name="modelo_search" 
+                   class="form-control form-control-with-datalist" 
+                   placeholder="Escriba para filtrar o seleccione" 
+                   autocomplete="off" required>
+            <datalist id="modelos_list">
+                {% for modelo in modelos %}
+                    <option value="{{ modelo.nombre }}" data-id="{{ modelo.id }}">{{ modelo.nombre }}</option>
+                {% endfor %}
+            </datalist>
+            <input type="hidden" name="modelo_id" id="modelo_id">
+        </div>
+
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripción:</label>
+            <textarea name="descripcion" id="descripcion" class="form-control" rows="3" placeholder="Ej: Producto adicional o comentarios"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar Producto</button>
+        <a href="{{ url_for('productos.productos_index') }}" class="btn btn-secondary">Volver a la lista</a>
+    </form>
+
+    <script>
+        // Función para manejar la selección en cualquier campo
+        function setupDatalist(inputId, datalistId, hiddenId) {
+            const input = document.getElementById(inputId);
+            const datalist = document.getElementById(datalistId);
+            const hiddenInput = document.getElementById(hiddenId);
+            
+            input.addEventListener('input', function() {
+                const options = datalist.getElementsByTagName('option');
+                
+                // Buscar coincidencia exacta para obtener el ID
+                for (let option of options) {
+                    if (option.value === input.value) {
+                        hiddenInput.value = option.getAttribute('data-id');
+                        return;
+                    }
+                }
+                
+                // Si no hay coincidencia exacta, limpiar el ID
+                hiddenInput.value = '';
+            });
+        }
+
+        // Configurar los tres campos
+        setupDatalist('tipo_search', 'tipos_list', 'tipo_id');
+        setupDatalist('marca_search', 'marcas_list', 'marca_id');
+        setupDatalist('modelo_search', 'modelos_list', 'modelo_id');
+    </script>
+
+</body>
+</html>

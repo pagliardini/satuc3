@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Modelo de Producto</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body class="container mt-4">
+
+    <h1 class="mb-4">➕ Agregar Modelo de Producto</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('productos.add_modelo') }}" method="POST" class="card p-4 shadow-sm mb-4">
+        <div class="mb-3">
+            <label for="marca_id" class="form-label">Marca:</label>
+            <select name="marca_id" id="marca_id" class="form-select" required>
+                <option value="" disabled selected>Seleccione una marca</option>
+                {% for marca in marcas %}
+                    <option value="{{ marca.id }}">{{ marca.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre del Modelo:</label>
+            <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Ej: LaserJet Pro, EcoTank L3150" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Agregar Modelo</button>
+        <a href="{{ url_for('productos.productos_index') }}" class="btn btn-secondary">Volver a Productos</a>
+    </form>
+
+    <h2>Modelos Existentes:</h2>
+    <ul class="list-group">
+        {% for modelo in modelos %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ modelo.nombre }}
+                <span class="badge bg-primary rounded-pill">ID: {{ modelo.id }}</span>
+            </li>
+        {% else %}
+            <li class="list-group-item">No hay modelos registrados.</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

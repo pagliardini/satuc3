@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Tipo de Producto</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body class="container mt-4">
+
+    <h1 class="mb-4">➕ Agregar Tipo de Producto</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('productos.add_tipo') }}" method="POST" class="card p-4 shadow-sm mb-4">
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre del Tipo:</label>
+            <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Ej: Impresora, Toner, UPS" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Agregar Tipo</button>
+        <a href="{{ url_for('productos.productos_index') }}" class="btn btn-secondary">Volver a Productos</a>
+    </form>
+
+    <h2>Tipos Existentes:</h2>
+    <ul class="list-group">
+        {% for tipo in tipos %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ tipo.nombre }}
+                <span class="badge bg-primary rounded-pill">ID: {{ tipo.id }}</span>
+            </li>
+        {% else %}
+            <li class="list-group-item">No hay tipos registrados.</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

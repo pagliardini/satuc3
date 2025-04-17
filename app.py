@@ -1,8 +1,6 @@
 from flask import Flask, render_template
 from models import db  # Importar db desde models.py
-from impresoras import impresoras_bp
-from insumos import insumos_bp
-from ups import ups_bp
+from productos import productos_bp
 
 app = Flask(__name__)
 
@@ -15,9 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # Registrar blueprints
-app.register_blueprint(impresoras_bp)
-app.register_blueprint(insumos_bp)
-app.register_blueprint(ups_bp)
+app.register_blueprint(productos_bp)
 
 @app.route('/')
 def index():
