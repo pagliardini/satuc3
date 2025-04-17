@@ -21,6 +21,7 @@ def add_producto():
         marca_id = request.form['marca_id']
         modelo_id = request.form['modelo_id']
         descripcion = request.form.get('descripcion')
+        activo = request.form.get('activo', 'off') == 'on'
 
         if not tipo_id or not marca_id or not modelo_id:
             flash('Todos los campos son obligatorios.', 'error')
@@ -30,7 +31,8 @@ def add_producto():
             tipo_id=tipo_id,
             marca_id=marca_id,
             modelo_id=modelo_id,
-            descripcion=descripcion
+            descripcion=descripcion,
+            activo=activo
         )
         db.session.add(nuevo_producto)
         db.session.commit()
@@ -38,6 +40,36 @@ def add_producto():
         return redirect(url_for('productos.productos_index'))
 
     return render_template('add_producto.html', tipos=tipos, marcas=marcas, modelos=modelos)
+
+# Ruta para editar un producto
+@productos_bp.route('/edit_producto/<int:id>', methods=['GET', 'POST'])
+def edit_producto(id):
+    producto = Producto.query.get_or_404(id)
+    tipos = TipoProducto.query.all()
+    marcas = Marca.query.all()
+    modelos = Modelo.query.all()
+
+    if request.method == 'POST':
+        producto.tipo_id = request.form['tipo_id']
+        producto.marca_id = request.form['marca_id']
+        producto.modelo_id = request.form['modelo_id']
+        producto.descripcion = request.form.get('descripcion')
+        producto.activo = request.form.get('activo', 'off') == 'on'
+
+        db.session.commit()
+        flash('Producto actualizado exitosamente.', 'success')
+        return redirect(url_for('productos.productos_index'))
+
+    return render_template('edit_producto.html', producto=producto, tipos=tipos, marcas=marcas, modelos=modelos)
+
+# Ruta para eliminar un producto
+@productos_bp.route('/delete_producto/<int:id>', methods=['POST'])
+def delete_producto(id):
+    producto = Producto.query.get_or_404(id)
+    db.session.delete(producto)
+    db.session.commit()
+    flash('Producto eliminado exitosamente.', 'success')
+    return redirect(url_for('productos.productos_index'))
 
 # Ruta para agregar un nuevo tipo de producto
 @productos_bp.route('/add_tipo', methods=['GET', 'POST'])

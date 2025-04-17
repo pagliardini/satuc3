@@ -34,4 +34,5 @@ class Producto(db.Model):
     marca_id = db.Column(db.Integer, db.ForeignKey('marcas.id'), nullable=False)
     modelo_id = db.Column(db.Integer, db.ForeignKey('modelos.id'), nullable=False)
     descripcion = db.Column(db.String(200), nullable=True)
+    activo = db.Column(db.Boolean, default=True)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)

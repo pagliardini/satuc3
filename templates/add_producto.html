@@ -85,6 +85,14 @@
             <textarea name="descripcion" id="descripcion" class="form-control" rows="3" placeholder="Ej: Producto adicional o comentarios"></textarea>
         </div>
 
+        <!-- Checkbox para "Activo" -->
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="activo" name="activo" checked>
+            <label class="form-check-label" for="activo">
+                Activo
+            </label>
+        </div>
+
         <button type="submit" class="btn btn-primary">Guardar Producto</button>
         <a href="{{ url_for('productos.productos_index') }}" class="btn btn-secondary">Volver a la lista</a>
     </form>

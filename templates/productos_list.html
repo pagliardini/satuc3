@@ -28,6 +28,8 @@
                 <th>Modelo</th>
                 <th>Descripción</th>
                 <th>Fecha de Creación</th>
+                <th>Activo</th>   
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -39,6 +41,12 @@
                     <td>{{ producto.modelo.nombre }}</td>
                     <td>{{ producto.descripcion or 'Sin descripción' }}</td>
                     <td>{{ producto.fecha_creacion.strftime('%d-%m-%Y %H:%M') }}</td>
+                    <td>{{ 'Sí' if producto.activo else 'No' }}</td>
+                    <td>
+                        <a href="{{ url_for('productos.edit_producto', id=producto.id) }}" class="btn btn-warning btn-sm">✏️ Editar</a>
+                        <form action="{{ url_for('productos.delete_producto', id=producto.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
+                        </form>
                 </tr>
             {% else %}
                 <tr>
