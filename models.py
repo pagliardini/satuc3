@@ -35,4 +35,5 @@ class Producto(db.Model):
     modelo_id = db.Column(db.Integer, db.ForeignKey('modelos.id'), nullable=False)
     descripcion = db.Column(db.String(200), nullable=True)
     activo = db.Column(db.Boolean, default=True)
+    cantidad = db.Column(db.Integer, default=0)  # Agregar el campo cantidad con valor por defecto 0
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)

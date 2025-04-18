@@ -21,6 +21,7 @@ def add_producto():
         marca_id = request.form['marca_id']
         modelo_id = request.form['modelo_id']
         descripcion = request.form.get('descripcion')
+        cantidad = request.form.get('cantidad', 0, type=int)  # Valor por defecto 0
         activo = request.form.get('activo', 'off') == 'on'
 
         if not tipo_id or not marca_id or not modelo_id:
@@ -32,6 +33,7 @@ def add_producto():
             marca_id=marca_id,
             modelo_id=modelo_id,
             descripcion=descripcion,
+            cantidad=cantidad,  # Asignar el valor de cantidad
             activo=activo
         )
         db.session.add(nuevo_producto)

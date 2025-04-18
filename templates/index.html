@@ -1,11 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
-<body>
-    Bienvenido a SATUCC 3.0
+<body class="container mt-4">
+    <h1 class="mb-4">📦 Bienvenido a SATUCC 3.0</h1>
+    <p>Selecciona una opción del menú:</p>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <a href="{{ url_for('productos.productos_index') }}" class="btn btn-link">📋 Lista de Productos</a>
+        </li>
+        <li class="list-group-item">
+            <a href="{{ url_for('productos.add_producto') }}" class="btn btn-link">➕ Agregar Producto</a>
+        </li>
+        <li class="list-group-item">
+            <a href="{{ url_for('productos.add_tipo') }}" class="btn btn-link">➕ Agregar Tipo de Producto</a>
+        </li>
+        <li class="list-group-item">
+            <a href="{{ url_for('productos.add_marca') }}" class="btn btn-link">➕ Agregar Marca</a>
+        </li>
+        <li class="list-group-item">
+            <a href="{{ url_for('productos.add_modelo') }}" class="btn btn-link">➕ Agregar Modelo</a>
+        </li>
+    </ul>
 </body>
 </html>
