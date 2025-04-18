@@ -20,24 +20,21 @@
       {% endif %}
     {% endwith %}
 
-    <form action="{{ url_for('productos.add_tipo') }}" method="POST" class="card p-4 shadow-sm mb-4">
+    <form action="{{ url_for('mtm.add_tipo') }}" method="POST" class="card p-4 shadow-sm mb-4">
         <div class="mb-3">
             <label for="nombre" class="form-label">Nombre del Tipo:</label>
-            <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Ej: Impresora, Toner, UPS" required>
+            <input type="text" name="nombre" id="nombre" class="form-control" required>
         </div>
-        <button type="submit" class="btn btn-primary">Agregar Tipo</button>
-        <a href="{{ url_for('productos.productos_index') }}" class="btn btn-secondary">Volver a Productos</a>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Volver</a>
     </form>
 
-    <h2>Tipos Existentes:</h2>
+    <h2 class="mb-4">Tipos de Producto Existentes</h2>
     <ul class="list-group">
         {% for tipo in tipos %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ tipo.nombre }}
-                <span class="badge bg-primary rounded-pill">ID: {{ tipo.id }}</span>
-            </li>
+            <li class="list-group-item">{{ tipo.nombre }}</li>
         {% else %}
-            <li class="list-group-item">No hay tipos registrados.</li>
+            <li class="list-group-item text-center">No hay tipos de producto registrados.</li>
         {% endfor %}
     </ul>
 

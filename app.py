@@ -1,7 +1,8 @@
-from flask import Flask, render_template  # Importar render_template
+from flask import Flask, render_template
 from models import db
 from productos import productos_bp
-from lugares import lugares_bp  # Importar el nuevo blueprint
+from lugares import lugares_bp
+from mtm import mtm_bp  # Importar el nuevo blueprint
 
 app = Flask(__name__)
 
@@ -15,13 +16,14 @@ db.init_app(app)
 
 # Registrar blueprints
 app.register_blueprint(productos_bp)
-app.register_blueprint(lugares_bp)  # Registrar el blueprint de lugares
+app.register_blueprint(lugares_bp)
+app.register_blueprint(mtm_bp)  # Registrar el blueprint de mtm
 
 @app.route('/')
 def index():
-    return render_template('index.html')  # Renderizar la plantilla index.html
+    return render_template('index.html')
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Crear tablas si no existen
+        db.create_all()
     app.run(debug=True)

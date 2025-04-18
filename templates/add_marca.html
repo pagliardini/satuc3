@@ -11,7 +11,7 @@
         <h1 class="mt-5">Agregar Marca</h1>
 
         <!-- Formulario para agregar marca -->
-        <form method="POST">
+        <form action="{{ url_for('mtm.add_marca') }}" method="POST">
             <div class="form-group">
                 <label for="nombre">Nombre de la Marca:</label>
                 <input type="text" name="nombre" id="nombre" class="form-control" required>
@@ -39,8 +39,8 @@
             {% endfor %}
         </ul>
 
-        <!-- Botón para regresar a la lista de productos -->
-        <a href="{{ url_for('productos.productos_index') }}" class="btn btn-secondary mt-4">Volver a la lista de productos</a>
+        <!-- Botón para regresar al menú principal -->
+        <a href="{{ url_for('index') }}" class="btn btn-secondary mt-4">Volver al Menú Principal</a>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

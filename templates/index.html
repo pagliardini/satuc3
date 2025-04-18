@@ -14,17 +14,16 @@
         <li class="list-group-item">
             <a href="{{ url_for('productos.productos_index') }}" class="btn btn-link">📋 Gestión de Productos</a>
         </li>
+
+        <!-- Menú para Tipos, Marcas y Modelos -->
         <li class="list-group-item">
-            <a href="{{ url_for('productos.add_producto') }}" class="btn btn-link">➕ Agregar Producto</a>
+            <a href="{{ url_for('mtm.add_tipo') }}" class="btn btn-link">➕ Agregar Tipo de Producto</a>
         </li>
         <li class="list-group-item">
-            <a href="{{ url_for('productos.add_tipo') }}" class="btn btn-link">➕ Agregar Tipo de Producto</a>
+            <a href="{{ url_for('mtm.add_marca') }}" class="btn btn-link">➕ Agregar Marca</a>
         </li>
         <li class="list-group-item">
-            <a href="{{ url_for('productos.add_marca') }}" class="btn btn-link">➕ Agregar Marca</a>
-        </li>
-        <li class="list-group-item">
-            <a href="{{ url_for('productos.add_modelo') }}" class="btn btn-link">➕ Agregar Modelo</a>
+            <a href="{{ url_for('mtm.add_modelo') }}" class="btn btn-link">➕ Agregar Modelo</a>
         </li>
 
         <!-- Menú para Lugares -->
