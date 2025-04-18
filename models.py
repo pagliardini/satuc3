@@ -33,7 +33,10 @@ class Producto(db.Model):
     tipo_id = db.Column(db.Integer, db.ForeignKey('tipos_productos.id'), nullable=False)
     marca_id = db.Column(db.Integer, db.ForeignKey('marcas.id'), nullable=False)
     modelo_id = db.Column(db.Integer, db.ForeignKey('modelos.id'), nullable=False)
+
     descripcion = db.Column(db.String(200), nullable=True)
     activo = db.Column(db.Boolean, default=True)
-    cantidad = db.Column(db.Integer, default=0)  # Agregar el campo cantidad con valor por defecto 0
+    cantidad = db.Column(db.Integer, default=0)  # Si es stockeable, este campo es válido
+
+    inventariable = db.Column(db.Boolean, default=True)  # Si es por unidad física con sticker
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)

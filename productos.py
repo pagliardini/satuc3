@@ -9,7 +9,6 @@ def productos_index():
     productos = Producto.query.all()
     return render_template('productos_list.html', productos=productos)
 
-# Ruta para agregar un nuevo producto
 @productos_bp.route('/add_producto', methods=['GET', 'POST'])
 def add_producto():
     tipos = TipoProducto.query.all()
@@ -21,24 +20,49 @@ def add_producto():
         marca_id = request.form['marca_id']
         modelo_id = request.form['modelo_id']
         descripcion = request.form.get('descripcion')
-        cantidad = request.form.get('cantidad', 0, type=int)  # Valor por defecto 0
+        cantidad = request.form.get('cantidad', 0, type=int)
+        inventariable = request.form.get('inventariable', 'off') == 'on'
         activo = request.form.get('activo', 'off') == 'on'
 
         if not tipo_id or not marca_id or not modelo_id:
             flash('Todos los campos son obligatorios.', 'error')
             return redirect(url_for('productos.add_producto'))
 
-        nuevo_producto = Producto(
-            tipo_id=tipo_id,
-            marca_id=marca_id,
-            modelo_id=modelo_id,
-            descripcion=descripcion,
-            cantidad=cantidad,  # Asignar el valor de cantidad
-            activo=activo
-        )
-        db.session.add(nuevo_producto)
+        # Si es inventariable y la cantidad es mayor a 1, crear múltiples registros
+        if inventariable:
+            if cantidad < 1:
+                flash('La cantidad debe ser al menos 1 para productos inventariables.', 'error')
+                return redirect(url_for('productos.add_producto'))
+
+            for _ in range(cantidad):
+                nuevo_producto = Producto(
+                    tipo_id=tipo_id,
+                    marca_id=marca_id,
+                    modelo_id=modelo_id,
+                    descripcion=descripcion,
+                    cantidad=1,  # Cada registro tiene cantidad 1
+                    inventariable=inventariable,
+                    activo=activo
+                )
+                db.session.add(nuevo_producto)
+
+            flash(f'{cantidad} productos inventariables creados exitosamente.', 'success')
+
+        # Si no es inventariable, crear un solo registro con la cantidad indicada
+        else:
+            nuevo_producto = Producto(
+                tipo_id=tipo_id,
+                marca_id=marca_id,
+                modelo_id=modelo_id,
+                descripcion=descripcion,
+                cantidad=cantidad,  # Se almacena la cantidad total
+                inventariable=inventariable,
+                activo=activo
+            )
+            db.session.add(nuevo_producto)
+            flash('Producto no inventariable creado exitosamente.', 'success')
+
         db.session.commit()
-        flash('Producto agregado exitosamente.', 'success')
         return redirect(url_for('productos.productos_index'))
 
     return render_template('add_producto.html', tipos=tipos, marcas=marcas, modelos=modelos)

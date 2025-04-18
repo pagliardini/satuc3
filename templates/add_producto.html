@@ -85,9 +85,21 @@
             <textarea name="descripcion" id="descripcion" class="form-control" rows="3" placeholder="Ej: Producto adicional o comentarios"></textarea>
         </div>
 
+        <!-- Checkbox para "Inventariable" -->
+        <div class="mb-3 form-check">
+            <input class="form-check-input" type="checkbox" id="inventariable" name="inventariable" checked>
+            <label class="form-check-label" for="inventariable">
+                Producto inventariable (se identificará por unidad física)
+            </label>
+        </div>
+
+        <!-- Campo de Cantidad -->
         <div class="mb-3">
             <label for="cantidad" class="form-label">Cantidad Inicial:</label>
-            <input type="number" name="cantidad" id="cantidad" class="form-control" value="0" min="0" required>
+            <input type="number" name="cantidad" id="cantidad" class="form-control" value="1" min="1" required>
+            <small class="form-text text-muted">
+                Si el producto es inventariable, se crearán registros individuales para cada unidad.
+            </small>
         </div>
 
         <!-- Checkbox para "Activo" -->
@@ -129,6 +141,20 @@
         setupDatalist('tipo_search', 'tipos_list', 'tipo_id');
         setupDatalist('marca_search', 'marcas_list', 'marca_id');
         setupDatalist('modelo_search', 'modelos_list', 'modelo_id');
+
+        const inventariableCheckbox = document.getElementById('inventariable');
+        const cantidadInput = document.getElementById('cantidad');
+
+        function toggleCantidad() {
+            if (inventariableCheckbox.checked) {
+                cantidadInput.setAttribute('min', '1'); // Asegurar que la cantidad mínima sea 1
+            } else {
+                cantidadInput.setAttribute('min', '0'); // Permitir cantidad 0 para no inventariables
+            }
+        }
+
+        inventariableCheckbox.addEventListener('change', toggleCantidad);
+        toggleCantidad();
     </script>
 
 </body>
