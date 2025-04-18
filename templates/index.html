@@ -10,8 +10,9 @@
     <h1 class="mb-4">📦 Bienvenido a SATUCC 3.0</h1>
     <p>Selecciona una opción del menú:</p>
     <ul class="list-group">
+        <!-- Menú para Productos -->
         <li class="list-group-item">
-            <a href="{{ url_for('productos.productos_index') }}" class="btn btn-link">📋 Lista de Productos</a>
+            <a href="{{ url_for('productos.productos_index') }}" class="btn btn-link">📋 Gestión de Productos</a>
         </li>
         <li class="list-group-item">
             <a href="{{ url_for('productos.add_producto') }}" class="btn btn-link">➕ Agregar Producto</a>
@@ -24,6 +25,17 @@
         </li>
         <li class="list-group-item">
             <a href="{{ url_for('productos.add_modelo') }}" class="btn btn-link">➕ Agregar Modelo</a>
+        </li>
+
+        <!-- Menú para Lugares -->
+        <li class="list-group-item">
+            <a href="{{ url_for('lugares.lugares_index') }}" class="btn btn-link">📍 Gestión de Lugares</a>
+        </li>
+        <li class="list-group-item">
+            <a href="{{ url_for('lugares.listar_sedes') }}" class="btn btn-link">📍 Gestionar Sedes</a>
+        </li>
+        <li class="list-group-item">
+            <a href="{{ url_for('lugares.listar_areas') }}" class="btn btn-link">📍 Gestionar Áreas</a>
         </li>
     </ul>
 </body>

@@ -30,7 +30,6 @@
                 <th>Fecha de Creación</th>
                 <th>Activo</th>
                 <th>Inventariable</th>
-                <th>Cantidad</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -45,7 +44,6 @@
                     <td>{{ producto.fecha_creacion.strftime('%d-%m-%Y %H:%M') }}</td>
                     <td>{{ 'Sí' if producto.activo else 'No' }}</td>
                     <td>{{ 'Sí' if producto.inventariable else 'No' }}</td>
-                    <td>{{ producto.cantidad }}</td>
                     <td>
                         <a href="{{ url_for('productos.edit_producto', id=producto.id) }}" class="btn btn-warning btn-sm">✏️ Editar</a>
                         <form action="{{ url_for('productos.delete_producto', id=producto.id) }}" method="POST" style="display:inline;">
