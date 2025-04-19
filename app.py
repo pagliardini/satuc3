@@ -3,6 +3,7 @@ from models import db
 from productos import productos_bp
 from lugares import lugares_bp
 from mtm import mtm_bp  # Importar el nuevo blueprint
+import os
 
 app = Flask(__name__)
 
@@ -25,5 +26,7 @@ def index():
 
 if __name__ == '__main__':
     with app.app_context():
+        print("Base de datos en uso:", os.path.abspath('database.db'))
+
         db.create_all()
     app.run(debug=True)
