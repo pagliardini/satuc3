@@ -4,9 +4,14 @@ from sqlalchemy import text
 
 def insertar_marcas():
     marcas = [
-        "HP", "Epson", "Canon", "Brother", "Samsung", "Xerox", "Lexmark", "Ricoh", 
-        "Kyocera", "Pantum", "OKI", "Sharp", "Dell", "Pekoko", "Prusa", "Creality", 
-        "Bambu Lab", "Elegoo", "Formlabs", "Konica Minolta"
+        "HP", "Epson", "Canon", "Brother", "Samsung", "Xerox", "Lexmark", "Ricoh",
+        "Kyocera", "Pantum", "OKI", "Sharp", "Dell", "Pekoko", "Prusa", "Creality",
+        "Bambu Lab", "Elegoo", "Formlabs", "Konica Minolta",
+        "Asus", "Behringer", "Cromax", "Energizer", "Genius", "Gigabyte",
+        "Global", "HDC", "Intelaid", "Kingston", "Lenovo", "LG", "Logitech",
+        "Magnum Tech", "Microsoft", "MSI", "Netmak", "Nisuta", "Noga", "Performance",
+        "Seisa", "Sennheiser", "Soundcraft", "Suono", "TP-Link", "Trust", "TRV",
+        "Ugreen", "Western Digital"
     ]
 
     with app.app_context():

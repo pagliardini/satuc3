@@ -16,18 +16,45 @@ def add_producto():
     modelos = Modelo.query.all()
 
     if request.method == 'POST':
-        tipo_id = request.form['tipo_id']
-        marca_id = request.form['marca_id']
-        modelo_id = request.form['modelo_id']
-        descripcion = request.form.get('descripcion')
-        inventariable = request.form.get('inventariable', 'off') == 'on'
-        activo = request.form.get('activo', 'off') == 'on'
+        # Detectar si es JSON o formulario
+        data = request.get_json() if request.is_json else request.form
 
-        if not tipo_id or not marca_id or not modelo_id:
-            flash('Todos los campos son obligatorios.', 'error')
-            return redirect(url_for('productos.add_producto'))
+        tipo_id = data.get('tipo_id')
+        marca_id = data.get('marca_id')
+        modelo_id = data.get('modelo_id')
+        descripcion = data.get('descripcion', '')
+        inventariable = data.get('inventariable', False)
+        activo = data.get('activo', False)
 
-        # Crear un registro para el producto
+        # Si viene desde formulario HTML, procesar los checkboxes
+        if not request.is_json:
+            inventariable = True if data.get('inventariable', 'off') == 'on' else False
+            activo = True if data.get('activo', 'off') == 'on' else False
+
+        errores = []
+
+        # Validaciones
+        if not tipo_id or not TipoProducto.query.get(tipo_id):
+            errores.append('Tipo de producto inválido o inexistente.')
+
+        if not marca_id or not Marca.query.get(marca_id):
+            errores.append('Marca inválida o inexistente.')
+
+        modelo = Modelo.query.get(modelo_id)
+        if not modelo:
+            errores.append('Modelo inexistente.')
+        elif str(modelo.marca_id) != str(marca_id):
+            errores.append('El modelo no corresponde a la marca seleccionada.')
+
+        if errores:
+            if request.is_json:
+                return {"success": False, "errors": errores}, 400
+            else:
+                for error in errores:
+                    flash(error, 'error')
+                return redirect(url_for('productos.add_producto'))
+
+        # Crear el producto
         nuevo_producto = Producto(
             tipo_id=tipo_id,
             marca_id=marca_id,
@@ -36,13 +63,18 @@ def add_producto():
             inventariable=inventariable,
             activo=activo
         )
+
         db.session.add(nuevo_producto)
         db.session.commit()
 
-        flash('Producto agregado exitosamente.', 'success')
-        return redirect(url_for('productos.productos_index'))
+        if request.is_json:
+            return {"success": True, "message": "Producto agregado exitosamente."}, 201
+        else:
+            flash('Producto agregado exitosamente.', 'success')
+            return redirect(url_for('productos.productos_index'))
 
     return render_template('add_producto.html', tipos=tipos, marcas=marcas, modelos=modelos)
+
 
 # Ruta para editar un producto
 @productos_bp.route('/edit_producto/<int:id>', methods=['GET', 'POST'])
