@@ -15,26 +15,14 @@
             <a href="{{ url_for('productos.productos_index') }}" class="btn btn-link">📋 Gestión de Productos</a>
         </li>
 
-        <!-- Menú para Tipos, Marcas y Modelos -->
+        <!-- Menú para Marcas, Tipos y Modelos -->
         <li class="list-group-item">
-            <a href="{{ url_for('mtm.add_tipo') }}" class="btn btn-link">➕ Agregar Tipo de Producto</a>
-        </li>
-        <li class="list-group-item">
-            <a href="{{ url_for('mtm.add_marca') }}" class="btn btn-link">➕ Agregar Marca</a>
-        </li>
-        <li class="list-group-item">
-            <a href="{{ url_for('mtm.add_modelo') }}" class="btn btn-link">➕ Agregar Modelo</a>
+            <a href="{{ url_for('mtm.mtm_index') }}" class="btn btn-link">📋 Gestión de Marcas, Tipos y Modelos</a>
         </li>
 
         <!-- Menú para Lugares -->
         <li class="list-group-item">
             <a href="{{ url_for('lugares.lugares_index') }}" class="btn btn-link">📍 Gestión de Lugares</a>
-        </li>
-        <li class="list-group-item">
-            <a href="{{ url_for('lugares.listar_sedes') }}" class="btn btn-link">📍 Gestionar Sedes</a>
-        </li>
-        <li class="list-group-item">
-            <a href="{{ url_for('lugares.listar_areas') }}" class="btn btn-link">📍 Gestionar Áreas</a>
         </li>
     </ul>
 </body>

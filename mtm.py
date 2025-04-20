@@ -1,79 +1,114 @@
 #DESDE AQUI SE GESTIONAN MARCAS, TIPOS Y MODELOS DE PRODUCTOS
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from models import db, TipoProducto, Marca, Modelo
 
 mtm_bp = Blueprint('mtm', __name__, url_prefix='/mtm')
 
+@mtm_bp.route('/', methods=['GET', 'POST'])
+def mtm_index():
+    marcas = Marca.query.all()
+    tipos = TipoProducto.query.all()
+    modelos = Modelo.query.all()
+    return render_template('mtm.html', marcas=marcas, tipos=tipos, modelos=modelos)
+
 # Ruta para agregar un nuevo tipo de producto
-@mtm_bp.route('/add_tipo', methods=['GET', 'POST'])
+@mtm_bp.route('/add_tipo', methods=['POST'])
 def add_tipo():
     if request.method == 'POST':
-        nombre = request.form.get('nombre')
+        data = request.get_json() if request.is_json else request.form
+        nombre = data.get('nombre')
 
-        if not nombre:
-            flash('El nombre del tipo es obligatorio.', 'error')
-            return redirect(url_for('mtm.add_tipo'))
+    if not nombre:
+        msg = 'El nombre del tipo es obligatorio.'
+        if request.is_json:
+            return jsonify({'error': msg}), 400
+        flash(msg, 'error')
+        return redirect(url_for('mtm.mtm_index'))
 
-        tipo_existente = TipoProducto.query.filter_by(nombre=nombre).first()
-        if tipo_existente:
-            flash('Este tipo de producto ya existe.', 'error')
-            return redirect(url_for('mtm.add_tipo'))
+    if TipoProducto.query.filter_by(nombre=nombre).first():
+        msg = 'El tipo de producto ya existe.'
+        if request.is_json:
+            return jsonify({'error': msg}), 409
+        flash(msg, 'error')
+        return redirect(url_for('mtm.mtm_index'))
 
-        nuevo_tipo = TipoProducto(nombre=nombre)
-        db.session.add(nuevo_tipo)
-        db.session.commit()
-        flash('Tipo de producto agregado exitosamente.', 'success')
-        return redirect(url_for('mtm.add_tipo'))
+    nuevo_tipo = TipoProducto(nombre=nombre)
+    db.session.add(nuevo_tipo)
+    db.session.commit()
 
-    tipos = TipoProducto.query.all()
-    return render_template('add_tipo.html', tipos=tipos)
+    if request.is_json:
+        return jsonify({'mensaje': 'Tipo agregado exitosamente.', 'id': nuevo_tipo.id}), 201
+
+    flash('Tipo agregado exitosamente.', 'success')
+    return redirect(url_for('mtm.mtm_index'))
 
 # Ruta para agregar una nueva marca
-@mtm_bp.route('/add_marca', methods=['GET', 'POST'])
+@mtm_bp.route('/add_marca', methods=['POST'])
 def add_marca():
-    if request.method == 'POST':
-        nombre = request.form.get('nombre')
+    data = request.get_json() if request.is_json else request.form
+    nombre = data.get('nombre')
 
-        if not nombre:
-            flash('El nombre de la marca es obligatorio.', 'error')
-            return redirect(url_for('mtm.add_marca'))
+    if not nombre:
+        msg = 'El nombre de la marca es obligatorio.'
+        if request.is_json:
+            return jsonify({'error': msg}), 400
+        flash(msg, 'error')
+        return redirect(url_for('mtm.mtm_index'))
 
-        marca_existente = Marca.query.filter_by(nombre=nombre).first()
-        if marca_existente:
-            flash('Esta marca ya existe.', 'error')
-            return redirect(url_for('mtm.add_marca'))
+    if Marca.query.filter_by(nombre=nombre).first():
+        msg = 'Esta marca ya existe.'
+        if request.is_json:
+            return jsonify({'error': msg}), 409
+        flash(msg, 'error')
+        return redirect(url_for('mtm.mtm_index'))
 
-        nueva_marca = Marca(nombre=nombre)
-        db.session.add(nueva_marca)
-        db.session.commit()
-        flash('Marca agregada exitosamente.', 'success')
-        return redirect(url_for('mtm.add_marca'))
+    nueva_marca = Marca(nombre=nombre)
+    db.session.add(nueva_marca)
+    db.session.commit()
 
-    marcas = Marca.query.all()
-    return render_template('add_marca.html', marcas=marcas)
+    if request.is_json:
+        return jsonify({'mensaje': 'Marca agregada exitosamente.', 'id': nueva_marca.id}), 201
+
+    flash('Marca agregada exitosamente.', 'success')
+    return redirect(url_for('mtm.mtm_index'))
 
 # Ruta para agregar un nuevo modelo
-@mtm_bp.route('/add_modelo', methods=['GET', 'POST'])
+@mtm_bp.route('/add_modelo', methods=['POST'])
 def add_modelo():
-    marcas = Marca.query.all()
+    data = request.get_json() if request.is_json else request.form
+    nombre = data.get('nombre')
+    marca_id = data.get('marca_id')
 
-    if request.method == 'POST':
-        marca_id = request.form['marca_id']
-        nombre = request.form.get('nombre')
+    if not nombre or not marca_id:
+        msg = 'Todos los campos son obligatorios.'
+        if request.is_json:
+            return jsonify({'error': msg}), 400
+        flash(msg, 'error')
+        return redirect(url_for('mtm.mtm_index'))
 
-        if not nombre or not marca_id:
-            flash('Todos los campos son obligatorios.', 'error')
-            return redirect(url_for('mtm.add_modelo'))
+    if not Marca.query.get(marca_id):
+        msg = 'Marca no válida.'
+        if request.is_json:
+            return jsonify({'error': msg}), 404
+        flash(msg, 'error')
+        return redirect(url_for('mtm.mtm_index'))
 
-        modelo_existente = Modelo.query.filter_by(nombre=nombre, marca_id=marca_id).first()
-        if modelo_existente:
-            flash('Este modelo ya existe para la marca seleccionada.', 'error')
-            return redirect(url_for('mtm.add_modelo'))
+    modelo_existente = Modelo.query.filter_by(nombre=nombre, marca_id=marca_id).first()
+    if modelo_existente:
+        msg = 'Este modelo ya existe para la marca seleccionada.'
+        if request.is_json:
+            return jsonify({'error': msg}), 409
+        flash(msg, 'error')
+        return redirect(url_for('mtm.mtm_index'))
 
-        nuevo_modelo = Modelo(nombre=nombre, marca_id=marca_id)
-        db.session.add(nuevo_modelo)
-        db.session.commit()
-        flash('Modelo agregado exitosamente.', 'success')
-        return redirect(url_for('mtm.add_modelo'))
+    nuevo_modelo = Modelo(nombre=nombre, marca_id=marca_id)
+    db.session.add(nuevo_modelo)
+    db.session.commit()
 
-    return render_template('add_modelo.html', marcas=marcas)
+    if request.is_json:
+        return jsonify({'mensaje': 'Modelo agregado exitosamente.', 'id': nuevo_modelo.id}), 201
+
+    flash('Modelo agregado exitosamente.', 'success')
+    return redirect(url_for('mtm.mtm_index'))
+
+
