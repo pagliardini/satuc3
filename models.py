@@ -44,15 +44,41 @@ class Sede(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False, unique=True)
-    areas = db.relationship('Area', backref='sede', lazy=True)
+
+    unidades_organizativas = db.relationship('UnidadOrganizativa', back_populates='sede', lazy=True)
+
+class UnidadOrganizativa(db.Model):
+    __tablename__ = 'unidades_organizativas'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    sede_id = db.Column(db.Integer, db.ForeignKey('sedes.id'), nullable=False)
+
+    sede = db.relationship('Sede', back_populates='unidades_organizativas')
+    areas = db.relationship('Area', back_populates='unidad_organizativa', lazy=True)
+
+    __table_args__ = (
+        db.UniqueConstraint('nombre', 'sede_id', name='uq_unidad_sede'),
+    )
 
 class Area(db.Model):
     __tablename__ = 'areas'
 
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
-    sede_id = db.Column(db.Integer, db.ForeignKey('sedes.id'), nullable=False)
+    unidad_organizativa_id = db.Column(db.Integer, db.ForeignKey('unidades_organizativas.id'), nullable=False)
 
+    unidad_organizativa = db.relationship('UnidadOrganizativa', back_populates='areas')
+
+    @property
+    def sede(self):
+        return self.unidad_organizativa.sede
+
+    __table_args__ = (
+        db.UniqueConstraint('nombre', 'unidad_organizativa_id', name='uq_area_unidad'),
+    )
+
+    
 class StockUbicacion(db.Model):
     __tablename__ = 'stock_ubicacion'
 
