@@ -1,4 +1,4 @@
-from models import db, Marca, Modelo, TipoProducto, Sede, Area
+from models import db, Marca, Modelo, TipoProducto, Sede, Area, UnidadOrganizativa
 from app import app
 from sqlalchemy import text
 
@@ -80,30 +80,62 @@ def insertar_tipos():
 
         db.session.commit()
 
-def insertar_sedes_y_areas():
-    sedes = ["Campus", "Trejo", "Medicina", "Río IV"]
-    areas_por_sede = ["Administración", "Laboratorio", "Biblioteca", "Aulas"]
+def insertar_sedes_unidades_y_areas():
+    sedes_y_datos = {
+        "Campus": {
+            "Administración": ["Recursos Humanos", "Finanzas"],
+            "Laboratorio": ["Química", "Física"],
+            "Biblioteca": ["Lectura", "Archivo"],
+            "Aulas": ["Aula 1", "Aula 2"]
+        },
+        "Trejo": {
+            "Recepción": ["Atención al Cliente"],
+            "Contabilidad": ["Pagos", "Cobros"],
+            "Investigación": ["Proyectos", "Publicaciones"],
+            "Salas de Reunión": ["Sala 1", "Sala 2"]
+        },
+        "Medicina": {
+            "Consultorios": ["Pediatría", "Cardiología"],
+            "Laboratorio Clínico": ["Hematología", "Microbiología"],
+            "Farmacia": ["Medicamentos", "Control"],
+            "Aulas": ["Aula 1", "Aula 2"]
+        },
+        "Río IV": {
+            "Oficinas": ["Administración", "Soporte Técnico"],
+            "Laboratorio de Física": ["Mecánica", "Óptica"],
+            "Biblioteca": ["Lectura", "Archivo"],
+            "Aulas": ["Aula 1", "Aula 2"]
+        }
+    }
 
     with app.app_context():
-        for sede_nombre in sedes:
-            existing_sede = Sede.query.filter_by(nombre=sede_nombre).first()
-            if not existing_sede:
-                nueva_sede = Sede(nombre=sede_nombre)
-                db.session.add(nueva_sede)
-                db.session.commit()  # Confirmar para obtener el ID de la sede
+        for sede_nombre, unidades in sedes_y_datos.items():
+            # Insertar sede
+            sede = Sede.query.filter_by(nombre=sede_nombre).first()
+            if not sede:
+                sede = Sede(nombre=sede_nombre)
+                db.session.add(sede)
+                db.session.commit()
                 print(f"Sede '{sede_nombre}' insertada correctamente.")
-            else:
-                nueva_sede = existing_sede
-                print(f"La sede '{sede_nombre}' ya existe.")
 
-            for area_nombre in areas_por_sede:
-                existing_area = Area.query.filter_by(nombre=area_nombre, sede_id=nueva_sede.id).first()
-                if not existing_area:
-                    nueva_area = Area(nombre=area_nombre, sede_id=nueva_sede.id)
-                    db.session.add(nueva_area)
-                    print(f"Área '{area_nombre}' insertada en la sede '{sede_nombre}'.")
-                else:
-                    print(f"El área '{area_nombre}' ya existe en la sede '{sede_nombre}'.")
+            for unidad_nombre, areas in unidades.items():
+                # Insertar unidad organizativa
+                unidad = UnidadOrganizativa.query.filter_by(nombre=unidad_nombre, sede_id=sede.id).first()
+                if not unidad:
+                    unidad = UnidadOrganizativa(nombre=unidad_nombre, sede_id=sede.id)
+                    db.session.add(unidad)
+                    db.session.commit()
+                    print(f"Unidad Organizativa '{unidad_nombre}' insertada en la sede '{sede_nombre}'.")
+
+                for area_nombre in areas:
+                    # Insertar área
+                    area = Area.query.filter_by(nombre=area_nombre, unidad_organizativa_id=unidad.id).first()
+                    if not area:
+                        area = Area(nombre=area_nombre, unidad_organizativa_id=unidad.id)
+                        db.session.add(area)
+                        print(f"Área '{area_nombre}' insertada en la Unidad Organizativa '{unidad_nombre}'.")
+                    else:
+                        print(f"El área '{area_nombre}' ya existe en la Unidad Organizativa '{unidad_nombre}'.")
 
         db.session.commit()
 
@@ -111,4 +143,4 @@ if __name__ == '__main__':
     insertar_marcas()
     insertar_modelos()
     insertar_tipos()
-    insertar_sedes_y_areas()
+    insertar_sedes_unidades_y_areas()
