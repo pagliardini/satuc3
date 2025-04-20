@@ -90,10 +90,15 @@
                     <div class="card-body">
                         <ul class="list-group mb-3">
                             {% for area in areas %}
-                                <li class="list-group-item">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
                                     {{ area.nombre }}  
                                     — <span class="text-muted">{{ area.unidad_organizativa.nombre }}</span> 
                                     ({{ area.sede.nombre }})
+                                    <form action="{{ url_for('lugares.set_deposito', area_id=area.id) }}" method="POST" class="ms-3">
+                                        <button type="submit" class="btn btn-sm {{ 'btn-success' if area.es_deposito else 'btn-outline-secondary' }}">
+                                            {{ 'Depósito' if area.es_deposito else 'Marcar como Depósito' }}
+                                        </button>
+                                    </form>
                                 </li>
                             {% endfor %}
                         </ul>

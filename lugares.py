@@ -117,3 +117,17 @@ def add_area():
 
     flash('Área agregada exitosamente.', 'success')
     return redirect(url_for('lugares.lugares_index'))
+
+@lugares_bp.route('/set_deposito/<int:area_id>', methods=['POST'])
+def set_deposito(area_id):
+    # Desmarcar cualquier área previamente marcada como depósito
+    Area.query.update({Area.es_deposito: False})
+    db.session.commit()
+
+    # Marcar el área seleccionada como depósito
+    area = Area.query.get_or_404(area_id)
+    area.es_deposito = True
+    db.session.commit()
+
+    flash(f"El área '{area.nombre}' ha sido marcada como depósito.", 'success')
+    return redirect(url_for('lugares.lugares_index'))

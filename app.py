@@ -2,7 +2,8 @@ from flask import Flask, render_template
 from models import db
 from productos import productos_bp
 from lugares import lugares_bp
-from mtm import mtm_bp  # Importar el nuevo blueprint
+from mtm import mtm_bp
+from stock import stock_bp  # Importar el nuevo blueprint
 import os
 
 app = Flask(__name__)
@@ -18,7 +19,8 @@ db.init_app(app)
 # Registrar blueprints
 app.register_blueprint(productos_bp)
 app.register_blueprint(lugares_bp)
-app.register_blueprint(mtm_bp)  # Registrar el blueprint de mtm
+app.register_blueprint(mtm_bp)
+app.register_blueprint(stock_bp)  # Registrar el blueprint de stock
 
 @app.route('/')
 def index():
