@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Inventario por Área{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Inventario por Área</h1>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Área</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock, producto, area in inventario %}
+                <tr>
+                    <td>{{ area.nombre }}</td>
+                    <td>{{ producto.nombre_completo }}</td>
+                    <td>{{ stock.cantidad }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('stock.stock_index') }}" class="btn btn-secondary mt-4">Volver a Gestión de Stock</a>
+</div>
+{% endblock %}
