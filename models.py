@@ -34,19 +34,14 @@ class Producto(db.Model):
     inventariable = db.Column(db.Boolean, default=True)  # Si es por unidad física con sticker
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
 
-    stock_ubicaciones = db.relationship('StockUbicacion', backref='producto', lazy=True)
-
     @property
     def nombre_completo(self):
         """Propiedad calculada que concatena marca, modelo y descripción."""
+        tipo = self.tipo.nombre if self.tipo else "Sin Tipo" 
         marca = self.marca.nombre if self.marca else "Sin Marca"
         modelo = self.modelo.nombre if self.modelo else "Sin Modelo"
         descripcion = f" - {self.descripcion}" if self.descripcion else ""
-        return f"{marca} {modelo}{descripcion}"
-
-    __table_args__ = (
-        db.UniqueConstraint('marca_id', 'modelo_id', name='uq_marca_modelo'),
-    )
+        return f"{tipo} {marca} {modelo}{descripcion}"
 
 class Sede(db.Model):
     __tablename__ = 'sedes'
@@ -88,12 +83,13 @@ class Area(db.Model):
 class StockUbicacion(db.Model):
     __tablename__ = 'stock_ubicacion'
     id = db.Column(db.Integer, primary_key=True)
-    producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
     area_id = db.Column(db.Integer, db.ForeignKey('areas.id'), nullable=False)
     cantidad = db.Column(db.Integer, nullable=False, default=0)
+    producto_nombre = db.Column(db.String(200), nullable=False)  # Nombre del producto (marca, modelo, etc.)
+    codigo = db.Column(db.String(50), nullable=False)  # Código único para identificar el producto en la ubicación
 
     __table_args__ = (
-        db.UniqueConstraint('producto_id', 'area_id', name='uq_producto_area'),
+        db.UniqueConstraint('area_id', 'codigo', name='uq_area_codigo'),  # Restricción única por área y código
     )
 
 class MovimientoStock(db.Model):

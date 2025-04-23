@@ -14,6 +14,13 @@ def add_stock():
     productos = Producto.query.all()
     areas = Area.query.all()
 
+    # Obtener el último código generado para productos inventariables
+    ultimo_codigo = db.session.query(db.func.max(StockUbicacion.codigo)).scalar()
+    if not ultimo_codigo:
+        ultimo_codigo = 500  # Comenzar desde 500 si no hay registros previos
+    else:
+        ultimo_codigo = int(ultimo_codigo)
+
     if request.method == 'POST':
         producto_id = request.form['producto_id']
         area_id = request.form['area_id']
@@ -23,26 +30,42 @@ def add_stock():
         producto = Producto.query.get_or_404(producto_id)
         area = Area.query.get_or_404(area_id)
 
-        # Registrar stock en el área
-        stock_existente = StockUbicacion.query.filter_by(
-            producto_id=producto_id,
-            area_id=area_id
-        ).first()
+        # Obtener el nombre completo del producto
+        producto_nombre = producto.nombre_completo
 
-        if stock_existente:
-            stock_existente.cantidad += cantidad
+        if producto.inventariable:
+            # Generar registros individuales para cada unidad
+            for _ in range(cantidad):
+                ultimo_codigo += 1
+                stock = StockUbicacion(
+                    area_id=area_id,
+                    producto_nombre=producto_nombre,
+                    codigo=str(ultimo_codigo),  # Generar código único
+                    cantidad=1  # Cada registro representa una unidad
+                )
+                db.session.add(stock)
         else:
-            stock_existente = StockUbicacion(
-                producto_id=producto_id,
+            # Crear un solo registro con la cantidad total
+            stock_existente = StockUbicacion.query.filter_by(
                 area_id=area_id,
-                cantidad=cantidad
-            )
-            db.session.add(stock_existente)
+                producto_nombre=producto_nombre
+            ).first()
+
+            if stock_existente:
+                stock_existente.cantidad += cantidad
+            else:
+                stock = StockUbicacion(
+                    area_id=area_id,
+                    producto_nombre=producto_nombre,
+                    codigo=str(ultimo_codigo + 1),  # Generar un código único
+                    cantidad=cantidad
+                )
+                db.session.add(stock)
 
         db.session.commit()
 
         # Mensaje flash
-        flash(f'Se registraron {cantidad} unidades del producto "{producto.nombre_completo}" en el área "{area.nombre}".', 'success')
+        flash(f'Se registraron {cantidad} unidades del producto "{producto_nombre}" en el área "{area.nombre}".', 'success')
 
         # Redirigir a la misma página
         return redirect(url_for('stock.add_stock'))
@@ -54,10 +77,8 @@ def inventario():
     # Consulta el inventario agrupado por área
     inventario = db.session.query(
         StockUbicacion,
-        Producto,
         Area
-    ).join(Producto, StockUbicacion.producto_id == Producto.id)\
-     .join(Area, StockUbicacion.area_id == Area.id)\
-     .order_by(Area.nombre, Producto.marca_id, Producto.modelo_id).all()
+    ).join(Area, StockUbicacion.area_id == Area.id)\
+     .order_by(Area.nombre, StockUbicacion.producto_nombre).all()
 
     return render_template('inventario.html', inventario=inventario)

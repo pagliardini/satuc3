@@ -46,10 +46,10 @@ def add_producto():
         elif str(modelo.marca_id) != str(marca_id):
             errores.append('El modelo no corresponde a la marca seleccionada.')
 
-        # Validar unicidad de marca y modelo
-        producto_existente = Producto.query.filter_by(marca_id=marca_id, modelo_id=modelo_id).first()
-        if producto_existente:
-            errores.append('Ya existe un producto con esta combinación de marca y modelo.')
+        # Eliminar validación de unicidad
+        # producto_existente = Producto.query.filter_by(marca_id=marca_id, modelo_id=modelo_id).first()
+        # if producto_existente:
+        #     errores.append('Ya existe un producto con esta combinación de marca y modelo.')
 
         if errores:
             if request.is_json:

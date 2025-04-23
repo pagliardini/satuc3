@@ -100,12 +100,14 @@
                     <ul class="list-group mb-3" id="areas-list">
                         {% for area in areas %}
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                {{ area.nombre }}  
-                                — <span class="text-muted">{{ area.unidad_organizativa.nombre }}</span> 
-                                ({{ area.sede.nombre }})
+                                <div class="text-truncate">
+                                    {{ area.nombre }}
+                                    — <span class="text-muted">{{ area.unidad_organizativa.nombre }}</span>
+                                    ({{ area.sede.nombre }})
+                                </div>
                                 <form action="{{ url_for('lugares.set_deposito', area_id=area.id) }}" method="POST" class="ms-3">
-                                    <button type="submit" class="btn btn-sm {{ 'btn-success' if area.es_deposito else 'btn-outline-secondary' }}">
-                                        {{ 'Depósito' if area.es_deposito else 'Marcar como Depósito' }}
+                                    <button type="submit" class="btn btn-link p-0" title="Toggle Depósito">
+                                        <i class="fas fa-warehouse fs-6 {{ 'text-success' if area.es_deposito else 'text-secondary' }}"></i>
                                     </button>
                                 </form>
                             </li>
@@ -144,40 +146,54 @@
     </div>
 </div>
 
+<!-- Agregar el estilo CSS -->
+<style>
+    .hidden {
+        display: none !important;
+    }
+</style>
+
 <script>
-    function paginateList(listId, paginationId, itemsPerPage) {
-        const list = document.getElementById(listId);
-        const pagination = document.getElementById(paginationId);
-        const items = Array.from(list.children);
-        const totalPages = Math.ceil(items.length / itemsPerPage);
+    document.addEventListener('DOMContentLoaded', () => {
+        function paginateList(listId, paginationId, itemsPerPage) {
+            const list = document.getElementById(listId);
+            const pagination = document.getElementById(paginationId);
+            const items = Array.from(list.children);
+            const totalPages = Math.ceil(items.length / itemsPerPage);
 
-        function showPage(page) {
-            const start = (page - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
+            function showPage(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
 
-            items.forEach((item, index) => {
-                item.style.display = index >= start && index < end ? 'block' : 'none';
-            });
-
-            pagination.innerHTML = '';
-            for (let i = 1; i <= totalPages; i++) {
-                const li = document.createElement('li');
-                li.className = `page-item ${i === page ? 'active' : ''}`;
-                li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-                li.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    showPage(i);
+                items.forEach((item, index) => {
+                    // Usar clase hidden para ocultar elementos
+                    if (index >= start && index < end) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
                 });
-                pagination.appendChild(li);
+
+                pagination.innerHTML = '';
+                for (let i = 1; i <= totalPages; i++) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${i === page ? 'active' : ''}`;
+                    li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                    li.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        showPage(i);
+                    });
+                    pagination.appendChild(li);
+                }
             }
+
+            showPage(1);
         }
 
-        showPage(1);
-    }
-
-    // Inicializar paginación para cada lista
-    paginateList('sedes-list', 'sedes-pagination', 10);
-    paginateList('uo-list', 'uo-pagination', 10);
-    paginateList('areas-list', 'areas-pagination', 10);
+        // Inicializar paginación para cada lista
+        paginateList('sedes-list', 'sedes-pagination', 10);
+        paginateList('uo-list', 'uo-pagination', 10);
+        paginateList('areas-list', 'areas-pagination', 10);
+    });
 </script>
 {% endblock %}

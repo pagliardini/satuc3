@@ -9,18 +9,21 @@
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>Codigo</th>
                 <th>Área</th>
                 <th>Producto</th>
                 <th>Cantidad</th>
             </tr>
         </thead>
         <tbody>
-            {% for stock, producto, area in inventario %}
+            {% for stock, area in inventario %}
                 <tr>
+                    <td>{{ stock.codigo }}</td>
                     <td>{{ area.nombre }}</td>
-                    <td>{{ producto.nombre_completo }}</td>
+                    <td>{{ stock.producto_nombre }}</td>
                     <td>{{ stock.cantidad }}</td>
                 </tr>
+                
             {% endfor %}
         </tbody>
     </table>
