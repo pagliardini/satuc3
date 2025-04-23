@@ -11,7 +11,7 @@ def insertar_marcas():
         "Global", "HDC", "Intelaid", "Kingston", "Lenovo", "LG", "Logitech",
         "Magnum Tech", "Microsoft", "MSI", "Netmak", "Nisuta", "Noga", "Performance",
         "Seisa", "Sennheiser", "Soundcraft", "Suono", "TP-Link", "Trust", "TRV",
-        "Ugreen", "Western Digital"
+        "Ugreen", "Western Digital", "Genérico", "Sin Marca", "Nvidia", "AMD",
     ]
 
     with app.app_context():
@@ -28,24 +28,83 @@ def insertar_marcas():
 
 def insertar_modelos():
     modelos = {
-    "HP": [
-        "LaserJet Pro", "DeskJet", "OfficeJet", "Envy", "Pavilion", "Omen", "EliteBook", "Spectre", "X360", "ProBook",
-        "PageWide", "DesignJet", "Color LaserJet", "LaserJet Enterprise", "LaserJet MFP", "HP 200", "HP 400",
-        "HP LaserJet M", "HP DeskJet Plus", "HP All-in-One", "HP LaserJet Pro MFP", "HP Color LaserJet Pro", "HP Smart Tank",
-        "HP Neverstop", "HP LaserJet Pro M15", "HP LaserJet Pro M28", "HP OfficeJet Pro 9015", "HP OfficeJet Pro 8025",
-        "HP LaserJet 100", "HP Smart Ink", "HP Tango", "HP PageWide Pro", "HP Ink Tank", "HP InkJet", "HP LaserJet Enterprise MFP",
-        "HP OfficeJet 200", "HP OfficeJet 250", "HP DesignJet T730", "HP DesignJet T830", "HP DesignJet T650", "HP DesignJet T1600",
-        "HP Envy Inspire", "HP EliteDesk", "HP Spectre x360 Convertible", "HP Chromebook", "HP Pavilion x360", "HP Envy x360",
-        "HP Spectre Folio", "HP EliteOne", "HP TouchSmart", "HP DeskJet Ink Advantage", "HP LaserJet Pro P1102", "HP LaserJet Pro MFP M130",
-        "HP PageWide Pro 477dw", "HP LaserJet Pro MFP M281fdw", "HP LaserJet Pro M255dw", "HP OfficeJet 8012",
-        "HP OfficeJet 3830", "HP LaserJet Pro M404n", "HP LaserJet MFP M428fdw", "HP Tango X", "HP OfficeJet 250 All-in-One",
-        "HP LaserJet 107w", "HP LaserJet MFP M479fdw", "HP LaserJet Pro M406dn"],
-        "Epson": ["EcoTank", "WorkForce", "Expression"],
-        "Canon": ["PIXMA", "imageCLASS", "MAXIFY"],
+"HP": [
+    "Color Laser 150a",
+    "Color Laser 150nw",
+    "Color Laser MFP 178nw",
+    "Color Laser MFP 179fnw",
+    "Color LaserJet 2600n",
+    "Color LaserJet CM1312 MFP",
+    "Color LaserJet CP1215",
+    "Color LaserJet CP1515n",
+    "Color LaserJet Pro CP1025nw",
+    "Color LaserJet Pro M252dw",
+    "Color LaserJet Pro M254dw",
+    "Color LaserJet Pro M254nw",
+    "Color LaserJet Pro M277dw",
+    "Color LaserJet Pro M277n",
+    "Color LaserJet Pro M452dn",
+    "Color LaserJet Pro M452nw",
+    "Color LaserJet Pro M477fdn",
+    "Color LaserJet Pro M477fdw",
+    "Color LaserJet Pro M477fnw",
+    "Color LaserJet Pro M479dw",
+    "Color LaserJet Pro M479fdn",
+    "Color LaserJet Pro MFP M180n",
+    "Color LaserJet Pro MFP M282nw",
+    "Color LaserJet Pro MFP M283fdn",
+    "LaserJet 1018",
+    "LaserJet 1020",
+    "LaserJet 1320",
+    "LaserJet M1212NF MFP",
+    "LaserJet P1005",
+    "LaserJet P1006",
+    "LaserJet P1606dn",
+    "LaserJet P2035",
+    "LaserJet P2055dn",
+    "LaserJet Pro 100 Color MFP M175nw (CE866A)",
+    "LaserJet Pro M102a",
+    "LaserJet Pro M102w",
+    "LaserJet Pro M118dw",
+    "LaserJet Pro M12w",
+    "LaserJet Pro M130fw",
+    "LaserJet Pro M1536DNF",
+    "LaserJet Pro M15a",
+    "LaserJet Pro M15w",
+    "LaserJet Pro M203dn",
+    "LaserJet Pro M203dw",
+    "LaserJet Pro M28w",
+    "LaserJet Pro M404dn (W1A53A)",
+    "LaserJet Pro M426fdn",
+    "LaserJet Pro M501n",
+    "LaserJet Pro MFP M125nw",
+    "LaserJet Pro MFP M127fn",
+    "LaserJet Pro MFP M127fw",
+    "LaserJet Pro MFP M148dw",
+    "LaserJet Pro MFP M148fdw",
+    "LaserJet Pro MFP M176n",
+    "LaserJet Pro MFP M177fw",
+    "LaserJet Pro MFP M26a",
+    "LaserJet Pro MFP M26nw",
+    "LaserJet Pro MFP M428dw (W1A28A)",
+    "LaserJet Pro MFP M428fdn (W1A29A)"
+],
+        "Epson": ["EcoTank", "WorkForce", "Expression", "SureColor", "L-Series"],
+        "Lexmark": ["B2236dw", "MB2236adw", "C3224dw", "C3326dw", "C3326adw"],
+        "Canon": ["PIXMA", "imageCLASS", "MAXIFY", "imagePROGRAF", "SELPHY"],
+        "Ricoh": ["SP C261DNW", "SP C360DNW", "SP C440DNW", "MP C307", "MP C4504"],
         "Brother": ["HL-L2350DW", "MFC-L2710DW", "DCP-T720DW"],
         "Samsung": ["ProXpress", "MultiXpress", "CLP-680"],
-        "Xerox": ["VersaLink", "WorkCentre", "AltaLink"]
-    }
+        "Xerox": ["VersaLink", "WorkCentre", "AltaLink"],
+
+#Placas de Video
+
+        "Nvidia": [
+        "GT 710", "GT 730", "GT 1030", "GTX 750 Ti", "GTX 1050", "GTX 1050 Ti",
+        "GTX 1060", "GTX 1070", "GTX 1080", "GTX 1650", "GTX 1660", "GTX 1660 Ti",
+        "RTX 2060", "RTX 2070", "RTX 2080", "RTX 3060", "RTX 3070", "RTX 3080",
+        "RTX 3090", "RTX 4060", "RTX 4070", "RTX 4080", "RTX 4090"]
+                }
 
     with app.app_context():
         for marca_nombre, modelos_lista in modelos.items():
@@ -66,7 +125,18 @@ def insertar_modelos():
         db.session.commit()
 
 def insertar_tipos():
-    tipos = ["Impresora", "UPS", "Notebook", "PC", "Insumos"]
+    tipos = [
+    "Impresora", "UPS", "Notebook", "PC", "Insumos",
+    "Monitor", "Teclado", "Mouse", "Combo (Mouse + Teclado)", 
+    "Parlantes", "Auriculares", "Webcam", "Pad Mouse",
+    "Pilas", "Baterías", "Cargador", "Fuente de PC",
+    "Cartucho", "Proyector", "Pantalla de proyección",
+    "Adaptador", "Extensor USB", "Cable HDMI", "Cable VGA",
+    "Cable Power", "Patchcord / Cable de red", "Hub / Dock USB",
+    "Puntero Láser", "Placa de Video", "Placa WiFi",
+    "Memoria RAM", "Disco SSD", "Disco HDD", "Zapatilla",
+    "Licencia / Software", "Herramienta / Accesorio"
+]
 
     with app.app_context():
         for tipo_nombre in tipos:
