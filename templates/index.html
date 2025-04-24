@@ -4,7 +4,186 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4">📦 Bienvenido a SATUCC 3.0</h1>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.</p>
+    <h1 class="mb-4 text-center">📦 Bienvenido a SATUCC 3.0</h1>
+
+    <!-- Resumen del Dashboard -->
+    <div class="container">
+        <div class="row mb-4">
+            <!-- Stock Crítico -->
+            <div class="col-md-3">
+                <div class="card border-danger">
+                    <div class="card-header bg-danger text-white">
+                        Stock Crítico
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Pilas AA
+                                <span class="badge bg-danger">5 unidades</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Cartuchos de tinta
+                                <span class="badge bg-danger">2 unidades</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Papel A4
+                                <span class="badge bg-danger">10 paquetes</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipos en Reparación -->
+            <div class="col-md-3">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        Equipos en Reparación
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Laptop Dell XPS 13
+                                <span class="badge bg-warning text-dark">En taller</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Impresora HP LaserJet
+                                <span class="badge bg-warning text-dark">Pendiente diagnóstico</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Monitor Samsung 24"
+                                <span class="badge bg-warning text-dark">Reparación en curso</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compras Recientes o Pendientes -->
+            <div class="col-md-3">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        Compras Recientes o Pendientes
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Teclados Logitech
+                                <span class="badge bg-info text-white">Recibido</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Mouses inalámbricos
+                                <span class="badge bg-info text-white">Pendiente</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Sillas ergonómicas
+                                <span class="badge bg-info text-white">En tránsito</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Últimos Movimientos -->
+            <div class="col-md-3">
+                <div class="card border-secondary">
+                    <div class="card-header bg-secondary text-white">
+                        Últimos Movimientos
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Transferencia: Oficina A → Oficina B
+                                <span class="badge bg-secondary text-white">5 unidades</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Entrada: Pilas AA
+                                <span class="badge bg-secondary text-white">20 unidades</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Salida: Cartuchos de tinta
+                                <span class="badge bg-secondary text-white">3 unidades</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Widgets con gráficos -->
+        <div class="row">
+            <!-- Gráfico de Stock -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        Gráfico de Stock
+                    </div>
+                    <div class="card-body">
+                        <canvas id="stockChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico de Movimientos -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        Gráfico de Movimientos
+                    </div>
+                    <div class="card-body">
+                        <canvas id="movimientosChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Agregar Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Stock
+    const stockCtx = document.getElementById('stockChart').getContext('2d');
+    const stockChart = new Chart(stockCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Pilas AA', 'Cartuchos de tinta', 'Papel A4'],
+            datasets: [{
+                label: 'Cantidad',
+                data: [5, 2, 10],
+                backgroundColor: ['#dc3545', '#dc3545', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                title: { display: true, text: 'Stock Crítico' }
+            }
+        }
+    });
+
+    // Gráfico de Movimientos
+    const movimientosCtx = document.getElementById('movimientosChart').getContext('2d');
+    const movimientosChart = new Chart(movimientosCtx, {
+        type: 'line',
+        data: {
+            labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'],
+            datasets: [{
+                label: 'Movimientos',
+                data: [10, 15, 8, 12, 20],
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true },
+                title: { display: true, text: 'Movimientos Semanales' }
+            }
+        }
+    });
+</script>
 {% endblock %}

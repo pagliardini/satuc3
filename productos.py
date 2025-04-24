@@ -40,11 +40,7 @@ def add_producto():
         if not marca_id or not Marca.query.get(marca_id):
             errores.append('Marca inválida o inexistente.')
 
-        modelo = Modelo.query.get(modelo_id)
-        if not modelo:
-            errores.append('Modelo inexistente.')
-        elif str(modelo.marca_id) != str(marca_id):
-            errores.append('El modelo no corresponde a la marca seleccionada.')
+
 
         # Eliminar validación de unicidad
         # producto_existente = Producto.query.filter_by(marca_id=marca_id, modelo_id=modelo_id).first()

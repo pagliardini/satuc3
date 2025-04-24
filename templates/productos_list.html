@@ -19,7 +19,6 @@
     <table class="table table-bordered table-striped align-middle">
         <thead class="table-dark">
             <tr>
-                <th>ID</th>
                 <th>Tipo</th>
                 <th>Marca</th>
                 <th>Modelo</th>
@@ -33,7 +32,6 @@
         <tbody>
             {% for producto in productos %}
                 <tr>
-                    <td>{{ producto.id }}</td>
                     <td>{{ producto.tipo.nombre }}</td>
                     <td>{{ producto.marca.nombre }}</td>
                     <td>{{ producto.modelo.nombre }}</td>

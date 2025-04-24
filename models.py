@@ -95,14 +95,17 @@ class StockUbicacion(db.Model):
 class MovimientoStock(db.Model):
     __tablename__ = 'movimientos_stock'
     id = db.Column(db.Integer, primary_key=True)
-    producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
-    origen_area_id = db.Column(db.Integer, db.ForeignKey('areas.id'), nullable=True)
-    destino_area_id = db.Column(db.Integer, db.ForeignKey('areas.id'), nullable=True)
+    stock_origen_id = db.Column(db.Integer, db.ForeignKey('stock_ubicacion.id'), nullable=True)
+    stock_destino_id = db.Column(db.Integer, db.ForeignKey('stock_ubicacion.id'), nullable=True)
     cantidad = db.Column(db.Integer, nullable=False)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     observacion = db.Column(db.String(200), nullable=True)
 
-    producto = db.relationship('Producto', lazy=True)
-    origen_area = db.relationship('Area', foreign_keys=[origen_area_id], lazy=True)
-    destino_area = db.relationship('Area', foreign_keys=[destino_area_id], lazy=True)
+    stock_origen = db.relationship('StockUbicacion', foreign_keys=[stock_origen_id], lazy=True)
+    stock_destino = db.relationship('StockUbicacion', foreign_keys=[stock_destino_id], lazy=True)
+
+    @property
+    def producto(self):
+        """Propiedad útil para acceder al producto relacionado desde cualquiera de los stock involucrados"""
+        return self.stock_origen.producto if self.stock_origen else self.stock_destino.producto
 
