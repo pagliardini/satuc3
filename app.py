@@ -4,7 +4,10 @@ from productos import productos_bp
 from lugares import lugares_bp
 from mtm import mtm_bp
 from stock import stock_bp  # Importar el nuevo blueprint
+from api import api_bp  # Importar el blueprint de la API
+
 import os
+
 
 app = Flask(__name__)
 
@@ -21,6 +24,7 @@ app.register_blueprint(productos_bp)
 app.register_blueprint(lugares_bp)
 app.register_blueprint(mtm_bp)
 app.register_blueprint(stock_bp)  # Registrar el blueprint de stock
+app.register_blueprint(api_bp)  # Registrar el blueprint de la API
 
 @app.route('/')
 def index():
