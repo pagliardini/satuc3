@@ -9,9 +9,9 @@ def get_productos():
     productos_json = [
         {
             "id": producto.id,
-            "tipo_id": producto.tipo_id,
-            "marca_id": producto.marca_id,
-            "modelo_id": producto.modelo_id,
+            "tipo": producto.tipo.nombre,
+            "marca": producto.marca.nombre,
+            "modelo": producto.modelo.nombre,
             "descripcion": producto.descripcion,
             "inventariable": producto.inventariable,
             "activo": producto.activo,

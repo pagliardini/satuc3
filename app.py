@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+from flask_cors import CORS
 from models import db
 from productos import productos_bp
 from lugares import lugares_bp
@@ -10,6 +11,8 @@ import os
 
 
 app = Flask(__name__)
+CORS(app)  # Esto habilita CORS para todos los orígenes y rutas
+
 
 # Configuración de SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'

@@ -1,4 +1,4 @@
-from models import db, Marca, Modelo, TipoProducto, Sede, Area, UnidadOrganizativa
+from models import db, Marca, Modelo, TipoProducto, Sede, Area, UnidadOrganizativa, Producto
 from app import app
 from sqlalchemy import text
 
@@ -209,8 +209,45 @@ def insertar_sedes_unidades_y_areas():
 
         db.session.commit()
 
+def insertar_productos():
+    from random import choice, randint
+
+    with app.app_context():
+        tipos = TipoProducto.query.all()
+        marcas = Marca.query.all()
+        modelos = Modelo.query.all()
+
+        if not (tipos and marcas and modelos):
+            print("Faltan tipos, marcas o modelos para crear productos.")
+            return
+
+        for i in range(20):
+            tipo = choice(tipos)
+            marca = choice(marcas)
+            modelo = Modelo.query.filter_by(marca_id=marca.id).order_by(db.func.random()).first()
+            
+            if not modelo:
+                print(f"No se encontró modelo para la marca '{marca.nombre}', se salta el producto.")
+                continue
+
+            producto = Producto(
+                tipo_id=tipo.id,
+                marca_id=marca.id,
+                modelo_id=modelo.id,
+                descripcion=f"Producto de prueba {i + 1}",
+                activo=True,
+                inventariable=bool(randint(0, 1))
+            )
+            db.session.add(producto)
+            print(f"Producto {i + 1} agregado: {producto.descripcion} ({marca.nombre} {modelo.nombre})")
+
+        db.session.commit()
+        print("Inserción de productos completada.")
+
+
 if __name__ == '__main__':
     insertar_marcas()
     insertar_modelos()
     insertar_tipos()
     insertar_sedes_unidades_y_areas()
+    insertar_productos()
