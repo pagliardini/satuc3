@@ -33,6 +33,8 @@ def add_stock():
         # Obtener el nombre completo del producto
         producto_nombre = producto.nombre_completo
 
+        codigos_creados = []  # Lista para almacenar los códigos generados
+
         if producto.inventariable:
             # Generar registros individuales para cada unidad
             for _ in range(cantidad):
@@ -44,6 +46,7 @@ def add_stock():
                     cantidad=1  # Cada registro representa una unidad
                 )
                 db.session.add(stock)
+                codigos_creados.append(str(ultimo_codigo))  # Agregar el código generado a la lista
         else:
             # Crear un solo registro con la cantidad total
             stock_existente = StockUbicacion.query.filter_by(
@@ -53,19 +56,23 @@ def add_stock():
 
             if stock_existente:
                 stock_existente.cantidad += cantidad
+                codigos_creados.append(stock_existente.codigo)  # Agregar el código existente
             else:
+                nuevo_codigo = str(ultimo_codigo + 1)
                 stock = StockUbicacion(
                     area_id=area_id,
                     producto_nombre=producto_nombre,
-                    codigo=str(ultimo_codigo + 1),  # Generar un código único
+                    codigo=nuevo_codigo,  # Generar un código único
                     cantidad=cantidad
                 )
                 db.session.add(stock)
+                codigos_creados.append(nuevo_codigo)  # Agregar el nuevo código generado
 
         db.session.commit()
 
-        # Mensaje flash
-        flash(f'Se registraron {cantidad} unidades del producto "{producto_nombre}" en el área "{area.nombre}".', 'success')
+        # Mensaje flash con los códigos generados
+        codigos_str = ", ".join(codigos_creados)
+        flash(f'Se registraron {cantidad} unidades del producto "{producto_nombre}" en el área "{area.nombre}". Códigos generados: {codigos_str}.', 'success')
 
         # Redirigir a la misma página
         return redirect(url_for('stock.add_stock'))
