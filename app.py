@@ -6,7 +6,8 @@ from productos import productos_bp
 from lugares import lugares_bp
 from mtm import mtm_bp
 from stock import stock_bp  
-from api.productos import api_bp 
+from api.productos import api_bp
+from api.sedes import api_bp
 
 import os
 
