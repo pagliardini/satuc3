@@ -1,11 +1,12 @@
 from flask import Flask, render_template
 from flask_cors import CORS
+from flask_migrate import Migrate
 from models import db
 from productos import productos_bp
 from lugares import lugares_bp
 from mtm import mtm_bp
-from stock import stock_bp  # Importar el nuevo blueprint
-from api import api_bp  # Importar el blueprint de la API
+from stock import stock_bp  
+from api.productos import api_bp 
 
 import os
 
@@ -21,13 +22,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inicializar db con la aplicación Flask
 db.init_app(app)
+migrate = Migrate(app, db)
 
 # Registrar blueprints
 app.register_blueprint(productos_bp)
 app.register_blueprint(lugares_bp)
 app.register_blueprint(mtm_bp)
-app.register_blueprint(stock_bp)  # Registrar el blueprint de stock
-app.register_blueprint(api_bp)  # Registrar el blueprint de la API
+app.register_blueprint(stock_bp) 
+app.register_blueprint(api_bp) 
 
 @app.route('/')
 def index():

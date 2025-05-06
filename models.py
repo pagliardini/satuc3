@@ -13,22 +13,20 @@ class Marca(db.Model):
     __tablename__ = 'marcas'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False, unique=True)
-    modelos = db.relationship('Modelo', backref='marca', lazy=True)
     productos = db.relationship('Producto', backref='marca', lazy=True)
 
 class Modelo(db.Model):
     __tablename__ = 'modelos'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
-    marca_id = db.Column(db.Integer, db.ForeignKey('marcas.id'), nullable=False)
     productos = db.relationship('Producto', backref='modelo', lazy=True)
 
 class Producto(db.Model):
     __tablename__ = 'productos'
     id = db.Column(db.Integer, primary_key=True)
-    tipo_id = db.Column(db.Integer, db.ForeignKey('tipos_productos.id'), nullable=False)
-    marca_id = db.Column(db.Integer, db.ForeignKey('marcas.id'), nullable=False)
-    modelo_id = db.Column(db.Integer, db.ForeignKey('modelos.id'), nullable=False)
+    tipo_id = db.Column(db.Integer, db.ForeignKey('tipos_productos.id', name='fk_producto_tipo'), nullable=False)
+    marca_id = db.Column(db.Integer, db.ForeignKey('marcas.id', name='fk_producto_marca'), nullable=False)
+    modelo_id = db.Column(db.Integer, db.ForeignKey('modelos.id', name='fk_producto_modelo'), nullable=False)
     descripcion = db.Column(db.String(200), nullable=True)
     activo = db.Column(db.Boolean, default=True)
     inventariable = db.Column(db.Boolean, default=True)  # Si es por unidad física con sticker

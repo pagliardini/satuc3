@@ -27,100 +27,49 @@ def insertar_marcas():
         db.session.commit()
 
 def insertar_modelos():
-    modelos = {
-"HP": [
-    "Color Laser 150a",
-    "Color Laser 150nw",
-    "Color Laser MFP 178nw",
-    "Color Laser MFP 179fnw",
-    "Color LaserJet 2600n",
-    "Color LaserJet CM1312 MFP",
-    "Color LaserJet CP1215",
-    "Color LaserJet CP1515n",
-    "Color LaserJet Pro CP1025nw",
-    "Color LaserJet Pro M252dw",
-    "Color LaserJet Pro M254dw",
-    "Color LaserJet Pro M254nw",
-    "Color LaserJet Pro M277dw",
-    "Color LaserJet Pro M277n",
-    "Color LaserJet Pro M452dn",
-    "Color LaserJet Pro M452nw",
-    "Color LaserJet Pro M477fdn",
-    "Color LaserJet Pro M477fdw",
-    "Color LaserJet Pro M477fnw",
-    "Color LaserJet Pro M479dw",
-    "Color LaserJet Pro M479fdn",
-    "Color LaserJet Pro MFP M180n",
-    "Color LaserJet Pro MFP M282nw",
-    "Color LaserJet Pro MFP M283fdn",
-    "LaserJet 1018",
-    "LaserJet 1020",
-    "LaserJet 1320",
-    "LaserJet M1212NF MFP",
-    "LaserJet P1005",
-    "LaserJet P1006",
-    "LaserJet P1606dn",
-    "LaserJet P2035",
-    "LaserJet P2055dn",
-    "LaserJet Pro 100 Color MFP M175nw (CE866A)",
-    "LaserJet Pro M102a",
-    "LaserJet Pro M102w",
-    "LaserJet Pro M118dw",
-    "LaserJet Pro M12w",
-    "LaserJet Pro M130fw",
-    "LaserJet Pro M1536DNF",
-    "LaserJet Pro M15a",
-    "LaserJet Pro M15w",
-    "LaserJet Pro M203dn",
-    "LaserJet Pro M203dw",
-    "LaserJet Pro M28w",
-    "LaserJet Pro M404dn (W1A53A)",
-    "LaserJet Pro M426fdn",
-    "LaserJet Pro M501n",
-    "LaserJet Pro MFP M125nw",
-    "LaserJet Pro MFP M127fn",
-    "LaserJet Pro MFP M127fw",
-    "LaserJet Pro MFP M148dw",
-    "LaserJet Pro MFP M148fdw",
-    "LaserJet Pro MFP M176n",
-    "LaserJet Pro MFP M177fw",
-    "LaserJet Pro MFP M26a",
-    "LaserJet Pro MFP M26nw",
-    "LaserJet Pro MFP M428dw (W1A28A)",
-    "LaserJet Pro MFP M428fdn (W1A29A)"
-],
-        "Epson": ["EcoTank", "WorkForce", "Expression", "SureColor", "L-Series"],
-        "Lexmark": ["B2236dw", "MB2236adw", "C3224dw", "C3326dw", "C3326adw"],
-        "Canon": ["PIXMA", "imageCLASS", "MAXIFY", "imagePROGRAF", "SELPHY"],
-        "Ricoh": ["SP C261DNW", "SP C360DNW", "SP C440DNW", "MP C307", "MP C4504"],
-        "Brother": ["HL-L2350DW", "MFC-L2710DW", "DCP-T720DW"],
-        "Samsung": ["ProXpress", "MultiXpress", "CLP-680"],
-        "Xerox": ["VersaLink", "WorkCentre", "AltaLink"],
-
-#Placas de Video
-
-        "Nvidia": [
+    modelos_lista = [
+        # HP Printers
+        "Color Laser 150a", "Color Laser 150nw", "Color Laser MFP 178nw",
+        # ...existing HP models...
+        "LaserJet Pro MFP M428fdn (W1A29A)",
+        
+        # Epson
+        "EcoTank", "WorkForce", "Expression", "SureColor", "L-Series",
+        
+        # Lexmark
+        "B2236dw", "MB2236adw", "C3224dw", "C3326dw", "C3326adw",
+        
+        # Canon
+        "PIXMA", "imageCLASS", "MAXIFY", "imagePROGRAF", "SELPHY",
+        
+        # Ricoh
+        "SP C261DNW", "SP C360DNW", "SP C440DNW", "MP C307", "MP C4504",
+        
+        # Brother
+        "HL-L2350DW", "MFC-L2710DW", "DCP-T720DW",
+        
+        # Samsung
+        "ProXpress", "MultiXpress", "CLP-680",
+        
+        # Xerox
+        "VersaLink", "WorkCentre", "AltaLink",
+        
+        # Nvidia
         "GT 710", "GT 730", "GT 1030", "GTX 750 Ti", "GTX 1050", "GTX 1050 Ti",
         "GTX 1060", "GTX 1070", "GTX 1080", "GTX 1650", "GTX 1660", "GTX 1660 Ti",
         "RTX 2060", "RTX 2070", "RTX 2080", "RTX 3060", "RTX 3070", "RTX 3080",
-        "RTX 3090", "RTX 4060", "RTX 4070", "RTX 4080", "RTX 4090"]
-                }
+        "RTX 3090", "RTX 4060", "RTX 4070", "RTX 4080", "RTX 4090"
+    ]
 
     with app.app_context():
-        for marca_nombre, modelos_lista in modelos.items():
-            marca = Marca.query.filter_by(nombre=marca_nombre).first()
-            if not marca:
-                print(f"La marca '{marca_nombre}' no existe. No se pueden agregar modelos.")
-                continue
-
-            for modelo_nombre in modelos_lista:
-                existing_modelo = Modelo.query.filter_by(nombre=modelo_nombre, marca_id=marca.id).first()
-                if not existing_modelo:
-                    nuevo_modelo = Modelo(nombre=modelo_nombre, marca_id=marca.id)
-                    db.session.add(nuevo_modelo)
-                    print(f"Modelo '{modelo_nombre}' agregado a la marca '{marca_nombre}'.")
-                else:
-                    print(f"El modelo '{modelo_nombre}' ya existe para la marca '{marca_nombre}'.")
+        for modelo_nombre in modelos_lista:
+            existing_modelo = Modelo.query.filter_by(nombre=modelo_nombre).first()
+            if not existing_modelo:
+                nuevo_modelo = Modelo(nombre=modelo_nombre)
+                db.session.add(nuevo_modelo)
+                print(f"Modelo '{modelo_nombre}' agregado.")
+            else:
+                print(f"El modelo '{modelo_nombre}' ya existe.")
 
         db.session.commit()
 
@@ -224,11 +173,7 @@ def insertar_productos():
         for i in range(20):
             tipo = choice(tipos)
             marca = choice(marcas)
-            modelo = Modelo.query.filter_by(marca_id=marca.id).order_by(db.func.random()).first()
-            
-            if not modelo:
-                print(f"No se encontró modelo para la marca '{marca.nombre}', se salta el producto.")
-                continue
+            modelo = choice(modelos)
 
             producto = Producto(
                 tipo_id=tipo.id,
