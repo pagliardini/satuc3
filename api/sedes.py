@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from models import db, Sede
+from flask import Blueprint, request, jsonify
+from models import db, Sede, UnidadOrganizativa
 
-api_bp = Blueprint('api', __name__, url_prefix='/api')
+sedes_bp = Blueprint('sedes_api', __name__, url_prefix='/api')
 
 
-@api_bp.route('/sedes', methods=['GET', 'POST'])
+@sedes_bp.route('/sedes', methods=['GET', 'POST'])
 def sedes():
     if request.method == 'POST':
         data = request.get_json()
@@ -28,3 +28,8 @@ def sedes():
     
     sedes = Sede.query.all()
     return jsonify([{"id": s.id, "nombre": s.nombre} for s in sedes])
+
+@sedes_bp.route('/sedes/<int:sede_id>/unidades', methods=['GET'])
+def unidades_por_sede(sede_id):
+    unidades = UnidadOrganizativa.query.filter_by(sede_id=sede_id).all()
+    return jsonify([{"id": u.id, "nombre": u.nombre} for u in unidades])

@@ -1,50 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from models import db, Sede, UnidadOrganizativa, Area
+from models import db, UnidadOrganizativa, Area
 
-api_bp = Blueprint('api', __name__, url_prefix='/api')
+areas_bp = Blueprint('areas_api', __name__, url_prefix='/api')
 
-
-# ----- UNIDADES -----
-@api_bp.route('/add_unidad', methods=['POST'])
-def add_unidad():
-    data = request.get_json() if request.is_json else request.form
-    nombre = data.get('nombre')
-    sede_id = data.get('sede_id')
-
-    if not nombre or not sede_id:
-        msg = 'Todos los campos son obligatorios.'
-        if request.is_json:
-            return jsonify({'error': msg}), 400
-        flash(msg, 'error')
-        return redirect(url_for('lugares.lugares_index'))
-
-    if not Sede.query.get(sede_id):
-        msg = 'Sede no válida.'
-        if request.is_json:
-            return jsonify({'error': msg}), 404
-        flash(msg, 'error')
-        return redirect(url_for('lugares.lugares_index'))
-
-    existente = UnidadOrganizativa.query.filter_by(nombre=nombre, sede_id=sede_id).first()
-    if existente:
-        msg = 'Esta unidad ya existe en la sede.'
-        if request.is_json:
-            return jsonify({'error': msg}), 409
-        flash(msg, 'error')
-        return redirect(url_for('lugares.lugares_index'))
-
-    nueva_unidad = UnidadOrganizativa(nombre=nombre, sede_id=sede_id)
-    db.session.add(nueva_unidad)
-    db.session.commit()
-
-    if request.is_json:
-        return jsonify({'mensaje': 'Unidad organizativa agregada exitosamente.', 'id': nueva_unidad.id}), 201
-
-    flash('Unidad organizativa agregada exitosamente.', 'success')
-    return redirect(url_for('lugares.lugares_index'))
 
 # ----- ÁREAS -----
-@api_bp.route('/add_area', methods=['POST'])
+@areas_bp.route('/add_area', methods=['POST'])
 def add_area():
     data = request.get_json() if request.is_json else request.form
     nombre = data.get('nombre')
@@ -82,7 +43,7 @@ def add_area():
     flash('Área agregada exitosamente.', 'success')
     return redirect(url_for('lugares.lugares_index'))
 
-@api_bp.route('/set_deposito/<int:area_id>', methods=['POST'])
+@areas_bp.route('/set_deposito/<int:area_id>', methods=['POST'])
 def set_deposito(area_id):
     # Desmarcar cualquier área previamente marcada como depósito
     Area.query.update({Area.es_deposito: False})

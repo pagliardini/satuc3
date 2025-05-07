@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request, current_app
 from models import db, TipoProducto, Marca, Modelo, Producto
 
-api_bp = Blueprint('api', __name__, url_prefix='/api')
+productos_bp = Blueprint('productos_bp', __name__, url_prefix='/api')
 
-@api_bp.route('/productos', methods=['GET'])
+@productos_bp.route('/productos', methods=['GET'])
 def get_productos():
     productos = Producto.query.all()
     productos_json = [
@@ -21,7 +21,7 @@ def get_productos():
     ]
     return jsonify(productos_json)
 
-@api_bp.route('/productos/add_producto', methods=['POST'])
+@productos_bp.route('/productos/add_producto', methods=['POST'])
 def add_producto_api():
     data = request.get_json()
 
@@ -61,7 +61,7 @@ def add_producto_api():
 
     return jsonify({"success": True, "message": "Producto creado correctamente.", "producto_id": nuevo_producto.id}), 201
 
-@api_bp.route('/productos/<int:id>', methods=['PUT'])
+@productos_bp.route('/productos/<int:id>', methods=['PUT'])
 def edit_producto_api(id):
     producto = Producto.query.get_or_404(id)
     data = request.get_json()
@@ -77,7 +77,7 @@ def edit_producto_api(id):
 
     return jsonify({"success": True, "message": "Producto actualizado correctamente."})
 
-@api_bp.route('/productos/<int:id>', methods=['DELETE'])
+@productos_bp.route('/productos/<int:id>', methods=['DELETE'])
 def delete_producto_api(id):
     producto = Producto.query.get_or_404(id)
     db.session.delete(producto)
