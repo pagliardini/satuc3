@@ -11,7 +11,12 @@ from api.productos import productos_bp
 from api.sedes import sedes_bp
 from api.areas import areas_bp
 from api.unidades import unidades_bp
-from api.doc import swagger_config
+from api.tipos import tipos_bp
+from api.marcas import marcas_bp
+from api.modelos import modelos_bp
+
+
+from doc import swagger_config
 import os
 
 
@@ -47,7 +52,10 @@ app.register_blueprint(mtm_bp)
 app.register_blueprint(stock_bp)
 app.register_blueprint(sedes_bp)
 app.register_blueprint(areas_bp)
-app.register_blueprint(unidades_bp) 
+app.register_blueprint(unidades_bp)
+app.register_blueprint(marcas_bp) 
+app.register_blueprint(modelos_bp)
+app.register_blueprint(tipos_bp)
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 @app.route('/')

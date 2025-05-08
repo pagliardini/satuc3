@@ -45,15 +45,16 @@ class Sede(db.Model):
     __tablename__ = 'sedes'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False, unique=True)
-    unidades_organizativas = db.relationship('UnidadOrganizativa', back_populates='sede', lazy=True)
+    unidades = db.relationship('UnidadOrganizativa', back_populates='sede', lazy=True)
 
 class UnidadOrganizativa(db.Model):
     __tablename__ = 'unidades_organizativas'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     sede_id = db.Column(db.Integer, db.ForeignKey('sedes.id'), nullable=False)
-
-    sede = db.relationship('Sede', back_populates='unidades_organizativas')
+    
+    # Fix the relationship to match Sede's back_populates
+    sede = db.relationship('Sede', back_populates='unidades', lazy=True)
     areas = db.relationship('Area', back_populates='unidad_organizativa', lazy=True)
 
     __table_args__ = (

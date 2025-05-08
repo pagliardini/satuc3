@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request, current_app
 from models import db, TipoProducto, Marca, Modelo
 
-api_bp = Blueprint('api', __name__, url_prefix='/api')
+modelos_bp = Blueprint('modelos_api', __name__, url_prefix='/api')
 
 
-@api_bp.route('/modelos', methods=['GET', 'POST'])
+@modelos_bp.route('/modelos', methods=['GET', 'POST'])
 def modelos():
     if request.method == 'POST':
         data = request.get_json()
@@ -53,7 +53,7 @@ def modelos():
         "marca_id": m.marca_id
     } for m in modelos])
 
-@api_bp.route('/modelos/<int:id>', methods=['PUT'])
+@modelos_bp.route('/modelos/<int:id>', methods=['PUT'])
 def edit_modelo(id):
     modelo = Modelo.query.get_or_404(id)
     data = request.get_json()
@@ -84,7 +84,7 @@ def edit_modelo(id):
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
 
-@api_bp.route('/modelos/<int:id>', methods=['DELETE'])
+@modelos_bp.route('/modelos/<int:id>', methods=['DELETE'])
 def delete_modelo(id):
     modelo = Modelo.query.get_or_404(id)
     try:
@@ -95,6 +95,6 @@ def delete_modelo(id):
         db.session.rollback()
         return jsonify({"success": False, "message": "No se puede eliminar el modelo porque tiene productos asociados"}), 400
 
-@api_bp.route('/debug')
+@modelos_bp.route('/debug')
 def debug():
     return jsonify({"blueprints": list(current_app.blueprints.keys())})

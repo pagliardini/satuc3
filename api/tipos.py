@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request, current_app
 from models import db, TipoProducto, Marca, Modelo
 
-api_bp = Blueprint('api', __name__, url_prefix='/api')
+tipos_bp = Blueprint('tipos_api', __name__, url_prefix='/api')
 
-@api_bp.route('/tipos', methods=['GET', 'POST'])
+@tipos_bp.route('/tipos', methods=['GET', 'POST'])
 def tipos():
     if request.method == 'POST':
         data = request.get_json()
@@ -29,7 +29,7 @@ def tipos():
     tipos = TipoProducto.query.all()
     return jsonify([{"id": t.id, "nombre": t.nombre} for t in tipos])
 
-@api_bp.route('/tipos/<int:id>', methods=['PUT'])
+@tipos_bp.route('/tipos/<int:id>', methods=['PUT'])
 def edit_tipo(id):
     tipo = TipoProducto.query.get_or_404(id)
     data = request.get_json()
@@ -50,7 +50,7 @@ def edit_tipo(id):
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
 
-@api_bp.route('/tipos/<int:id>', methods=['DELETE'])
+@tipos_bp.route('/tipos/<int:id>', methods=['DELETE'])
 def delete_tipo(id):
     tipo = TipoProducto.query.get_or_404(id)
     try:
