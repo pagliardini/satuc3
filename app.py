@@ -32,7 +32,7 @@ swaggerui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
     config={
-        'app_name': "Mi API Flask"
+        'app_name': "SATUCC3 API"
     }
 )
 

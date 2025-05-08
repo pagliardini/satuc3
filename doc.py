@@ -203,6 +203,77 @@ swagger_config = {
                     },
                     '404': {'description': 'Unidad no encontrada'}
                 }
+            },
+            'put': {
+                'tags': ['Unidades Organizativas'],
+                'summary': 'Actualizar una unidad organizativa',
+                'parameters': [
+                    {
+                        'name': 'unidad_id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID de la unidad organizativa a actualizar'
+                    }
+                ],
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/UnidadInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '200': {
+                        'description': 'Unidad actualizada correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    'type': 'object',
+                                    'properties': {
+                                        'mensaje': {'type': 'string'},
+                                        'unidad': {'$ref': '#/components/schemas/UnidadOrganizativa'}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '400': {'description': 'Datos inválidos'},
+                    '404': {'description': 'Unidad o sede no encontrada'},
+                    '409': {'description': 'Ya existe una unidad con ese nombre en la sede especificada'}
+                }
+            },
+            'delete': {
+                'tags': ['Unidades Organizativas'],
+                'summary': 'Eliminar una unidad organizativa',
+                'parameters': [
+                    {
+                        'name': 'unidad_id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID de la unidad organizativa a eliminar'
+                    }
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'Unidad eliminada correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    'type': 'object',
+                                    'properties': {
+                                        'mensaje': {'type': 'string'},
+                                        'id': {'type': 'integer'}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '404': {'description': 'Unidad no encontrada'},
+                    '409': {'description': 'No se puede eliminar la unidad organizativa porque tiene dependencias'}
+                }
             }
         },
         '/productos': {
@@ -402,8 +473,169 @@ swagger_config = {
             '500': {'description': 'Error del servidor'}
         }
     }
+},
+'/areas': {
+    'get': {
+        'tags': ['Áreas'],
+        'summary': 'Obtener todas las áreas',
+        'responses': {
+            '200': {
+                'description': 'Lista de áreas',
+                'content': {
+                    'application/json': {
+                        'schema': {
+                            'type': 'array',
+                            'items': {'$ref': '#/components/schemas/Area'}
+                        }
+                    }
+                }
+            }
+        }
+    },
+    'post': {
+        'tags': ['Áreas'],
+        'summary': 'Crear una nueva área',
+        'requestBody': {
+            'required': True,
+            'content': {
+                'application/json': {
+                    'schema': {'$ref': '#/components/schemas/AreaInput'}
+                }
+            }
+        },
+        'responses': {
+            '201': {
+                'description': 'Área creada exitosamente',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/AreaResponse'}
+                    }
+                }
+            },
+            '400': {'description': 'Datos inválidos'},
+            '404': {'description': 'Unidad organizativa no encontrada'},
+            '409': {'description': 'El área ya existe en la unidad organizativa'}
+        }
+    }
+},
+'/areas/{area_id}': {
+    'get': {
+        'tags': ['Áreas'],
+        'summary': 'Obtener un área específica',
+        'parameters': [
+            {
+                'name': 'area_id',
+                'in': 'path',
+                'required': True,
+                'schema': {'type': 'integer'},
+                'description': 'ID del área'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Detalles del área',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/Area'}
+                    }
+                }
+            },
+            '404': {'description': 'Área no encontrada'}
+        }
+    },
+    'put': {
+        'tags': ['Áreas'],
+        'summary': 'Actualizar un área',
+        'parameters': [
+            {
+                'name': 'area_id',
+                'in': 'path',
+                'required': True,
+                'schema': {'type': 'integer'},
+                'description': 'ID del área a actualizar'
+            }
+        ],
+        'requestBody': {
+            'required': True,
+            'content': {
+                'application/json': {
+                    'schema': {'$ref': '#/components/schemas/AreaInput'}
+                }
+            }
+        },
+        'responses': {
+            '200': {
+                'description': 'Área actualizada correctamente',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/AreaResponse'}
+                    }
+                }
+            },
+            '400': {'description': 'Datos inválidos'},
+            '404': {'description': 'Área o unidad organizativa no encontrada'},
+            '409': {'description': 'Ya existe un área con ese nombre en la unidad organizativa'}
+        }
+    },
+    'delete': {
+        'tags': ['Áreas'],
+        'summary': 'Eliminar un área',
+        'parameters': [
+            {
+                'name': 'area_id',
+                'in': 'path',
+                'required': True,
+                'schema': {'type': 'integer'},
+                'description': 'ID del área a eliminar'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Área eliminada correctamente',
+                'content': {
+                    'application/json': {
+                        'schema': {
+                            'type': 'object',
+                            'properties': {
+                                'mensaje': {'type': 'string'},
+                                'id': {'type': 'integer'}
+                            }
+                        }
+                    }
+                }
+            },
+            '404': {'description': 'Área no encontrada'},
+            '409': {'description': 'No se puede eliminar el área porque tiene dependencias'}
+        }
+    }
+},
+'/areas/{area_id}/set_deposito': {
+    'put': {
+        'tags': ['Áreas'],
+        'summary': 'Marcar un área como depósito',
+        'parameters': [
+            {
+                'name': 'area_id',
+                'in': 'path',
+                'required': True,
+                'schema': {'type': 'integer'},
+                'description': 'ID del área a marcar como depósito'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Área marcada como depósito correctamente',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/AreaResponse'}
+                    }
+                }
+            },
+            '404': {'description': 'Área no encontrada'},
+            '500': {'description': 'Error al establecer el área como depósito'}
+        }
+    }
 }
-
     },
     'components': {
         'schemas': {
@@ -486,6 +718,30 @@ swagger_config = {
                     'success': {'type': 'boolean', 'description': 'Indica si la operación fue exitosa'},
                     'message': {'type': 'string', 'description': 'Mensaje descriptivo del resultado'},
                     'modelo': {'$ref': '#/components/schemas/ModeloResponse'}
+                }
+            },
+            'Area': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer', 'description': 'ID único del área'},
+                    'nombre': {'type': 'string', 'description': 'Nombre del área'},
+                    'unidad_organizativa_id': {'type': 'integer', 'description': 'ID de la unidad organizativa'},
+                    'es_deposito': {'type': 'boolean', 'description': 'Indica si el área es un depósito'}
+                }
+            },
+            'AreaInput': {
+                'type': 'object',
+                'required': ['nombre', 'unidad_organizativa_id'],
+                'properties': {
+                    'nombre': {'type': 'string', 'description': 'Nombre del área'},
+                    'unidad_organizativa_id': {'type': 'integer', 'description': 'ID de la unidad organizativa'}
+                }
+            },
+            'AreaResponse': {
+                'type': 'object',
+                'properties': {
+                    'mensaje': {'type': 'string', 'description': 'Mensaje de la operación'},
+                    'area': {'$ref': '#/components/schemas/Area'}
                 }
             }
         }
