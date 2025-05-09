@@ -6,7 +6,7 @@ from models import db
 #from productos import productos_bp
 from lugares import lugares_bp
 from mtm import mtm_bp
-from stock import stock_bp  
+from api.stock import stock_bp  
 from api.productos import productos_bp
 from api.sedes import sedes_bp
 from api.areas import areas_bp

@@ -15,8 +15,10 @@ swagger_config = {
         {'name': 'Productos', 'description': 'Gestión de productos'},
         {'name': 'Marcas', 'description': 'Gestión de marcas de productos'},
         {'name': 'Modelos', 'description': 'Gestión de modelos de productos'},
+        {'name': 'Stock', 'description': 'Gestión de inventario y movimientos de stock'}
     ],
     'paths': {
+        # Sedes endpoints
         '/sedes': {
             'get': {
                 'tags': ['Sedes'],
@@ -635,7 +637,213 @@ swagger_config = {
             '500': {'description': 'Error al establecer el área como depósito'}
         }
     }
-}
+},
+'/productos': {
+    'get': {
+        'tags': ['Productos'],
+        'summary': 'Obtener todos los productos',
+        'responses': {
+            '200': {
+                'description': 'Lista de productos',
+                'content': {
+                    'application/json': {
+                        'schema': {
+                            'type': 'array',
+                            'items': {'$ref': '#/components/schemas/Producto'}
+                        }
+                    }
+                }
+            }
+        }
+    },
+    'post': {
+        'tags': ['Productos'],
+        'summary': 'Crear un nuevo producto',
+        'requestBody': {
+            'required': True,
+            'content': {
+                'application/json': {
+                    'schema': {'$ref': '#/components/schemas/ProductoInput'}
+                }
+            }
+        },
+        'responses': {
+            '201': {
+                'description': 'Producto creado exitosamente',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/ProductoResponse'}
+                    }
+                }
+            },
+            '400': {'description': 'Datos inválidos o faltantes'},
+            '404': {'description': 'Tipo, marca o modelo no encontrado'},
+            '500': {'description': 'Error del servidor'}
+        }
+    }
+},
+'/productos/{producto_id}': {
+    'get': {
+        'tags': ['Productos'],
+        'summary': 'Obtener un producto específico',
+        'parameters': [
+            {
+                'name': 'producto_id',
+                'in': 'path',
+                'required': True,
+                'schema': {'type': 'integer'},
+                'description': 'ID del producto'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Detalles del producto',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/Producto'}
+                    }
+                }
+            },
+            '404': {'description': 'Producto no encontrado'}
+        }
+    },
+    'put': {
+        'tags': ['Productos'],
+        'summary': 'Actualizar un producto',
+        'parameters': [
+            {
+                'name': 'producto_id',
+                'in': 'path',
+                'required': True,
+                'schema': {'type': 'integer'},
+                'description': 'ID del producto a actualizar'
+            }
+        ],
+        'requestBody': {
+            'required': True,
+            'content': {
+                'application/json': {
+                    'schema': {'$ref': '#/components/schemas/ProductoInput'}
+                }
+            }
+        },
+        'responses': {
+            '200': {
+                'description': 'Producto actualizado correctamente',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/ProductoResponse'}
+                    }
+                }
+            },
+            '404': {'description': 'Producto no encontrado'},
+            '500': {'description': 'Error del servidor'}
+        }
+    },
+    'delete': {
+        'tags': ['Productos'],
+        'summary': 'Eliminar un producto',
+        'parameters': [
+            {
+                'name': 'producto_id',
+                'in': 'path',
+                'required': True,
+                'schema': {'type': 'integer'},
+                'description': 'ID del producto a eliminar'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Producto eliminado correctamente',
+                'content': {
+                    'application/json': {
+                        'schema': {
+                            'type': 'object',
+                            'properties': {
+                                'success': {'type': 'boolean'},
+                                'message': {'type': 'string'}
+                            }
+                        }
+                    }
+                }
+            },
+            '404': {'description': 'Producto no encontrado'},
+            '500': {'description': 'Error del servidor'}
+        }
+    }
+},
+        # Stock endpoints
+        '/stock': {
+            'get': {
+                'tags': ['Stock'],
+                'summary': 'Obtener todo el stock',
+                'responses': {
+                    '200': {
+                        'description': 'Lista de items en stock',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    'type': 'array',
+                                    'items': {'$ref': '#/components/schemas/StockItem'}
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            'post': {
+                'tags': ['Stock'],
+                'summary': 'Registrar nuevo stock',
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/StockInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '201': {
+                        'description': 'Stock registrado correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/StockResponse'}
+                            }
+                        }
+                    },
+                    '400': {'description': 'Datos inválidos'},
+                    '404': {'description': 'Producto o área no encontrada'},
+                    '500': {'description': 'Error del servidor'}
+                }
+            }
+        },
+        '/stock/movimientos': {
+            'post': {
+                'tags': ['Stock'],
+                'summary': 'Mover stock entre áreas',
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/StockMoveInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '200': {
+                        'description': 'Stock movido correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/StockMoveResponse'}
+                            }
+                        }
+                    },
+                    '400': {'description': 'Datos inválidos o movimiento no permitido'},
+                    '404': {'description': 'Stock o área no encontrada'},
+                    '500': {'description': 'Error del servidor'}
+                }
+            }
+        }
     },
     'components': {
         'schemas': {
@@ -742,6 +950,96 @@ swagger_config = {
                 'properties': {
                     'mensaje': {'type': 'string', 'description': 'Mensaje de la operación'},
                     'area': {'$ref': '#/components/schemas/Area'}
+                }
+            },
+            'ProductoInput': {
+                'type': 'object',
+                'required': ['tipo_id', 'marca_id', 'modelo_id'],
+                'properties': {
+                    'tipo_id': {'type': 'integer', 'description': 'ID del tipo de producto'},
+                    'marca_id': {'type': 'integer', 'description': 'ID de la marca'},
+                    'modelo_id': {'type': 'integer', 'description': 'ID del modelo'},
+                    'descripcion': {'type': 'string', 'description': 'Descripción del producto'},
+                    'inventariable': {'type': 'boolean', 'description': 'Si el producto es inventariable'},
+                    'activo': {'type': 'boolean', 'description': 'Si el producto está activo'}
+                }
+            },
+            'ProductoResponse': {
+                'type': 'object',
+                'properties': {
+                    'success': {'type': 'boolean'},
+                    'message': {'type': 'string'},
+                    'producto': {'$ref': '#/components/schemas/Producto'}
+                }
+            },
+            'StockItem': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'area': {
+                        'type': 'object',
+                        'properties': {
+                            'id': {'type': 'integer'},
+                            'nombre': {'type': 'string'}
+                        }
+                    },
+                    'producto_nombre': {'type': 'string'},
+                    'codigo': {'type': 'string'},
+                    'cantidad': {'type': 'integer'}
+                }
+            },
+            'StockInput': {
+                'type': 'object',
+                'required': ['producto_id', 'area_id', 'cantidad'],
+                'properties': {
+                    'producto_id': {'type': 'integer'},
+                    'area_id': {'type': 'integer'},
+                    'cantidad': {'type': 'integer'}
+                }
+            },
+            'StockMoveInput': {
+                'type': 'object',
+                'required': ['stock_id', 'destino_area_id', 'cantidad'],
+                'properties': {
+                    'stock_id': {'type': 'integer'},
+                    'destino_area_id': {'type': 'integer'},
+                    'cantidad': {'type': 'integer'},
+                    'observacion': {'type': 'string'}
+                }
+            },
+            'StockResponse': {
+                'type': 'object',
+                'properties': {
+                    'success': {'type': 'boolean'},
+                    'message': {'type': 'string'},
+                    'stock': {
+                        'type': 'object',
+                        'properties': {
+                            'producto': {'type': 'string'},
+                            'area': {'type': 'string'},
+                            'cantidad': {'type': 'integer'},
+                            'codigos': {
+                                'type': 'array',
+                                'items': {'type': 'string'}
+                            }
+                        }
+                    }
+                }
+            },
+            'StockMoveResponse': {
+                'type': 'object',
+                'properties': {
+                    'success': {'type': 'boolean'},
+                    'message': {'type': 'string'},
+                    'movimiento': {
+                        'type': 'object',
+                        'properties': {
+                            'origen': {'type': 'string'},
+                            'destino': {'type': 'string'},
+                            'producto': {'type': 'string'},
+                            'cantidad': {'type': 'integer'}
+                        }
+                    }
                 }
             }
         }
