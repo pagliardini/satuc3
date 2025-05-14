@@ -19,7 +19,7 @@ import os
 
 
 app = Flask(__name__)
-CORS(app)  # Esto habilita CORS para todos los orígenes y rutas
+CORS(app)
 
 
 ### Swagger UI Configuration ###
@@ -34,16 +34,13 @@ swaggerui_blueprint = get_swaggerui_blueprint(
     }
 )
 
-# Configuración de SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'your_secret_key_here'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Inicializar db con la aplicación Flask
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Registrar blueprints
 app.register_blueprint(productos_bp)
 app.register_blueprint(stock_bp)
 app.register_blueprint(sedes_bp)
