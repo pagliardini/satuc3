@@ -4,8 +4,6 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from models import db
 #from productos import productos_bp
-from lugares import lugares_bp
-from mtm import mtm_bp
 from api.stock import stock_bp  
 from api.productos import productos_bp
 from api.sedes import sedes_bp
@@ -47,8 +45,6 @@ migrate = Migrate(app, db)
 
 # Registrar blueprints
 app.register_blueprint(productos_bp)
-app.register_blueprint(lugares_bp)
-app.register_blueprint(mtm_bp)
 app.register_blueprint(stock_bp)
 app.register_blueprint(sedes_bp)
 app.register_blueprint(areas_bp)

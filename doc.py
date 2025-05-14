@@ -15,7 +15,8 @@ swagger_config = {
         {'name': 'Productos', 'description': 'Gestión de productos'},
         {'name': 'Marcas', 'description': 'Gestión de marcas de productos'},
         {'name': 'Modelos', 'description': 'Gestión de modelos de productos'},
-        {'name': 'Stock', 'description': 'Gestión de inventario y movimientos de stock'}
+        {'name': 'Stock', 'description': 'Gestión de inventario y movimientos de stock'},
+        {'name': 'Tipos de Productos', 'description': 'Operaciones relacionadas con los tipos de productos'}
     ],
     'paths': {
         # Sedes endpoints
@@ -843,6 +844,117 @@ swagger_config = {
                     '500': {'description': 'Error del servidor'}
                 }
             }
+        },
+        '/tipos': {
+            'get': {
+                'tags': ['Tipos de Productos'],
+                'summary': 'Obtener todos los tipos de productos',
+                'responses': {
+                    '200': {
+                        'description': 'Lista de tipos de productos',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    'type': 'array',
+                                    'items': {'$ref': '#/components/schemas/TipoProducto'}
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            'post': {
+                'tags': ['Tipos de Productos'],
+                'summary': 'Crear un nuevo tipo de producto',
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/TipoProductoInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '201': {
+                        'description': 'Tipo de producto creado exitosamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/TipoProductoResponse'}
+                            }
+                        }
+                    },
+                    '400': {'description': 'El nombre es requerido'},
+                    '500': {'description': 'Error del servidor'}
+                }
+            }
+        },
+        '/tipos/{id}': {
+            'put': {
+                'tags': ['Tipos de Productos'],
+                'summary': 'Actualizar un tipo de producto',
+                'parameters': [
+                    {
+                        'name': 'id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del tipo de producto'
+                    }
+                ],
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/TipoProductoInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '200': {
+                        'description': 'Tipo de producto actualizado correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/TipoProductoResponse'}
+                            }
+                        }
+                    },
+                    '400': {'description': 'El nombre es requerido'},
+                    '404': {'description': 'Tipo de producto no encontrado'},
+                    '500': {'description': 'Error del servidor'}
+                }
+            },
+            'delete': {
+                'tags': ['Tipos de Productos'],
+                'summary': 'Eliminar un tipo de producto',
+                'parameters': [
+                    {
+                        'name': 'id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del tipo de producto'
+                    }
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'Tipo de producto eliminado correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    'type': 'object',
+                                    'properties': {
+                                        'success': {'type': 'boolean'},
+                                        'message': {'type': 'string'}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '400': {'description': 'No se puede eliminar el tipo porque tiene productos asociados'},
+                    '404': {'description': 'Tipo de producto no encontrado'},
+                    '500': {'description': 'Error del servidor'}
+                }
+            }
         }
     },
     'components': {
@@ -1040,6 +1152,28 @@ swagger_config = {
                             'cantidad': {'type': 'integer'}
                         }
                     }
+                }
+            },
+            'TipoProducto': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer', 'description': 'ID único del tipo de producto'},
+                    'nombre': {'type': 'string', 'description': 'Nombre del tipo de producto'}
+                }
+            },
+            'TipoProductoInput': {
+                'type': 'object',
+                'required': ['nombre'],
+                'properties': {
+                    'nombre': {'type': 'string', 'description': 'Nombre del tipo de producto'}
+                }
+            },
+            'TipoProductoResponse': {
+                'type': 'object',
+                'properties': {
+                    'success': {'type': 'boolean', 'description': 'Indica si la operación fue exitosa'},
+                    'message': {'type': 'string', 'description': 'Mensaje descriptivo del resultado'},
+                    'tipo': {'$ref': '#/components/schemas/TipoProducto'}
                 }
             }
         }
