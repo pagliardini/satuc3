@@ -12,3 +12,5 @@ Instala los requisitos:
 `pip install -r requirements.txt`
 
 Swagger corre en http://localhost:5000/api/docs
+
+En el repositorio ya hay una base de datos creada con registros de ejemplo, en caso de necesitar reiniciarla, borrar el archivo database.db en /instance y ejecutar create_db.py, opcionalmente se pueden insertar ejemplos aleatorios ejecutando insertar_datos.py
