@@ -178,7 +178,7 @@ swagger_config = {
                     },
                     '400': {'description': 'Datos inválidos'},
                     '404': {'description': 'Sede no encontrada'},
-                    '409': {'description': 'La unidad ya existe en la sede'},
+                    '409': {'description': 'La unidad ya existe en la sede'}
                 }
             }
         },
@@ -296,488 +296,470 @@ swagger_config = {
                         }
                     }
                 }
+            },
+            'post': {
+                'tags': ['Productos'],
+                'summary': 'Crear un nuevo producto',
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/ProductoInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '201': {
+                        'description': 'Producto creado exitosamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/ProductoResponse'}
+                            }
+                        }
+                    },
+                    '400': {'description': 'Datos inválidos o faltantes'},
+                    '404': {'description': 'Tipo, marca o modelo no encontrado'},
+                    '500': {'description': 'Error del servidor'}
+                }
+            }
+        },
+        '/productos/{producto_id}': {
+            'get': {
+                'tags': ['Productos'],
+                'summary': 'Obtener un producto específico',
+                'parameters': [
+                    {
+                        'name': 'producto_id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del producto'
+                    }
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'Detalles del producto',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/Producto'}
+                            }
+                        }
+                    },
+                    '404': {'description': 'Producto no encontrado'}
+                }
+            },
+            'put': {
+                'tags': ['Productos'],
+                'summary': 'Actualizar un producto',
+                'parameters': [
+                    {
+                        'name': 'producto_id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del producto a actualizar'
+                    }
+                ],
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/ProductoInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '200': {
+                        'description': 'Producto actualizado correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/ProductoResponse'}
+                            }
+                        }
+                    },
+                    '404': {'description': 'Producto no encontrado'},
+                    '500': {'description': 'Error del servidor'}
+                }
+            },
+            'delete': {
+                'tags': ['Productos'],
+                'summary': 'Eliminar un producto',
+                'parameters': [
+                    {
+                        'name': 'producto_id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del producto a eliminar'
+                    }
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'Producto eliminado correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    'type': 'object',
+                                    'properties': {
+                                        'success': {'type': 'boolean'},
+                                        'message': {'type': 'string'}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '404': {'description': 'Producto no encontrado'},
+                    '500': {'description': 'Error del servidor'}
+                }
             }
         },
         '/marcas': {
-    'get': {
-        'tags': ['Marcas'],
-        'summary': 'Obtener todas las marcas',
-        'responses': {
-            '200': {
-                'description': 'Lista de marcas',
-                'content': {
-                    'application/json': {
-                        'schema': {
-                            'type': 'array',
-                            'items': {'$ref': '#/components/schemas/Marca'}
-                        }
-                    }
-                }
-            }
-        }
-    },
-    'post': {
-        'tags': ['Marcas'],
-        'summary': 'Crear una nueva marca',
-        'requestBody': {
-            'required': True,
-            'content': {
-                'application/json': {
-                    'schema': {'$ref': '#/components/schemas/MarcaInput'}
-                }
-            }
-        },
-        'responses': {
-            '201': {'description': 'Marca creada correctamente'},
-            '400': {'description': 'El nombre es requerido'},
-            '500': {'description': 'Error del servidor'}
-        }
-    }
-},
-'/marcas/{id}': {
-    'put': {
-        'tags': ['Marcas'],
-        'summary': 'Actualizar una marca existente',
-        'parameters': [
-            {
-                'name': 'id',
-                'in': 'path',
-                'required': True,
-                'schema': {'type': 'integer'}
-            }
-        ],
-        'requestBody': {
-            'required': True,
-            'content': {
-                'application/json': {
-                    'schema': {'$ref': '#/components/schemas/MarcaInput'}
-                }
-            }
-        },
-        'responses': {
-            '200': {'description': 'Marca actualizada correctamente'},
-            '400': {'description': 'El nombre es requerido'},
-            '500': {'description': 'Error del servidor'}
-        }
-    },
-    'delete': {
-        'tags': ['Marcas'],
-        'summary': 'Eliminar una marca',
-        'parameters': [
-            {
-                'name': 'id',
-                'in': 'path',
-                'required': True,
-                'schema': {'type': 'integer'}
-            }
-        ],
-        'responses': {
-            '200': {'description': 'Marca eliminada correctamente'},
-            '400': {'description': 'La marca tiene productos o modelos asociados y no puede eliminarse'},
-            '500': {'description': 'Error del servidor'}
-        }
-    }
-},
-'/modelos': {
-    'get': {
-        'tags': ['Modelos'],
-        'summary': 'Obtener todos los modelos',
-        'responses': {
-            '200': {
-                'description': 'Lista de modelos',
-                'content': {
-                    'application/json': {
-                        'schema': {
-                            'type': 'array',
-                            'items': {'$ref': '#/components/schemas/ModeloResponse'}
-                        }
-                    }
-                }
-            }
-        }
-    },
-    'post': {
-        'tags': ['Modelos'],
-        'summary': 'Crear un nuevo modelo',
-        'requestBody': {
-            'required': True,
-            'content': {
-                'application/json': {
-                    'schema': {'$ref': '#/components/schemas/ModeloInput'}
-                }
-            }
-        },
-        'responses': {
-            '201': {
-                'description': 'Modelo creado correctamente',
-                'content': {
-                    'application/json': {
-                        'schema': {'$ref': '#/components/schemas/ModeloCreatedResponse'}
-                    }
-                }
-            },
-            '400': {'description': 'El nombre y marca_id son requeridos'},
-            '404': {'description': 'La marca especificada no existe'},
-            '500': {'description': 'Error del servidor'}
-        }
-    }
-},
-'/modelos/{id}': {
-    'put': {
-        'tags': ['Modelos'],
-        'summary': 'Actualizar un modelo existente',
-        'parameters': [
-            {
-                'name': 'id',
-                'in': 'path',
-                'required': True,
-                'schema': {'type': 'integer'},
-                'description': 'ID del modelo'
-            }
-        ],
-        'requestBody': {
-            'required': True,
-            'content': {
-                'application/json': {
-                    'schema': {'$ref': '#/components/schemas/ModeloInput'}
-                }
-            }
-        },
-        'responses': {
-            '200': {
-                'description': 'Modelo actualizado correctamente',
-                'content': {
-                    'application/json': {
-                        'schema': {'$ref': '#/components/schemas/ModeloCreatedResponse'}
-                    }
-                }
-            },
-            '400': {'description': 'El nombre y marca_id son requeridos'},
-            '404': {'description': 'Modelo o marca no encontrada'},
-            '500': {'description': 'Error del servidor'}
-        }
-    },
-    'delete': {
-        'tags': ['Modelos'],
-        'summary': 'Eliminar un modelo',
-        'parameters': [
-            {
-                'name': 'id',
-                'in': 'path',
-                'required': True,
-                'schema': {'type': 'integer'},
-                'description': 'ID del modelo'
-            }
-        ],
-        'responses': {
-            '200': {'description': 'Modelo eliminado correctamente'},
-            '400': {'description': 'No se puede eliminar el modelo porque tiene productos asociados'},
-            '404': {'description': 'Modelo no encontrado'},
-            '500': {'description': 'Error del servidor'}
-        }
-    }
-},
-'/areas': {
-    'get': {
-        'tags': ['Áreas'],
-        'summary': 'Obtener todas las áreas',
-        'responses': {
-            '200': {
-                'description': 'Lista de áreas',
-                'content': {
-                    'application/json': {
-                        'schema': {
-                            'type': 'array',
-                            'items': {'$ref': '#/components/schemas/Area'}
-                        }
-                    }
-                }
-            }
-        }
-    },
-    'post': {
-        'tags': ['Áreas'],
-        'summary': 'Crear una nueva área',
-        'requestBody': {
-            'required': True,
-            'content': {
-                'application/json': {
-                    'schema': {'$ref': '#/components/schemas/AreaInput'}
-                }
-            }
-        },
-        'responses': {
-            '201': {
-                'description': 'Área creada exitosamente',
-                'content': {
-                    'application/json': {
-                        'schema': {'$ref': '#/components/schemas/AreaResponse'}
-                    }
-                }
-            },
-            '400': {'description': 'Datos inválidos'},
-            '404': {'description': 'Unidad organizativa no encontrada'},
-            '409': {'description': 'El área ya existe en la unidad organizativa'}
-        }
-    }
-},
-'/areas/{area_id}': {
-    'get': {
-        'tags': ['Áreas'],
-        'summary': 'Obtener un área específica',
-        'parameters': [
-            {
-                'name': 'area_id',
-                'in': 'path',
-                'required': True,
-                'schema': {'type': 'integer'},
-                'description': 'ID del área'
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': 'Detalles del área',
-                'content': {
-                    'application/json': {
-                        'schema': {'$ref': '#/components/schemas/Area'}
-                    }
-                }
-            },
-            '404': {'description': 'Área no encontrada'}
-        }
-    },
-    'put': {
-        'tags': ['Áreas'],
-        'summary': 'Actualizar un área',
-        'parameters': [
-            {
-                'name': 'area_id',
-                'in': 'path',
-                'required': True,
-                'schema': {'type': 'integer'},
-                'description': 'ID del área a actualizar'
-            }
-        ],
-        'requestBody': {
-            'required': True,
-            'content': {
-                'application/json': {
-                    'schema': {'$ref': '#/components/schemas/AreaInput'}
-                }
-            }
-        },
-        'responses': {
-            '200': {
-                'description': 'Área actualizada correctamente',
-                'content': {
-                    'application/json': {
-                        'schema': {'$ref': '#/components/schemas/AreaResponse'}
-                    }
-                }
-            },
-            '400': {'description': 'Datos inválidos'},
-            '404': {'description': 'Área o unidad organizativa no encontrada'},
-            '409': {'description': 'Ya existe un área con ese nombre en la unidad organizativa'}
-        }
-    },
-    'delete': {
-        'tags': ['Áreas'],
-        'summary': 'Eliminar un área',
-        'parameters': [
-            {
-                'name': 'area_id',
-                'in': 'path',
-                'required': True,
-                'schema': {'type': 'integer'},
-                'description': 'ID del área a eliminar'
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': 'Área eliminada correctamente',
-                'content': {
-                    'application/json': {
-                        'schema': {
-                            'type': 'object',
-                            'properties': {
-                                'mensaje': {'type': 'string'},
-                                'id': {'type': 'integer'}
+            'get': {
+                'tags': ['Marcas'],
+                'summary': 'Obtener todas las marcas',
+                'responses': {
+                    '200': {
+                        'description': 'Lista de marcas',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    'type': 'array',
+                                    'items': {'$ref': '#/components/schemas/Marca'}
+                                }
                             }
                         }
                     }
                 }
             },
-            '404': {'description': 'Área no encontrada'},
-            '409': {'description': 'No se puede eliminar el área porque tiene dependencias'}
-        }
-    }
-},
-'/areas/{area_id}/set_deposito': {
-    'put': {
-        'tags': ['Áreas'],
-        'summary': 'Marcar un área como depósito',
-        'parameters': [
-            {
-                'name': 'area_id',
-                'in': 'path',
-                'required': True,
-                'schema': {'type': 'integer'},
-                'description': 'ID del área a marcar como depósito'
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': 'Área marcada como depósito correctamente',
-                'content': {
-                    'application/json': {
-                        'schema': {'$ref': '#/components/schemas/AreaResponse'}
-                    }
-                }
-            },
-            '404': {'description': 'Área no encontrada'},
-            '500': {'description': 'Error al establecer el área como depósito'}
-        }
-    }
-},
-'/productos': {
-    'get': {
-        'tags': ['Productos'],
-        'summary': 'Obtener todos los productos',
-        'responses': {
-            '200': {
-                'description': 'Lista de productos',
-                'content': {
-                    'application/json': {
-                        'schema': {
-                            'type': 'array',
-                            'items': {'$ref': '#/components/schemas/Producto'}
+            'post': {
+                'tags': ['Marcas'],
+                'summary': 'Crear una nueva marca',
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/MarcaInput'}
                         }
                     }
-                }
-            }
-        }
-    },
-    'post': {
-        'tags': ['Productos'],
-        'summary': 'Crear un nuevo producto',
-        'requestBody': {
-            'required': True,
-            'content': {
-                'application/json': {
-                    'schema': {'$ref': '#/components/schemas/ProductoInput'}
+                },
+                'responses': {
+                    '201': {'description': 'Marca creada correctamente'},
+                    '400': {'description': 'El nombre es requerido'},
+                    '500': {'description': 'Error del servidor'}
                 }
             }
         },
-        'responses': {
-            '201': {
-                'description': 'Producto creado exitosamente',
-                'content': {
-                    'application/json': {
-                        'schema': {'$ref': '#/components/schemas/ProductoResponse'}
+        '/marcas/{id}': {
+            'put': {
+                'tags': ['Marcas'],
+                'summary': 'Actualizar una marca existente',
+                'parameters': [
+                    {
+                        'name': 'id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'}
                     }
+                ],
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/MarcaInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '200': {'description': 'Marca actualizada correctamente'},
+                    '400': {'description': 'El nombre es requerido'},
+                    '500': {'description': 'Error del servidor'}
                 }
             },
-            '400': {'description': 'Datos inválidos o faltantes'},
-            '404': {'description': 'Tipo, marca o modelo no encontrado'},
-            '500': {'description': 'Error del servidor'}
-        }
-    }
-},
-'/productos/{producto_id}': {
-    'get': {
-        'tags': ['Productos'],
-        'summary': 'Obtener un producto específico',
-        'parameters': [
-            {
-                'name': 'producto_id',
-                'in': 'path',
-                'required': True,
-                'schema': {'type': 'integer'},
-                'description': 'ID del producto'
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': 'Detalles del producto',
-                'content': {
-                    'application/json': {
-                        'schema': {'$ref': '#/components/schemas/Producto'}
+            'delete': {
+                'tags': ['Marcas'],
+                'summary': 'Eliminar una marca',
+                'parameters': [
+                    {
+                        'name': 'id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'}
                     }
-                }
-            },
-            '404': {'description': 'Producto no encontrado'}
-        }
-    },
-    'put': {
-        'tags': ['Productos'],
-        'summary': 'Actualizar un producto',
-        'parameters': [
-            {
-                'name': 'producto_id',
-                'in': 'path',
-                'required': True,
-                'schema': {'type': 'integer'},
-                'description': 'ID del producto a actualizar'
-            }
-        ],
-        'requestBody': {
-            'required': True,
-            'content': {
-                'application/json': {
-                    'schema': {'$ref': '#/components/schemas/ProductoInput'}
+                ],
+                'responses': {
+                    '200': {'description': 'Marca eliminada correctamente'},
+                    '400': {'description': 'La marca tiene productos o modelos asociados y no puede eliminarse'},
+                    '500': {'description': 'Error del servidor'}
                 }
             }
         },
-        'responses': {
-            '200': {
-                'description': 'Producto actualizado correctamente',
-                'content': {
-                    'application/json': {
-                        'schema': {'$ref': '#/components/schemas/ProductoResponse'}
-                    }
-                }
-            },
-            '404': {'description': 'Producto no encontrado'},
-            '500': {'description': 'Error del servidor'}
-        }
-    },
-    'delete': {
-        'tags': ['Productos'],
-        'summary': 'Eliminar un producto',
-        'parameters': [
-            {
-                'name': 'producto_id',
-                'in': 'path',
-                'required': True,
-                'schema': {'type': 'integer'},
-                'description': 'ID del producto a eliminar'
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': 'Producto eliminado correctamente',
-                'content': {
-                    'application/json': {
-                        'schema': {
-                            'type': 'object',
-                            'properties': {
-                                'success': {'type': 'boolean'},
-                                'message': {'type': 'string'}
+        '/modelos': {
+            'get': {
+                'tags': ['Modelos'],
+                'summary': 'Obtener todos los modelos',
+                'responses': {
+                    '200': {
+                        'description': 'Lista de modelos',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    'type': 'array',
+                                    'items': {'$ref': '#/components/schemas/ModeloResponse'}
+                                }
                             }
                         }
                     }
                 }
             },
-            '404': {'description': 'Producto no encontrado'},
-            '500': {'description': 'Error del servidor'}
-        }
-    }
-},
-        # Stock endpoints
+            'post': {
+                'tags': ['Modelos'],
+                'summary': 'Crear un nuevo modelo',
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/ModeloInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '201': {
+                        'description': 'Modelo creado correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/ModeloCreatedResponse'}
+                            }
+                        }
+                    },
+                    '400': {'description': 'El nombre y marca_id son requeridos'},
+                    '404': {'description': 'La marca especificada no existe'},
+                    '500': {'description': 'Error del servidor'}
+                }
+            }
+        },
+        '/modelos/{id}': {
+            'put': {
+                'tags': ['Modelos'],
+                'summary': 'Actualizar un modelo existente',
+                'parameters': [
+                    {
+                        'name': 'id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del modelo'
+                    }
+                ],
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/ModeloInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '200': {
+                        'description': 'Modelo actualizado correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/ModeloCreatedResponse'}
+                            }
+                        }
+                    },
+                    '400': {'description': 'El nombre y marca_id son requeridos'},
+                    '404': {'description': 'Modelo o marca no encontrada'},
+                    '500': {'description': 'Error del servidor'}
+                }
+            },
+            'delete': {
+                'tags': ['Modelos'],
+                'summary': 'Eliminar un modelo',
+                'parameters': [
+                    {
+                        'name': 'id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del modelo'
+                    }
+                ],
+                'responses': {
+                    '200': {'description': 'Modelo eliminado correctamente'},
+                    '400': {'description': 'No se puede eliminar el modelo porque tiene productos asociados'},
+                    '404': {'description': 'Modelo no encontrado'},
+                    '500': {'description': 'Error del servidor'}
+                }
+            }
+        },
+        '/areas': {
+            'get': {
+                'tags': ['Áreas'],
+                'summary': 'Obtener todas las áreas',
+                'responses': {
+                    '200': {
+                        'description': 'Lista de áreas',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    'type': 'array',
+                                    'items': {'$ref': '#/components/schemas/Area'}
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            'post': {
+                'tags': ['Áreas'],
+                'summary': 'Crear una nueva área',
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/AreaInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '201': {
+                        'description': 'Área creada exitosamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/AreaResponse'}
+                            }
+                        }
+                    },
+                    '400': {'description': 'Datos inválidos'},
+                    '404': {'description': 'Unidad organizativa no encontrada'},
+                    '409': {'description': 'El área ya existe en la unidad organizativa'}
+                }
+            }
+        },
+        '/areas/{area_id}': {
+            'get': {
+                'tags': ['Áreas'],
+                'summary': 'Obtener un área específica',
+                'parameters': [
+                    {
+                        'name': 'area_id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del área'
+                    }
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'Detalles del área',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/Area'}
+                            }
+                        }
+                    },
+                    '404': {'description': 'Área no encontrada'}
+                }
+            },
+            'put': {
+                'tags': ['Áreas'],
+                'summary': 'Actualizar un área',
+                'parameters': [
+                    {
+                        'name': 'area_id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del área a actualizar'
+                    }
+                ],
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {'$ref': '#/components/schemas/AreaInput'}
+                        }
+                    }
+                },
+                'responses': {
+                    '200': {
+                        'description': 'Área actualizada correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/AreaResponse'}
+                            }
+                        }
+                    },
+                    '400': {'description': 'Datos inválidos'},
+                    '404': {'description': 'Área o unidad organizativa no encontrada'},
+                    '409': {'description': 'Ya existe un área con ese nombre en la unidad organizativa'}
+                }
+            },
+            'delete': {
+                'tags': ['Áreas'],
+                'summary': 'Eliminar un área',
+                'parameters': [
+                    {
+                        'name': 'area_id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del área a eliminar'
+                    }
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'Área eliminada correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    'type': 'object',
+                                    'properties': {
+                                        'mensaje': {'type': 'string'},
+                                        'id': {'type': 'integer'}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '404': {'description': 'Área no encontrada'},
+                    '409': {'description': 'No se puede eliminar el área porque tiene dependencias'}
+                }
+            }
+        },
+        '/areas/{area_id}/set_deposito': {
+            'put': {
+                'tags': ['Áreas'],
+                'summary': 'Marcar un área como depósito',
+                'parameters': [
+                    {
+                        'name': 'area_id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del área a marcar como depósito'
+                    }
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'Área marcada como depósito correctamente',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/AreaResponse'}
+                            }
+                        }
+                    },
+                    '404': {'description': 'Área no encontrada'},
+                    '500': {'description': 'Error al establecer el área como depósito'}
+                }
+            }
+        },
+        # Updated Stock endpoints
         '/stock': {
             'get': {
                 'tags': ['Stock'],
                 'summary': 'Obtener todo el stock',
+                'description': 'Retorna una lista de todos los items en stock con detalles de producto y área',
                 'responses': {
                     '200': {
                         'description': 'Lista de items en stock',
@@ -795,11 +777,12 @@ swagger_config = {
             'post': {
                 'tags': ['Stock'],
                 'summary': 'Registrar nuevo stock',
+                'description': 'Registra nuevo stock considerando si el producto es inventariable o no. Permite crear un nuevo producto durante la imputación o utilizar uno existente.',
                 'requestBody': {
                     'required': True,
                     'content': {
                         'application/json': {
-                            'schema': {'$ref': '#/components/schemas/StockInput'}
+                            'schema': {'$ref': '#/components/schemas/StockInputExtendido'}
                         }
                     }
                 },
@@ -808,13 +791,40 @@ swagger_config = {
                         'description': 'Stock registrado correctamente',
                         'content': {
                             'application/json': {
-                                'schema': {'$ref': '#/components/schemas/StockResponse'}
+                                'schema': {'$ref': '#/components/schemas/StockResponseExtendido'}
                             }
                         }
                     },
                     '400': {'description': 'Datos inválidos'},
-                    '404': {'description': 'Producto o área no encontrada'},
+                    '404': {'description': 'Producto, área, tipo, marca o modelo no encontrado'},
                     '500': {'description': 'Error del servidor'}
+                }
+            }
+        },
+        '/stock/{stock_id}': {
+            'get': {
+                'tags': ['Stock'],
+                'summary': 'Obtener detalles de un item de stock',
+                'description': 'Retorna información detallada sobre un item específico del stock',
+                'parameters': [
+                    {
+                        'name': 'stock_id',
+                        'in': 'path',
+                        'required': True,
+                        'schema': {'type': 'integer'},
+                        'description': 'ID del item de stock'
+                    }
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'Detalles del item de stock',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': '#/components/schemas/StockItemDetail'}
+                            }
+                        }
+                    },
+                    '404': {'description': 'Item de stock no encontrado'}
                 }
             }
         },
@@ -822,6 +832,7 @@ swagger_config = {
             'post': {
                 'tags': ['Stock'],
                 'summary': 'Mover stock entre áreas',
+                'description': 'Traslada items de stock entre diferentes áreas. El comportamiento varía según el tipo de producto: los inventariables se mueven de uno en uno, los no inventariables permiten mover cantidades parciales.',
                 'requestBody': {
                     'required': True,
                     'content': {
@@ -841,117 +852,6 @@ swagger_config = {
                     },
                     '400': {'description': 'Datos inválidos o movimiento no permitido'},
                     '404': {'description': 'Stock o área no encontrada'},
-                    '500': {'description': 'Error del servidor'}
-                }
-            }
-        },
-        '/tipos': {
-            'get': {
-                'tags': ['Tipos de Productos'],
-                'summary': 'Obtener todos los tipos de productos',
-                'responses': {
-                    '200': {
-                        'description': 'Lista de tipos de productos',
-                        'content': {
-                            'application/json': {
-                                'schema': {
-                                    'type': 'array',
-                                    'items': {'$ref': '#/components/schemas/TipoProducto'}
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            'post': {
-                'tags': ['Tipos de Productos'],
-                'summary': 'Crear un nuevo tipo de producto',
-                'requestBody': {
-                    'required': True,
-                    'content': {
-                        'application/json': {
-                            'schema': {'$ref': '#/components/schemas/TipoProductoInput'}
-                        }
-                    }
-                },
-                'responses': {
-                    '201': {
-                        'description': 'Tipo de producto creado exitosamente',
-                        'content': {
-                            'application/json': {
-                                'schema': {'$ref': '#/components/schemas/TipoProductoResponse'}
-                            }
-                        }
-                    },
-                    '400': {'description': 'El nombre es requerido'},
-                    '500': {'description': 'Error del servidor'}
-                }
-            }
-        },
-        '/tipos/{id}': {
-            'put': {
-                'tags': ['Tipos de Productos'],
-                'summary': 'Actualizar un tipo de producto',
-                'parameters': [
-                    {
-                        'name': 'id',
-                        'in': 'path',
-                        'required': True,
-                        'schema': {'type': 'integer'},
-                        'description': 'ID del tipo de producto'
-                    }
-                ],
-                'requestBody': {
-                    'required': True,
-                    'content': {
-                        'application/json': {
-                            'schema': {'$ref': '#/components/schemas/TipoProductoInput'}
-                        }
-                    }
-                },
-                'responses': {
-                    '200': {
-                        'description': 'Tipo de producto actualizado correctamente',
-                        'content': {
-                            'application/json': {
-                                'schema': {'$ref': '#/components/schemas/TipoProductoResponse'}
-                            }
-                        }
-                    },
-                    '400': {'description': 'El nombre es requerido'},
-                    '404': {'description': 'Tipo de producto no encontrado'},
-                    '500': {'description': 'Error del servidor'}
-                }
-            },
-            'delete': {
-                'tags': ['Tipos de Productos'],
-                'summary': 'Eliminar un tipo de producto',
-                'parameters': [
-                    {
-                        'name': 'id',
-                        'in': 'path',
-                        'required': True,
-                        'schema': {'type': 'integer'},
-                        'description': 'ID del tipo de producto'
-                    }
-                ],
-                'responses': {
-                    '200': {
-                        'description': 'Tipo de producto eliminado correctamente',
-                        'content': {
-                            'application/json': {
-                                'schema': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'success': {'type': 'boolean'},
-                                        'message': {'type': 'string'}
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    '400': {'description': 'No se puede eliminar el tipo porque tiene productos asociados'},
-                    '404': {'description': 'Tipo de producto no encontrado'},
                     '500': {'description': 'Error del servidor'}
                 }
             }
@@ -1003,11 +903,11 @@ swagger_config = {
                 }
             },
             'Marca': {
-    'type': 'object',
-    'properties': {
-        'id': {'type': 'integer', 'description': 'ID único de la marca'},
-        'nombre': {'type': 'string', 'description': 'Nombre de la marca'}
-    }
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer', 'description': 'ID único de la marca'},
+                    'nombre': {'type': 'string', 'description': 'Nombre de la marca'}
+                }
             },
             'MarcaInput': {
                 'type': 'object',
@@ -1087,93 +987,152 @@ swagger_config = {
             'StockItem': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {'type': 'integer', 'description': 'ID único del item de stock'},
                     'area': {
                         'type': 'object',
                         'properties': {
-                            'id': {'type': 'integer'},
-                            'nombre': {'type': 'string'}
+                            'id': {'type': 'integer', 'description': 'ID del área'},
+                            'nombre': {'type': 'string', 'description': 'Nombre del área'}
                         }
                     },
-                    'producto_nombre': {'type': 'string'},
-                    'codigo': {'type': 'string'},
-                    'cantidad': {'type': 'integer'}
+                    'producto': {
+                        'type': 'object',
+                        'properties': {
+                            'id': {'type': 'integer', 'description': 'ID del producto'},
+                            'nombre': {'type': 'string', 'description': 'Nombre completo del producto'}
+                        }
+                    },
+                    'codigo': {'type': 'string', 'description': 'Código único (solo para productos inventariables)'},
+                    'cantidad': {'type': 'integer', 'description': 'Cantidad en stock (siempre 1 para productos inventariables)'},
+                    'fecha_imputacion': {'type': 'string', 'format': 'date-time', 'description': 'Fecha en que se imputó inicialmente el stock'}
+                }
+            },
+            'StockItemDetail': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer', 'description': 'ID único del item de stock'},
+                    'area': {
+                        'type': 'object',
+                        'properties': {
+                            'id': {'type': 'integer', 'description': 'ID del área'},
+                            'nombre': {'type': 'string', 'description': 'Nombre del área'}
+                        }
+                    },
+                    'producto': {
+                        'type': 'object',
+                        'properties': {
+                            'id': {'type': 'integer', 'description': 'ID del producto'},
+                            'nombre': {'type': 'string', 'description': 'Nombre completo del producto'},
+                            'inventariable': {'type': 'boolean', 'description': 'Indica si el producto es inventariable'}
+                        }
+                    },
+                    'codigo': {'type': 'string', 'description': 'Código único (solo para productos inventariables)'},
+                    'cantidad': {'type': 'integer', 'description': 'Cantidad en stock'},
+                    'fecha_imputacion': {'type': 'string', 'format': 'date-time', 'description': 'Fecha en que se imputó inicialmente el stock'},
+                    'ultimo_movimiento': {'type': 'string', 'format': 'date-time', 'description': 'Fecha del último movimiento'}
                 }
             },
             'StockInput': {
                 'type': 'object',
                 'required': ['producto_id', 'area_id', 'cantidad'],
                 'properties': {
-                    'producto_id': {'type': 'integer'},
-                    'area_id': {'type': 'integer'},
-                    'cantidad': {'type': 'integer'}
+                    'producto_id': {'type': 'integer', 'description': 'ID del producto'},
+                    'area_id': {'type': 'integer', 'description': 'ID del área donde se imputará el stock'},
+                    'cantidad': {'type': 'integer', 'description': 'Cantidad a registrar'}
+                }
+            },
+            'StockInputExtendido': {
+                'type': 'object',
+                'required': ['area_id', 'cantidad'],
+                'properties': {
+                    'producto_id': {'type': 'integer', 'description': 'ID del producto existente. Requerido solo si crear_producto es false'},
+                    'area_id': {'type': 'integer', 'description': 'ID del área donde se imputará el stock'},
+                    'cantidad': {'type': 'integer', 'description': 'Cantidad a registrar'},
+                    'crear_producto': {'type': 'boolean', 'description': 'Indica si se debe crear un nuevo producto'},
+                    'tipo_id': {'type': 'integer', 'description': 'ID del tipo de producto. Requerido si crear_producto es true'},
+                    'marca_id': {'type': 'integer', 'description': 'ID de la marca. Requerido si crear_producto es true'},
+                    'modelo_id': {'type': 'integer', 'description': 'ID del modelo. Requerido si crear_producto es true'},
+                    'descripcion': {'type': 'string', 'description': 'Descripción del producto nuevo'},
+                    'inventariable': {'type': 'boolean', 'description': 'Si el producto nuevo es inventariable'},
+                    'activo': {'type': 'boolean', 'description': 'Si el producto nuevo está activo'}
                 }
             },
             'StockMoveInput': {
                 'type': 'object',
                 'required': ['stock_id', 'destino_area_id', 'cantidad'],
                 'properties': {
-                    'stock_id': {'type': 'integer'},
-                    'destino_area_id': {'type': 'integer'},
-                    'cantidad': {'type': 'integer'},
-                    'observacion': {'type': 'string'}
+                    'stock_id': {'type': 'integer', 'description': 'ID del item de stock a mover'},
+                    'destino_area_id': {'type': 'integer', 'description': 'ID del área de destino'},
+                    'cantidad': {'type': 'integer', 'description': 'Cantidad a mover (debe ser 1 para productos inventariables)'},
+                    'observacion': {'type': 'string', 'description': 'Comentario opcional sobre el movimiento'}
                 }
             },
             'StockResponse': {
                 'type': 'object',
                 'properties': {
-                    'success': {'type': 'boolean'},
-                    'message': {'type': 'string'},
+                    'success': {'type': 'boolean', 'description': 'Indica si la operación fue exitosa'},
+                    'message': {'type': 'string', 'description': 'Mensaje descriptivo del resultado'},
                     'stock': {
                         'type': 'object',
                         'properties': {
-                            'producto': {'type': 'string'},
-                            'area': {'type': 'string'},
-                            'cantidad': {'type': 'integer'},
+                            'producto': {'type': 'string', 'description': 'Nombre del producto'},
+                            'area': {'type': 'string', 'description': 'Nombre del área'},
+                            'cantidad': {'type': 'integer', 'description': 'Cantidad total registrada'},
                             'codigos': {
                                 'type': 'array',
-                                'items': {'type': 'string'}
+                                'items': {'type': 'string'},
+                                'description': 'Lista de códigos generados para productos inventariables'
                             }
                         }
+                    }
+                }
+            },
+            'StockResponseExtendido': {
+                'type': 'object',
+                'properties': {
+                    'success': {'type': 'boolean', 'description': 'Indica si la operación fue exitosa'},
+                    'message': {'type': 'string', 'description': 'Mensaje descriptivo del resultado'},
+                    'stock': {
+                        'type': 'object',
+                        'properties': {
+                            'producto': {'type': 'string', 'description': 'Nombre del producto'},
+                            'area': {'type': 'string', 'description': 'Nombre del área'},
+                            'cantidad': {'type': 'integer', 'description': 'Cantidad total registrada'},
+                            'codigos': {
+                                'type': 'array',
+                                'items': {'type': 'string'},
+                                'description': 'Lista de códigos generados para productos inventariables'
+                            }
+                        }
+                    },
+                    'producto_creado': {
+                        'type': 'object',
+                        'properties': {
+                            'id': {'type': 'integer', 'description': 'ID del producto creado'},
+                            'tipo': {'type': 'string', 'description': 'Tipo del producto'},
+                            'marca': {'type': 'string', 'description': 'Marca del producto'},
+                            'modelo': {'type': 'string', 'description': 'Modelo del producto'},
+                            'descripcion': {'type': 'string', 'description': 'Descripción del producto'},
+                            'inventariable': {'type': 'boolean', 'description': 'Si el producto es inventariable'}
+                        },
+                        'description': 'Información del producto recién creado (solo si crear_producto=true)'
                     }
                 }
             },
             'StockMoveResponse': {
                 'type': 'object',
                 'properties': {
-                    'success': {'type': 'boolean'},
-                    'message': {'type': 'string'},
+                    'success': {'type': 'boolean', 'description': 'Indica si la operación fue exitosa'},
+                    'message': {'type': 'string', 'description': 'Mensaje descriptivo del resultado'},
                     'movimiento': {
                         'type': 'object',
                         'properties': {
-                            'origen': {'type': 'string'},
-                            'destino': {'type': 'string'},
-                            'producto': {'type': 'string'},
-                            'cantidad': {'type': 'integer'}
+                            'origen': {'type': 'string', 'description': 'Nombre del área de origen'},
+                            'destino': {'type': 'string', 'description': 'Nombre del área de destino'},
+                            'producto': {'type': 'string', 'description': 'Nombre completo del producto'},
+                            'cantidad': {'type': 'integer', 'description': 'Cantidad movida'}
                         }
                     }
-                }
-            },
-            'TipoProducto': {
-                'type': 'object',
-                'properties': {
-                    'id': {'type': 'integer', 'description': 'ID único del tipo de producto'},
-                    'nombre': {'type': 'string', 'description': 'Nombre del tipo de producto'}
-                }
-            },
-            'TipoProductoInput': {
-                'type': 'object',
-                'required': ['nombre'],
-                'properties': {
-                    'nombre': {'type': 'string', 'description': 'Nombre del tipo de producto'}
-                }
-            },
-            'TipoProductoResponse': {
-                'type': 'object',
-                'properties': {
-                    'success': {'type': 'boolean', 'description': 'Indica si la operación fue exitosa'},
-                    'message': {'type': 'string', 'description': 'Mensaje descriptivo del resultado'},
-                    'tipo': {'$ref': '#/components/schemas/TipoProducto'}
                 }
             }
         }

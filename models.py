@@ -83,13 +83,13 @@ class StockUbicacion(db.Model):
     __tablename__ = 'stock_ubicacion'
     id = db.Column(db.Integer, primary_key=True)
     area_id = db.Column(db.Integer, db.ForeignKey('areas.id'), nullable=False)
+    producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
     cantidad = db.Column(db.Integer, nullable=False, default=0)
-    producto_nombre = db.Column(db.String(200), nullable=False)  # Nombre del producto (marca, modelo, etc.)
-    codigo = db.Column(db.String(50), nullable=False)  # Código único para identificar el producto en la ubicación
-
-    __table_args__ = (
-        db.UniqueConstraint('area_id', 'codigo', name='uq_area_codigo'),  # Restricción única por área y código
-    )
+    codigo = db.Column(db.String(50), nullable=True)  # Nullable para productos no inventariables
+    fecha_imputacion = db.Column(db.DateTime, default=datetime.utcnow)  # Nueva columna
+    ultimo_movimiento = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # Para seguimiento
+    
+    producto = db.relationship('Producto', backref='ubicaciones', lazy=True)
 
 class MovimientoStock(db.Model):
     __tablename__ = 'movimientos_stock'
