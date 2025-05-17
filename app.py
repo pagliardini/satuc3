@@ -5,7 +5,6 @@ from flask_migrate import Migrate
 from models import db
 #from productos import productos_bp
 from api.stock import stock_bp  
-from api.productos import productos_bp
 from api.sedes import sedes_bp
 from api.areas import areas_bp
 from api.unidades import unidades_bp
@@ -41,7 +40,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 migrate = Migrate(app, db)
 
-app.register_blueprint(productos_bp)
 app.register_blueprint(stock_bp)
 app.register_blueprint(sedes_bp)
 app.register_blueprint(areas_bp)
@@ -54,6 +52,10 @@ app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/stock')
+def stock():
+    return render_template('/stock/index.html')
 
 @app.route(API_URL)
 def serve_swagger():

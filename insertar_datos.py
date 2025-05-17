@@ -1,4 +1,4 @@
-from models import db, Marca, Modelo, TipoProducto, Sede, Area, UnidadOrganizativa, Producto
+from models import db, Marca, Modelo, TipoProducto, Sede, Area, UnidadOrganizativa
 from app import app
 from sqlalchemy import text
 
@@ -27,49 +27,57 @@ def insertar_marcas():
         db.session.commit()
 
 def insertar_modelos():
-    modelos_lista = [
-        # HP Printers
-        "Color Laser 150a", "Color Laser 150nw", "Color Laser MFP 178nw",
-        # ...existing HP models...
-        "LaserJet Pro MFP M428fdn (W1A29A)",
-        
-        # Epson
-        "EcoTank", "WorkForce", "Expression", "SureColor", "L-Series",
-        
-        # Lexmark
-        "B2236dw", "MB2236adw", "C3224dw", "C3326dw", "C3326adw",
-        
-        # Canon
-        "PIXMA", "imageCLASS", "MAXIFY", "imagePROGRAF", "SELPHY",
-        
-        # Ricoh
-        "SP C261DNW", "SP C360DNW", "SP C440DNW", "MP C307", "MP C4504",
-        
-        # Brother
-        "HL-L2350DW", "MFC-L2710DW", "DCP-T720DW",
-        
-        # Samsung
-        "ProXpress", "MultiXpress", "CLP-680",
-        
-        # Xerox
-        "VersaLink", "WorkCentre", "AltaLink",
-        
-        # Nvidia
-        "GT 710", "GT 730", "GT 1030", "GTX 750 Ti", "GTX 1050", "GTX 1050 Ti",
-        "GTX 1060", "GTX 1070", "GTX 1080", "GTX 1650", "GTX 1660", "GTX 1660 Ti",
-        "RTX 2060", "RTX 2070", "RTX 2080", "RTX 3060", "RTX 3070", "RTX 3080",
-        "RTX 3090", "RTX 4060", "RTX 4070", "RTX 4080", "RTX 4090"
-    ]
+    # Mapeo de modelos a sus marcas correspondientes
+    modelos_por_marca = {
+        "HP": [
+            "Color Laser 150a", "Color Laser 150nw", "Color Laser MFP 178nw",
+            "LaserJet Pro MFP M428fdn (W1A29A)"
+        ],
+        "Epson": [
+            "EcoTank", "WorkForce", "Expression", "SureColor", "L-Series"
+        ],
+        "Lexmark": [
+            "B2236dw", "MB2236adw", "C3224dw", "C3326dw", "C3326adw"
+        ],
+        "Canon": [
+            "PIXMA", "imageCLASS", "MAXIFY", "imagePROGRAF", "SELPHY"
+        ],
+        "Ricoh": [
+            "SP C261DNW", "SP C360DNW", "SP C440DNW", "MP C307", "MP C4504"
+        ],
+        "Brother": [
+            "HL-L2350DW", "MFC-L2710DW", "DCP-T720DW"
+        ],
+        "Samsung": [
+            "ProXpress", "MultiXpress", "CLP-680"
+        ],
+        "Xerox": [
+            "VersaLink", "WorkCentre", "AltaLink"
+        ],
+        "Nvidia": [
+            "GT 710", "GT 730", "GT 1030", "GTX 750 Ti", "GTX 1050", "GTX 1050 Ti",
+            "GTX 1060", "GTX 1070", "GTX 1080", "GTX 1650", "GTX 1660", "GTX 1660 Ti",
+            "RTX 2060", "RTX 2070", "RTX 2080", "RTX 3060", "RTX 3070", "RTX 3080",
+            "RTX 3090", "RTX 4060", "RTX 4070", "RTX 4080", "RTX 4090"
+        ]
+    }
 
     with app.app_context():
-        for modelo_nombre in modelos_lista:
-            existing_modelo = Modelo.query.filter_by(nombre=modelo_nombre).first()
-            if not existing_modelo:
-                nuevo_modelo = Modelo(nombre=modelo_nombre)
-                db.session.add(nuevo_modelo)
-                print(f"Modelo '{modelo_nombre}' agregado.")
-            else:
-                print(f"El modelo '{modelo_nombre}' ya existe.")
+        for marca_nombre, modelos in modelos_por_marca.items():
+            # Buscar la marca en la base de datos
+            marca = Marca.query.filter_by(nombre=marca_nombre).first()
+            if not marca:
+                print(f"Error: La marca '{marca_nombre}' no existe en la base de datos.")
+                continue
+
+            for modelo_nombre in modelos:
+                existing_modelo = Modelo.query.filter_by(nombre=modelo_nombre).first()
+                if not existing_modelo:
+                    nuevo_modelo = Modelo(nombre=modelo_nombre, marca_id=marca.id)
+                    db.session.add(nuevo_modelo)
+                    print(f"Modelo '{modelo_nombre}' agregado para marca '{marca_nombre}'.")
+                else:
+                    print(f"El modelo '{modelo_nombre}' ya existe.")
 
         db.session.commit()
 
@@ -158,36 +166,6 @@ def insertar_sedes_unidades_y_areas():
 
         db.session.commit()
 
-def insertar_productos():
-    from random import choice, randint
-
-    with app.app_context():
-        tipos = TipoProducto.query.all()
-        marcas = Marca.query.all()
-        modelos = Modelo.query.all()
-
-        if not (tipos and marcas and modelos):
-            print("Faltan tipos, marcas o modelos para crear productos.")
-            return
-
-        for i in range(20):
-            tipo = choice(tipos)
-            marca = choice(marcas)
-            modelo = choice(modelos)
-
-            producto = Producto(
-                tipo_id=tipo.id,
-                marca_id=marca.id,
-                modelo_id=modelo.id,
-                descripcion=f"Producto de prueba {i + 1}",
-                activo=True,
-                inventariable=bool(randint(0, 1))
-            )
-            db.session.add(producto)
-            print(f"Producto {i + 1} agregado: {producto.descripcion} ({marca.nombre} {modelo.nombre})")
-
-        db.session.commit()
-        print("Inserción de productos completada.")
 
 
 if __name__ == '__main__':
@@ -195,4 +173,3 @@ if __name__ == '__main__':
     insertar_modelos()
     insertar_tipos()
     insertar_sedes_unidades_y_areas()
-    insertar_productos()
