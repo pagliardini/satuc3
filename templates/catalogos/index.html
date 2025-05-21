@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Sedes, Unidades y Áreas - SATUCC3</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background: #f8f9fa; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.08);}
+        .nav-tabs .nav-link.active { font-weight: bold; border-bottom: 3px solid #0d6efd;}
+        .table-responsive { max-height: 500px; overflow-y: auto;}
+        .table th { position: sticky; top: 0; background-color: white; z-index: 1;}
+        #loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); display:flex; justify-content:center; align-items:center; z-index:9999;}
+        .spinner-border { width: 3rem; height: 3rem;}
+    </style>
+</head>
+<body>
+<div id="app">
+    {% raw %}
+    <!-- Overlay de carga -->
+    <div id="loading-overlay" v-if="loading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+    <div class="container mt-4">
+        <h1 class="mb-4">Catálogo de Sedes, Unidades y Áreas</h1>
+        <ul class="nav nav-tabs mb-3" id="catalogTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" :class="{active: tab==='sedes'}" @click="tab='sedes'" type="button" role="tab">Sedes</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" :class="{active: tab==='unidades'}" @click="tab='unidades'" type="button" role="tab">Unidades Organizativas</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" :class="{active: tab==='areas'}" @click="tab='areas'" type="button" role="tab">Áreas</button>
+            </li>
+        </ul>
+        <!-- SEDES -->
+        <div v-show="tab==='sedes'">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-8"><h5 class="mb-0">Listado de Sedes</h5></div>
+                        <div class="col-md-4">
+                            <input type="text" v-model="searchSede" class="form-control" placeholder="Buscar...">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th style="width:120px;">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="sede in filteredSedes" :key="sede.id">
+                                <td>{{ sede.id }}</td>
+                                <td>
+                                    <span v-if="editSedeId !== sede.id">{{ sede.nombre }}</span>
+                                    <input v-else v-model="editSedeNombre" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <button v-if="editSedeId !== sede.id" class="btn btn-sm btn-outline-secondary me-1" @click="startEditSede(sede)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button v-else class="btn btn-sm btn-success me-1" @click="saveEditSede(sede)">
+                                        <i class="bi bi-check"></i>
+                                    </button>
+                                    <button v-if="editSedeId === sede.id" class="btn btn-sm btn-secondary me-1" @click="cancelEditSede">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" @click="deleteSede(sede)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-if="sedes.length === 0" class="alert alert-info mt-3">
+                        No hay sedes registradas.
+                    </div>
+                </div>
+            </div>
+            <!-- Formulario para agregar nueva sede -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Agregar Nueva Sede</h5>
+                </div>
+                <div class="card-body">
+                    <form @submit.prevent="addSede">
+                        <div class="row">
+                            <div class="col-md-8 mb-2">
+                                <input type="text" v-model="newSedeNombre" class="form-control" placeholder="Nombre de la sede" required>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <button type="submit" class="btn btn-primary w-100">Agregar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- UNIDADES -->
+        <div v-show="tab==='unidades'">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-8"><h5 class="mb-0">Listado de Unidades Organizativas</h5></div>
+                        <div class="col-md-4">
+                            <input type="text" v-model="searchUnidad" class="form-control" placeholder="Buscar...">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Sede</th>
+                                <th style="width:120px;">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="unidad in filteredUnidades" :key="unidad.id">
+                                <td>{{ unidad.id }}</td>
+                                <td>
+                                    <span v-if="editUnidadId !== unidad.id">{{ unidad.nombre }}</span>
+                                    <input v-else v-model="editUnidadNombre" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <span v-if="editUnidadId !== unidad.id">{{ getSedeNombre(unidad.sede_id) }}</span>
+                                    <select v-else v-model="editUnidadSedeId" class="form-select form-select-sm">
+                                        <option v-for="sede in sedes" :value="sede.id">{{ sede.nombre }}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <button v-if="editUnidadId !== unidad.id" class="btn btn-sm btn-outline-secondary me-1" @click="startEditUnidad(unidad)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button v-else class="btn btn-sm btn-success me-1" @click="saveEditUnidad(unidad)">
+                                        <i class="bi bi-check"></i>
+                                    </button>
+                                    <button v-if="editUnidadId === unidad.id" class="btn btn-sm btn-secondary me-1" @click="cancelEditUnidad">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" @click="deleteUnidad(unidad)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-if="unidades.length === 0" class="alert alert-info mt-3">
+                        No hay unidades organizativas registradas.
+                    </div>
+                </div>
+            </div>
+            <!-- Formulario para agregar nueva unidad -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Agregar Nueva Unidad Organizativa</h5>
+                </div>
+                <div class="card-body">
+                    <form @submit.prevent="addUnidad">
+                        <div class="row">
+                            <div class="col-md-5 mb-2">
+                                <input type="text" v-model="newUnidadNombre" class="form-control" placeholder="Nombre de la unidad" required>
+                            </div>
+                            <div class="col-md-5 mb-2">
+                                <select v-model="newUnidadSedeId" class="form-select" required>
+                                    <option value="" disabled>Seleccione sede</option>
+                                    <option v-for="sede in sedes" :value="sede.id">{{ sede.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <button type="submit" class="btn btn-primary w-100">Agregar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- AREAS -->
+        <div v-show="tab==='areas'">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-8"><h5 class="mb-0">Listado de Áreas</h5></div>
+                        <div class="col-md-4">
+                            <input type="text" v-model="searchArea" class="form-control" placeholder="Buscar...">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Unidad Organizativa</th>
+                                <th>¿Depósito?</th>
+                                <th style="width:120px;">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="area in filteredAreas" :key="area.id">
+                                <td>{{ area.id }}</td>
+                                <td>
+                                    <span v-if="editAreaId !== area.id">{{ area.nombre }}</span>
+                                    <input v-else v-model="editAreaNombre" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <span v-if="editAreaId !== area.id">{{ getUnidadNombre(area.unidad_organizativa_id) }}</span>
+                                    <select v-else v-model="editAreaUnidadId" class="form-select form-select-sm">
+                                        <option v-for="unidad in unidades" :value="unidad.id">{{ unidad.nombre }}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <span v-if="area.es_deposito" class="badge bg-success">Sí</span>
+                                    <span v-else class="badge bg-secondary">No</span>
+                                    <button v-if="!area.es_deposito" class="btn btn-sm btn-outline-primary ms-2" @click="setDeposito(area)">
+                                        <i class="bi bi-box-arrow-in-down"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button v-if="editAreaId !== area.id" class="btn btn-sm btn-outline-secondary me-1" @click="startEditArea(area)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button v-else class="btn btn-sm btn-success me-1" @click="saveEditArea(area)">
+                                        <i class="bi bi-check"></i>
+                                    </button>
+                                    <button v-if="editAreaId === area.id" class="btn btn-sm btn-secondary me-1" @click="cancelEditArea">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" @click="deleteArea(area)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-if="areas.length === 0" class="alert alert-info mt-3">
+                        No hay áreas registradas.
+                    </div>
+                </div>
+            </div>
+            <!-- Formulario para agregar nueva área -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Agregar Nueva Área</h5>
+                </div>
+                <div class="card-body">
+                    <form @submit.prevent="addArea">
+                        <div class="row">
+                            <div class="col-md-5 mb-2">
+                                <input type="text" v-model="newAreaNombre" class="form-control" placeholder="Nombre del área" required>
+                            </div>
+                            <div class="col-md-5 mb-2">
+                                <select v-model="newAreaUnidadId" class="form-select" required>
+                                    <option value="" disabled>Seleccione unidad organizativa</option>
+                                    <option v-for="unidad in unidades" :value="unidad.id">{{ unidad.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <button type="submit" class="btn btn-primary w-100">Agregar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Toast para mensajes -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="resultToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header" :class="toastClass">
+                <strong class="me-auto" v-text="toastTitle"></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" v-text="toastMessage"></div>
+        </div>
+    </div>
+    {% endraw %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+const { createApp } = Vue;
+createApp({
+    data() {
+        return {
+            tab: 'sedes',
+            sedes: [],
+            unidades: [],
+            areas: [],
+            searchSede: '',
+            searchUnidad: '',
+            searchArea: '',
+            loading: false,
+            // Sedes
+            newSedeNombre: '',
+            editSedeId: null,
+            editSedeNombre: '',
+            // Unidades
+            newUnidadNombre: '',
+            newUnidadSedeId: '',
+            editUnidadId: null,
+            editUnidadNombre: '',
+            editUnidadSedeId: '',
+            // Áreas
+            newAreaNombre: '',
+            newAreaUnidadId: '',
+            editAreaId: null,
+            editAreaNombre: '',
+            editAreaUnidadId: '',
+            toastMessage: '',
+            toastTitle: '',
+            toastClass: '',
+            resultToast: null
+        }
+    },
+    computed: {
+        filteredSedes() {
+            if (!this.searchSede) return this.sedes;
+            const searchLower = this.searchSede.toLowerCase();
+            return this.sedes.filter(s => s.nombre.toLowerCase().includes(searchLower));
+        },
+        filteredUnidades() {
+            if (!this.searchUnidad) return this.unidades;
+            const searchLower = this.searchUnidad.toLowerCase();
+            return this.unidades.filter(u => u.nombre.toLowerCase().includes(searchLower));
+        },
+        filteredAreas() {
+            if (!this.searchArea) return this.areas;
+            const searchLower = this.searchArea.toLowerCase();
+            return this.areas.filter(a => a.nombre.toLowerCase().includes(searchLower));
+        }
+    },
+    methods: {
+        // --- SEDES ---
+        async loadSedes() {
+            this.loading = true;
+            try {
+                const res = await axios.get('/api/sedes');
+                this.sedes = res.data;
+            } catch (e) {
+                this.showToast('Error', 'No se pudieron cargar las sedes.', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        async addSede() {
+            if (!this.newSedeNombre) return;
+            this.loading = true;
+            try {
+                const res = await axios.post('/api/sedes', { nombre: this.newSedeNombre });
+                if (res.data.mensaje || res.data.success) {
+                    this.showToast('Éxito', 'Sede agregada correctamente', 'bg-success text-white');
+                    this.newSedeNombre = '';
+                    await this.loadSedes();
+                } else {
+                    this.showToast('Error', res.data.error || res.data.message, 'bg-danger text-white');
+                }
+            } catch (e) {
+                this.showToast('Error', e.response?.data?.error || e.response?.data?.message || 'Error al agregar sede', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        startEditSede(sede) {
+            this.editSedeId = sede.id;
+            this.editSedeNombre = sede.nombre;
+        },
+        cancelEditSede() {
+            this.editSedeId = null;
+            this.editSedeNombre = '';
+        },
+        async saveEditSede(sede) {
+            if (!this.editSedeNombre) return;
+            this.loading = true;
+            try {
+                const res = await axios.put(`/api/sedes/${sede.id}`, { nombre: this.editSedeNombre });
+                if (res.data.mensaje || res.data.success) {
+                    this.showToast('Éxito', 'Sede actualizada', 'bg-success text-white');
+                    this.editSedeId = null;
+                    this.editSedeNombre = '';
+                    await this.loadSedes();
+                } else {
+                    this.showToast('Error', res.data.error || res.data.message, 'bg-danger text-white');
+                }
+            } catch (e) {
+                this.showToast('Error', e.response?.data?.error || e.response?.data?.message || 'Error al actualizar sede', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        async deleteSede(sede) {
+            if (!confirm('¿Seguro que desea eliminar esta sede?')) return;
+            this.loading = true;
+            try {
+                const res = await axios.delete(`/api/sedes/${sede.id}`);
+                if (res.data.mensaje || res.data.success) {
+                    this.showToast('Éxito', 'Sede eliminada', 'bg-success text-white');
+                    await this.loadSedes();
+                    await this.loadUnidades();
+                } else {
+                    this.showToast('Error', res.data.error || res.data.message, 'bg-danger text-white');
+                }
+            } catch (e) {
+                this.showToast('Error', e.response?.data?.error || e.response?.data?.message || 'Error al eliminar sede', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        // --- UNIDADES ---
+        async loadUnidades() {
+            this.loading = true;
+            try {
+                const res = await axios.get('/api/unidades');
+                this.unidades = res.data;
+            } catch (e) {
+                this.showToast('Error', 'No se pudieron cargar las unidades.', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        async addUnidad() {
+            if (!this.newUnidadNombre || !this.newUnidadSedeId) return;
+            this.loading = true;
+            try {
+                const res = await axios.post('/api/unidades', { nombre: this.newUnidadNombre, sede_id: this.newUnidadSedeId });
+                if (res.data.mensaje || res.data.success) {
+                    this.showToast('Éxito', 'Unidad agregada correctamente', 'bg-success text-white');
+                    this.newUnidadNombre = '';
+                    this.newUnidadSedeId = '';
+                    await this.loadUnidades();
+                } else {
+                    this.showToast('Error', res.data.error || res.data.message, 'bg-danger text-white');
+                }
+            } catch (e) {
+                this.showToast('Error', e.response?.data?.error || e.response?.data?.message || 'Error al agregar unidad', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        startEditUnidad(unidad) {
+            this.editUnidadId = unidad.id;
+            this.editUnidadNombre = unidad.nombre;
+            this.editUnidadSedeId = unidad.sede_id;
+        },
+        cancelEditUnidad() {
+            this.editUnidadId = null;
+            this.editUnidadNombre = '';
+            this.editUnidadSedeId = '';
+        },
+        async saveEditUnidad(unidad) {
+            if (!this.editUnidadNombre || !this.editUnidadSedeId) return;
+            this.loading = true;
+            try {
+                const res = await axios.put(`/api/unidades/${unidad.id}`, { nombre: this.editUnidadNombre, sede_id: this.editUnidadSedeId });
+                if (res.data.mensaje || res.data.success) {
+                    this.showToast('Éxito', 'Unidad actualizada', 'bg-success text-white');
+                    this.editUnidadId = null;
+                    this.editUnidadNombre = '';
+                    this.editUnidadSedeId = '';
+                    await this.loadUnidades();
+                } else {
+                    this.showToast('Error', res.data.error || res.data.message, 'bg-danger text-white');
+                }
+            } catch (e) {
+                this.showToast('Error', e.response?.data?.error || e.response?.data?.message || 'Error al actualizar unidad', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        async deleteUnidad(unidad) {
+            if (!confirm('¿Seguro que desea eliminar esta unidad?')) return;
+            this.loading = true;
+            try {
+                const res = await axios.delete(`/api/unidades/${unidad.id}`);
+                if (res.data.mensaje || res.data.success) {
+                    this.showToast('Éxito', 'Unidad eliminada', 'bg-success text-white');
+                    await this.loadUnidades();
+                    await this.loadAreas();
+                } else {
+                    this.showToast('Error', res.data.error || res.data.message, 'bg-danger text-white');
+                }
+            } catch (e) {
+                this.showToast('Error', e.response?.data?.error || e.response?.data?.message || 'Error al eliminar unidad', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        getSedeNombre(sede_id) {
+            const sede = this.sedes.find(s => s.id === sede_id);
+            return sede ? sede.nombre : '—';
+        },
+        // --- AREAS ---
+        async loadAreas() {
+            this.loading = true;
+            try {
+                const res = await axios.get('/api/areas');
+                this.areas = res.data;
+            } catch (e) {
+                this.showToast('Error', 'No se pudieron cargar las áreas.', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        async addArea() {
+            if (!this.newAreaNombre || !this.newAreaUnidadId) return;
+            this.loading = true;
+            try {
+                const res = await axios.post('/api/areas', { nombre: this.newAreaNombre, unidad_organizativa_id: this.newAreaUnidadId });
+                if (res.data.mensaje || res.data.success) {
+                    this.showToast('Éxito', 'Área agregada correctamente', 'bg-success text-white');
+                    this.newAreaNombre = '';
+                    this.newAreaUnidadId = '';
+                    await this.loadAreas();
+                } else {
+                    this.showToast('Error', res.data.error || res.data.message, 'bg-danger text-white');
+                }
+            } catch (e) {
+                this.showToast('Error', e.response?.data?.error || e.response?.data?.message || 'Error al agregar área', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        startEditArea(area) {
+            this.editAreaId = area.id;
+            this.editAreaNombre = area.nombre;
+            this.editAreaUnidadId = area.unidad_organizativa_id;
+        },
+        cancelEditArea() {
+            this.editAreaId = null;
+            this.editAreaNombre = '';
+            this.editAreaUnidadId = '';
+        },
+        async saveEditArea(area) {
+            if (!this.editAreaNombre || !this.editAreaUnidadId) return;
+            this.loading = true;
+            try {
+                const res = await axios.put(`/api/areas/${area.id}`, { nombre: this.editAreaNombre, unidad_organizativa_id: this.editAreaUnidadId });
+                if (res.data.mensaje || res.data.success) {
+                    this.showToast('Éxito', 'Área actualizada', 'bg-success text-white');
+                    this.editAreaId = null;
+                    this.editAreaNombre = '';
+                    this.editAreaUnidadId = '';
+                    await this.loadAreas();
+                } else {
+                    this.showToast('Error', res.data.error || res.data.message, 'bg-danger text-white');
+                }
+            } catch (e) {
+                this.showToast('Error', e.response?.data?.error || e.response?.data?.message || 'Error al actualizar área', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        async deleteArea(area) {
+            if (!confirm('¿Seguro que desea eliminar esta área?')) return;
+            this.loading = true;
+            try {
+                const res = await axios.delete(`/api/areas/${area.id}`);
+                if (res.data.mensaje || res.data.success) {
+                    this.showToast('Éxito', 'Área eliminada', 'bg-success text-white');
+                    await this.loadAreas();
+                } else {
+                    this.showToast('Error', res.data.error || res.data.message, 'bg-danger text-white');
+                }
+            } catch (e) {
+                this.showToast('Error', e.response?.data?.error || e.response?.data?.message || 'Error al eliminar área', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        getUnidadNombre(unidad_id) {
+            const unidad = this.unidades.find(u => u.id === unidad_id);
+            return unidad ? unidad.nombre : '—';
+        },
+        async setDeposito(area) {
+            if (!confirm('¿Seguro que desea marcar esta área como depósito?')) return;
+            this.loading = true;
+            try {
+                const res = await axios.put(`/api/areas/${area.id}/set_deposito`);
+                if (res.data.mensaje || res.data.success) {
+                    this.showToast('Éxito', 'Área marcada como depósito', 'bg-success text-white');
+                    await this.loadAreas();
+                } else {
+                    this.showToast('Error', res.data.error || res.data.message, 'bg-danger text-white');
+                }
+            } catch (e) {
+                this.showToast('Error', e.response?.data?.error || e.response?.data?.message || 'Error al marcar depósito', 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        showToast(title, message, headerClass = '') {
+            this.toastTitle = title;
+            this.toastMessage = message;
+            this.toastClass = headerClass;
+            if (!this.resultToast) {
+                this.resultToast = new bootstrap.Toast(document.getElementById('resultToast'));
+            }
+            this.resultToast.show();
+        }
+    },
+    mounted() {
+        this.loadSedes();
+        this.loadUnidades();
+        this.loadAreas();
+    }
+}).mount('#app');
+</script>
+</body>
+</html>

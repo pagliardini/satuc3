@@ -57,6 +57,10 @@ def index():
 def stock():
     return render_template('/stock/index.html')
 
+@app.route('/catalogos')
+def catalogos():
+    return render_template('/catalogos/index.html')
+
 @app.route(API_URL)
 def serve_swagger():
     return jsonify(swagger_config)
