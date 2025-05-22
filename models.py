@@ -100,21 +100,26 @@ class MovimientoStock(db.Model):
     stock_destino = db.relationship('StockUbicacion', foreign_keys=[stock_destino_id], lazy=True)
 
 class Insumo(db.Model):
-    _tablenname__ = 'insumos'
+    __tablename__ = 'insumos'
     id = db.Column(db.Integer, primary_key=True)
-    tipo_id = db.Column(db.Integer, db.ForeignKey('tipos_productos.id), nullable=False)'))
-    marca_id = db.Column(db.Integer, db.ForeignKey('marcas.id), nullable=False)'))
-    modelo_id = db.Column(db.Integer, db.ForeignKey('modelos.id), nullable=False)'))
+    tipo_id = db.Column(db.Integer, db.ForeignKey('tipos_producto.id'), nullable=False)
+    marca_id = db.Column(db.Integer, db.ForeignKey('marcas.id'), nullable=False)
+    modelo_id = db.Column(db.Integer, db.ForeignKey('modelos.id'), nullable=False)
     descripcion = db.Column(db.String(8))
-    toner = db.Column(db.Integer, db.ForeignKey('toners.id), nullable=True)'))
-    cant_bateria = db.Column(db.Integer, db.ForeignKey('baterias.id), nullable=True)'))
+    toner_id = db.Column(db.Integer, db.ForeignKey('toners.id'), nullable=True)
+    bateria_id = db.Column(db.Integer, db.ForeignKey('baterias.id'), nullable=True)
+    url_imagen = db.Column(db.String(255), nullable=True)
+
+
+    toner = db.relationship('Toner', backref='insumos', lazy=True)
+    bateria = db.relationship('Bateria', backref='insumos', lazy=True)
 
 class Toner(db.Model):
     __tablename__ = 'toners'
-    id = db.Column(db.Integer, primary_key=True),
-    nombre = db.Column(db.String(8)), nullable=False
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(8), nullable=False)
 
 class Bateria(db.Model):
     __tablename__ = 'baterias'
-    id = db.Column(db.Integer, primary_key=True),
+    id = db.Column(db.Integer, primary_key=True)
     cantidad = db.Column(db.Integer, nullable=False)
