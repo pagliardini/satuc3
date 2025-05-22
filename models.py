@@ -99,3 +99,22 @@ class MovimientoStock(db.Model):
     stock_origen = db.relationship('StockUbicacion', foreign_keys=[stock_origen_id], lazy=True)
     stock_destino = db.relationship('StockUbicacion', foreign_keys=[stock_destino_id], lazy=True)
 
+class Insumo(db.Model):
+    _tablenname__ = 'insumos'
+    id = db.Column(db.Integer, primary_key=True)
+    tipo_id = db.Column(db.Integer, db.ForeignKey('tipos_productos.id), nullable=False)'))
+    marca_id = db.Column(db.Integer, db.ForeignKey('marcas.id), nullable=False)'))
+    modelo_id = db.Column(db.Integer, db.ForeignKey('modelos.id), nullable=False)'))
+    descripcion = db.Column(db.String(8))
+    toner = db.Column(db.Integer, db.ForeignKey('toners.id), nullable=True)'))
+    cant_bateria = db.Column(db.Integer, db.ForeignKey('baterias.id), nullable=True)'))
+
+class Toner(db.Model):
+    __tablename__ = 'toners'
+    id = db.Column(db.Integer, primary_key=True),
+    nombre = db.Column(db.String(8)), nullable=False
+
+class Bateria(db.Model):
+    __tablename__ = 'baterias'
+    id = db.Column(db.Integer, primary_key=True),
+    cantidad = db.Column(db.Integer, nullable=False)
