@@ -11,7 +11,7 @@ from api.unidades import unidades_bp
 from api.tipos import tipos_bp
 from api.marcas import marcas_bp
 from api.modelos import modelos_bp
-
+from api.toners_baterias import tonersbaterias_bp
 
 from doc import swagger_config
 import os
@@ -47,6 +47,7 @@ app.register_blueprint(unidades_bp)
 app.register_blueprint(marcas_bp) 
 app.register_blueprint(modelos_bp)
 app.register_blueprint(tipos_bp)
+app.register_blueprint(tonersbaterias_bp)
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 @app.route('/')

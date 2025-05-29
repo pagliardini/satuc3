@@ -36,7 +36,7 @@ def get_stock():
         "ultimo_movimiento": item.ultimo_movimiento.isoformat() if item.ultimo_movimiento else None
     } for item in stock_items])
 
-@stock_bp.route('/insumos', methods=['GET', 'POST'])
+@stock_bp.route('/stock/insumos', methods=['GET', 'POST'])
 def insumos():
     if request.method == 'GET':
         insumos = Insumo.query.filter_by(activo=True).all()
@@ -319,22 +319,22 @@ def mover_stock():
         return jsonify({"success": False, "message": str(e)}), 500
 
 # Endpoints auxiliares
-@stock_bp.route('/tipos', methods=['GET'])
+@stock_bp.route('/stock/tipos', methods=['GET'])
 def get_tipos():
     tipos = TipoProducto.query.all()
     return jsonify([{"id": t.id, "nombre": t.nombre} for t in tipos])
 
-@stock_bp.route('/marcas', methods=['GET'])
+@stock_bp.route('/stock/marcas', methods=['GET'])
 def get_marcas():
     marcas = Marca.query.all()
     return jsonify([{"id": m.id, "nombre": m.nombre} for m in marcas])
 
-@stock_bp.route('/modelos', methods=['GET'])
+@stock_bp.route('/stock/modelos', methods=['GET'])
 def get_modelos():
     modelos = Modelo.query.all()
     return jsonify([{"id": m.id, "nombre": m.nombre, "marca_id": m.marca_id} for m in modelos])
 
-@stock_bp.route('/areas', methods=['GET'])
+@stock_bp.route('/stock/areas', methods=['GET'])
 def get_areas():
     areas = Area.query.all()
     return jsonify([{
@@ -344,12 +344,14 @@ def get_areas():
         "unidad_organizativa": area.unidad_organizativa.nombre if area.unidad_organizativa else None
     } for area in areas])
 
-@stock_bp.route('/toners', methods=['GET'])
-def get_toners():
+@stock_bp.route('/stock/toners', methods=['GET'])
+def get_toners_from_stock():
+    """Obtiene todos los tóners"""
     toners = Toner.query.all()
     return jsonify([{"id": t.id, "nombre": t.nombre} for t in toners])
 
-@stock_bp.route('/baterias', methods=['GET'])
-def get_baterias():
+@stock_bp.route('/stock/baterias', methods=['GET'])
+def get_baterias_from_stock():
+    """Obtiene todas las baterías"""
     baterias = Bateria.query.all()
     return jsonify([{"id": b.id, "cantidad": b.cantidad} for b in baterias])

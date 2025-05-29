@@ -168,24 +168,39 @@
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Tipo *</label>
-                                <select class="form-select" v-model="newInsumo.tipo_id" required>
-                                    <option value="">Seleccionar tipo</option>
-                                    <option v-for="tipo in tiposProducto" :key="tipo.id" :value="tipo.id">{{ tipo.nombre }}</option>
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-select" v-model="newInsumo.tipo_id" required>
+                                        <option value="">Seleccionar tipo</option>
+                                        <option v-for="tipo in tiposProducto" :key="tipo.id" :value="tipo.id">{{ tipo.nombre }}</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('tipo')" title="Agregar nuevo tipo">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Marca *</label>
-                                <select class="form-select" v-model="newInsumo.marca_id" required>
-                                    <option value="">Seleccionar marca</option>
-                                    <option v-for="marca in marcas" :key="marca.id" :value="marca.id">{{ marca.nombre }}</option>
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-select" v-model="newInsumo.marca_id" required>
+                                        <option value="">Seleccionar marca</option>
+                                        <option v-for="marca in marcas" :key="marca.id" :value="marca.id">{{ marca.nombre }}</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('marca')" title="Agregar nueva marca">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Modelo *</label>
-                                <select class="form-select" v-model="newInsumo.modelo_id" required>
-                                    <option value="">Seleccionar modelo</option>
-                                    <option v-for="modelo in modelos" :key="modelo.id" :value="modelo.id">{{ modelo.nombre }}</option>
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-select" v-model="newInsumo.modelo_id" required>
+                                        <option value="">Seleccionar modelo</option>
+                                        <option v-for="modelo in modelosFiltered" :key="modelo.id" :value="modelo.id">{{ modelo.nombre }}</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('modelo')" title="Agregar nuevo modelo">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Descripción</label>
@@ -195,17 +210,27 @@
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Tóner</label>
-                                <select class="form-select" v-model="newInsumo.toner_id">
-                                    <option value="">Sin tóner</option>
-                                    <option v-for="toner in toners" :key="toner.id" :value="toner.id">{{ toner.nombre }}</option>
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-select" v-model="newInsumo.toner_id">
+                                        <option value="">Sin tóner</option>
+                                        <option v-for="toner in toners" :key="toner.id" :value="toner.id">{{ toner.nombre }}</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('toner')" title="Agregar nuevo tóner">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Batería</label>
-                                <select class="form-select" v-model="newInsumo.bateria_id">
-                                    <option value="">Sin batería</option>
-                                    <option v-for="bateria in baterias" :key="bateria.id" :value="bateria.id">Cantidad: {{ bateria.cantidad }}</option>
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-select" v-model="newInsumo.bateria_id">
+                                        <option value="">Sin batería</option>
+                                        <option v-for="bateria in baterias" :key="bateria.id" :value="bateria.id">Cantidad: {{ bateria.cantidad }}</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('bateria')" title="Agregar nueva batería">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">URL Imagen</label>
@@ -337,6 +362,66 @@
             <div class="toast-body" v-text="toastMessage"></div>
         </div>
     </div>
+
+    <!-- Modal para crear nuevos elementos -->
+    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createModalLabel">{{ modalTitle }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="createNewItem">
+                        <!-- Formulario para Tipo, Marca -->
+                        <div v-if="modalType === 'tipo' || modalType === 'marca'">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" v-model="newItem.nombre" required placeholder="Ingrese el nombre">
+                            </div>
+                        </div>
+                        
+                        <!-- Formulario para Modelo -->
+                        <div v-if="modalType === 'modelo'">
+                            <div class="mb-3">
+                                <label class="form-label">Marca *</label>
+                                <select class="form-select" v-model="newItem.marca_id" required>
+                                    <option value="">Seleccionar marca</option>
+                                    <option v-for="marca in marcas" :key="marca.id" :value="marca.id">{{ marca.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Modelo *</label>
+                                <input type="text" class="form-control" v-model="newItem.nombre" required placeholder="Ingrese el nombre del modelo">
+                            </div>
+                        </div>
+                        
+                        <!-- Formulario para Tóner -->
+                        <div v-if="modalType === 'toner'">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Tóner *</label>
+                                <input type="text" class="form-control" v-model="newItem.nombre" required placeholder="Ej: TN-2410" maxlength="8">
+                                <div class="form-text">Máximo 8 caracteres</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Formulario para Batería -->
+                        <div v-if="modalType === 'bateria'">
+                            <div class="mb-3">
+                                <label class="form-label">Cantidad/Capacidad de la Batería *</label>
+                                <input type="number" class="form-control" v-model="newItem.cantidad" required placeholder="Ej: 3000" min="1">
+                                <div class="form-text">Capacidad en mAh u otra unidad</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @click="createNewItem" :disabled="!isFormValid">Crear {{ modalTypeName }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
     {% endraw %}
 </div>
 
@@ -392,7 +477,18 @@ createApp({
             toastMessage: '',
             toastTitle: '',
             toastClass: '',
-            resultToast: null
+            resultToast: null,
+            
+            // Nuevas propiedades para el modal
+            modalType: '',
+            modalTitle: '',
+            modalTypeName: '',
+            newItem: {
+                nombre: '',
+                marca_id: '',
+                cantidad: ''
+            },
+            createModalInstance: null
         };
     },
     
@@ -416,6 +512,25 @@ createApp({
                 insumo.marca.nombre.toLowerCase().includes(searchLower) ||
                 insumo.modelo.nombre.toLowerCase().includes(searchLower)
             );
+        },
+        
+        modelosFiltered() {
+            if (!this.newInsumo.marca_id) return [];
+            return this.modelos.filter(modelo => modelo.marca_id == this.newInsumo.marca_id);
+        },
+        
+        // Nueva propiedad computada para validar el formulario del modal
+        isFormValid() {
+            if (this.modalType === 'tipo' || this.modalType === 'marca' || this.modalType === 'toner') {
+                return this.newItem.nombre && this.newItem.nombre.trim() !== '';
+            }
+            if (this.modalType === 'modelo') {
+                return this.newItem.nombre && this.newItem.nombre.trim() !== '' && this.newItem.marca_id;
+            }
+            if (this.modalType === 'bateria') {
+                return this.newItem.cantidad && this.newItem.cantidad > 0;
+            }
+            return false;
         }
     },
     
@@ -426,13 +541,13 @@ createApp({
                 // Cargar datos en paralelo
                 const [stockRes, insumosRes, areasRes, tiposRes, marcasRes, modelosRes, tonersRes, bateriasRes] = await Promise.all([
                     axios.get('/api/stock'),
-                    axios.get('/api/insumos'),
-                    axios.get('/api/areas'),
-                    axios.get('/api/tipos'),
-                    axios.get('/api/marcas'),
-                    axios.get('/api/modelos'),
-                    axios.get('/api/toners'),
-                    axios.get('/api/baterias')
+                    axios.get('/api/stock/insumos'),
+                    axios.get('/api/stock/areas'),
+                    axios.get('/api/stock/tipos'),
+                    axios.get('/api/stock/marcas'),
+                    axios.get('/api/stock/modelos'),
+                    axios.get('/api/stock/toners'),
+                    axios.get('/api/stock/baterias')
                 ]);
                 
                 this.stockItems = stockRes.data;
@@ -571,6 +686,200 @@ createApp({
                 this.resultToast = new bootstrap.Toast(document.getElementById('resultToast'));
             }
             this.resultToast.show();
+        },
+        
+        showCreateModal(type) {
+            this.modalType = type;
+            this.resetNewItemForm();
+            
+            const titles = {
+                'tipo': 'Crear Nuevo Tipo de Producto',
+                'marca': 'Crear Nueva Marca',
+                'modelo': 'Crear Nuevo Modelo',
+                'toner': 'Crear Nuevo Tóner',
+                'bateria': 'Crear Nueva Batería'
+            };
+            
+            const typeNames = {
+                'tipo': 'Tipo',
+                'marca': 'Marca',
+                'modelo': 'Modelo',
+                'toner': 'Tóner',
+                'bateria': 'Batería'
+            };
+            
+            this.modalTitle = titles[type];
+            this.modalTypeName = typeNames[type];
+            
+            // Para modelo, preseleccionar la marca si está seleccionada
+            if (type === 'modelo' && this.newInsumo.marca_id) {
+                this.newItem.marca_id = this.newInsumo.marca_id;
+            }
+            
+            if (!this.createModalInstance) {
+                this.createModalInstance = new bootstrap.Modal(document.getElementById('createModal'));
+            }
+            this.createModalInstance.show();
+        },
+        
+        async createNewItem() {
+            if (!this.isFormValid) return;
+            
+            this.loading = true;
+            try {
+                let endpoint = '';
+                let data = {};
+                
+                switch (this.modalType) {
+                    case 'tipo':
+                        endpoint = '/api/tipos';
+                        data = { nombre: this.newItem.nombre.trim() };
+                        break;
+                    case 'marca':
+                        endpoint = '/api/marcas';
+                        data = { nombre: this.newItem.nombre.trim() };
+                        break;
+                    case 'modelo':
+                        endpoint = '/api/modelos';
+                        data = { 
+                            nombre: this.newItem.nombre.trim(),
+                            marca_id: this.newItem.marca_id
+                        };
+                        break;
+                    case 'toner':
+                        endpoint = '/api/toners_baterias';
+                        data = { nombre: this.newItem.nombre.trim() };
+                        break;
+                    case 'bateria':
+                        endpoint = '/api/baterias';
+                        data = { cantidad: parseInt(this.newItem.cantidad) };
+                        break;
+                    default:
+                        throw new Error('Tipo no válido');
+                }
+                
+                const response = await axios.post(endpoint, data);
+                
+                if (response.data.success || response.data.mensaje) {
+                    this.showToast('Éxito', `${this.modalTypeName} creado correctamente`, 'bg-success text-white');
+                    
+                    // Cerrar modal
+                    this.createModalInstance.hide();
+                    
+                    // Recargar datos específicos según el tipo
+                    await this.reloadSpecificData(this.modalType);
+                    
+                    // Auto-seleccionar el item recién creado
+                    this.autoSelectNewItem(this.modalType, response.data);
+                    
+                } else {
+                    this.showToast('Error', response.data.error || response.data.message || 'Error al crear el elemento', 'bg-danger text-white');
+                }
+                
+            } catch (error) {
+                const message = error.response?.data?.error || error.response?.data?.message || `Error al crear ${this.modalTypeName.toLowerCase()}`;
+                this.showToast('Error', message, 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        async reloadSpecificData(type) {
+            try {
+                switch (type) {
+                    case 'tipo':
+                        const tiposRes = await axios.get('/api/tipos');
+                        this.tiposProducto = tiposRes.data;
+                        break;
+                    case 'marca':
+                        const marcasRes = await axios.get('/api/marcas');
+                        this.marcas = marcasRes.data;
+                        break;
+                    case 'modelo':
+                        const modelosRes = await axios.get('/api/modelos');
+                        this.modelos = modelosRes.data;
+                        break;
+                    case 'toner':
+                        const tonersRes = await axios.get('/api/toners_baterias');
+                        this.toners = tonersRes.data;
+                        break;
+                    case 'bateria':
+                        const bateriasRes = await axios.get('/api/baterias');
+                        this.baterias = bateriasRes.data;
+                        break;
+                }
+            } catch (error) {
+                console.error(`Error recargando ${type}:`, error);
+            }
+        },
+        
+        autoSelectNewItem(type, responseData) {
+            // Auto-seleccionar el elemento recién creado
+            let newId = null;
+            
+            if (responseData.id) {
+                newId = responseData.id;
+            } else if (responseData[type] && responseData[type].id) {
+                newId = responseData[type].id;
+            } else {
+                // Buscar el último elemento agregado
+                switch (type) {
+                    case 'tipo':
+                        if (this.tiposProducto.length > 0) {
+                            newId = this.tiposProducto[this.tiposProducto.length - 1].id;
+                        }
+                        break;
+                    case 'marca':
+                        if (this.marcas.length > 0) {
+                            newId = this.marcas[this.marcas.length - 1].id;
+                        }
+                        break;
+                    case 'modelo':
+                        if (this.modelos.length > 0) {
+                            newId = this.modelos[this.modelos.length - 1].id;
+                        }
+                        break;
+                    case 'toner':
+                        if (this.toners.length > 0) {
+                            newId = this.toners[this.toners.length - 1].id;
+                        }
+                        break;
+                    case 'bateria':
+                        if (this.baterias.length > 0) {
+                            newId = this.baterias[this.baterias.length - 1].id;
+                        }
+                        break;
+                }
+            }
+            
+            // Asignar el ID al formulario principal
+            if (newId) {
+                switch (type) {
+                    case 'tipo':
+                        this.newInsumo.tipo_id = newId;
+                        break;
+                    case 'marca':
+                        this.newInsumo.marca_id = newId;
+                        break;
+                    case 'modelo':
+                        this.newInsumo.modelo_id = newId;
+                        break;
+                    case 'toner':
+                        this.newInsumo.toner_id = newId;
+                        break;
+                    case 'bateria':
+                        this.newInsumo.bateria_id = newId;
+                        break;
+                }
+            }
+        },
+        
+        resetNewItemForm() {
+            this.newItem = {
+                nombre: '',
+                marca_id: '',
+                cantidad: ''
+            };
         }
     },
     
