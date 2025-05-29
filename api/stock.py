@@ -15,9 +15,15 @@ def get_stock():
         "insumo": {
             "id": item.insumo.id,
             "nombre_completo": item.insumo.nombre_completo,
-            "tipo": item.insumo.tipo.nombre,
-            "marca": item.insumo.marca.nombre,
-            "modelo": item.insumo.modelo.nombre,
+            "tipo": item.insumo.tipo.nombre if item.insumo.tipo else None,
+            "marca": {
+                "id": item.insumo.marca.id if item.insumo.marca else None,
+                "nombre": item.insumo.marca.nombre if item.insumo.marca else None
+            },
+            "modelo": {
+                "id": item.insumo.modelo.id if item.insumo.modelo else None,
+                "nombre": item.insumo.modelo.nombre if item.insumo.modelo else None
+            },
             "descripcion": item.insumo.descripcion,
             "inventariable": item.insumo.inventariable,
             "toner": item.insumo.toner.nombre if item.insumo.toner else None,

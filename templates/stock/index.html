@@ -52,14 +52,164 @@
             <div class="card">
                 <div class="card-header bg-light">
                     <div class="row align-items-center">
-                        <div class="col-md-8"><h5 class="mb-0">Stock Actual por Ubicación</h5></div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
+                            <h5 class="mb-0">Stock Actual por Ubicación</h5>
+                        </div>
+                        <div class="col-md-3">
+                            <!-- Radio buttons para filtrar por tipo -->
+                            <div class="btn-group" role="group" aria-label="Filtro de tipo">
+                                <input type="radio" class="btn-check" name="tipoFiltro" id="impresoras" value="impresoras" v-model="stockFilter">
+                                <label class="btn btn-outline-primary" for="impresoras">Impresoras</label>
+                                
+                                <input type="radio" class="btn-check" name="tipoFiltro" id="ups" value="ups" v-model="stockFilter">
+                                <label class="btn btn-outline-primary" for="ups">UPS</label>
+                                
+                                <input type="radio" class="btn-check" name="tipoFiltro" id="todos" value="todos" v-model="stockFilter" checked>
+                                <label class="btn btn-outline-primary" for="todos">Todos</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <input type="text" v-model="searchStock" class="form-control" placeholder="Buscar en stock...">
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <!-- Vista para Impresoras -->
+                    <div v-if="stockFilter === 'impresoras'" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Impresora</th>
+                                <th>Área</th>
+                                <th>Tóner</th>
+                                <th>Cantidad</th>
+                                <th>Código</th>
+                                <th>Estado</th>
+                                <th>Último Movimiento</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="item in filteredStockImpresoras" :key="item.id">
+                                <td>
+                                    <div class="text-center" style="width: 60px;">
+                                        <img v-if="item.insumo.url_imagen" 
+                                             :src="item.insumo.url_imagen" 
+                                             :alt="item.insumo.nombre_completo"
+                                             class="img-thumbnail"
+                                             style="max-width: 50px; max-height: 50px; object-fit: cover;"
+                                             @error="onImageError($event)">
+                                        <div v-else class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                             style="width: 50px; height: 50px; font-size: 12px; color: #6c757d;">
+                                            Sin imagen
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ item.insumo.marca ? item.insumo.marca.nombre : 'Sin marca' }} {{ item.insumo.modelo ? item.insumo.modelo.nombre : 'Sin modelo' }}</strong>
+                                        <small v-if="item.insumo.descripcion" class="text-muted d-block">{{ item.insumo.descripcion }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge" :class="item.area.es_deposito ? 'bg-warning text-dark' : 'bg-primary'">
+                                        {{ item.area.nombre }}
+                                </span>
+                                </td>
+                                <td>
+                                    <span v-if="item.insumo.toner" class="badge bg-info">
+                                        {{ item.insumo.toner }}
+                                    </span>
+                                    <span v-else class="text-muted">—</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ item.cantidad }}</span>
+                                </td>
+                                <td>
+                                    <code v-if="item.codigo" class="small">{{ item.codigo }}</code>
+                                    <span v-else class="text-muted">—</span>
+                                </td>
+                                <td>
+                                    <span class="badge" :class="getEstadoBadgeClass(item.estado)">{{ item.estado }}</span>
+                                </td>
+                                <td class="small">{{ formatDate(item.ultimo_movimiento) }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div v-if="filteredStockImpresoras.length === 0" class="alert alert-info">
+                            No hay impresoras registradas en stock.
+                        </div>
+                    </div>
+
+                    <!-- Vista para UPS -->
+                    <div v-else-if="stockFilter === 'ups'" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Imagen</th>
+                                <th>UPS</th>
+                                <th>Área</th>
+                                <th>Batería</th>
+                                <th>Cantidad</th>
+                                <th>Código</th>
+                                <th>Estado</th>
+                                <th>Último Movimiento</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="item in filteredStockUps" :key="item.id">
+                                <td>
+                                    <div class="text-center" style="width: 60px;">
+                                        <img v-if="item.insumo.url_imagen" 
+                                             :src="item.insumo.url_imagen" 
+                                             :alt="item.insumo.nombre_completo"
+                                             class="img-thumbnail"
+                                             style="max-width: 50px; max-height: 50px; object-fit: cover;"
+                                             @error="onImageError($event)">
+                                        <div v-else class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                             style="width: 50px; height: 50px; font-size: 12px; color: #6c757d;">
+                                            Sin imagen
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ item.insumo.marca ? item.insumo.marca.nombre : 'Sin marca' }} {{ item.insumo.modelo ? item.insumo.modelo.nombre : 'Sin modelo' }}</strong>
+                                        <small v-if="item.insumo.descripcion" class="text-muted d-block">{{ item.insumo.descripcion }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge" :class="item.area.es_deposito ? 'bg-warning text-dark' : 'bg-primary'">
+                                        {{ item.area.nombre }}
+                            </span>
+                                </td>
+                                <td>
+                                    <span v-if="item.insumo.bateria" class="badge bg-success">
+                                        {{ item.insumo.bateria }} mAh
+                            </span>
+                                    <span v-else class="text-muted">—</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ item.cantidad }}</span>
+                                </td>
+                                <td>
+                                    <code v-if="item.codigo" class="small">{{ item.codigo }}</code>
+                                    <span v-else class="text-muted">—</span>
+                                </td>
+                                <td>
+                                    <span class="badge" :class="getEstadoBadgeClass(item.estado)">{{ item.estado }}</span>
+                                </td>
+                                <td class="small">{{ formatDate(item.ultimo_movimiento) }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div v-if="filteredStockUps.length === 0" class="alert alert-info">
+                            No hay UPS registrados en stock.
+                        </div>
+                    </div>
+
+                    <!-- Vista General (Todos) - Vista original -->
+                    <div v-else class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                             <tr>
@@ -81,9 +231,9 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge" :class="item.area.es_deposito ? 'bg-warning' : 'bg-primary'">
+                                    <span class="badge" :class="item.area.es_deposito ? 'bg-warning text-dark' : 'bg-primary'">
                                         {{ item.area.nombre }}
-                                    </span>
+                            </span>
                                 </td>
                                 <td>{{ item.cantidad }}</td>
                                 <td>
@@ -102,9 +252,9 @@
                             </tr>
                             </tbody>
                         </table>
-                    </div>
-                    <div v-if="stockItems.length === 0" class="alert alert-info">
-                        No hay stock registrado.
+                        <div v-if="stockItems.length === 0" class="alert alert-info">
+                            No hay stock registrado.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -232,9 +382,25 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">URL Imagen</label>
-                                <input type="url" class="form-control" v-model="newInsumo.url_imagen" placeholder="https://...">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Imagen del Producto</label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" ref="imageFile" @change="onImageSelected" accept="image/*">
+                                    <button type="button" class="btn btn-outline-secondary" @click="uploadImage" :disabled="!selectedImage || uploading">
+                                        <i class="bi bi-cloud-upload" v-if="!uploading"></i>
+                                        <span class="spinner-border spinner-border-sm" v-if="uploading"></span>
+                                        {{ uploading ? 'Subiendo...' : 'Subir' }}
+                                    </button>
+                                </div>
+                                <div class="form-text">Formatos permitidos: PNG, JPG, JPEG, GIF, WEBP</div>
+                                
+                                <!-- Preview de la imagen -->
+                                <div v-if="newInsumo.url_imagen" class="mt-2">
+                                    <img :src="newInsumo.url_imagen" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" @click="removeImage">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <div class="form-check mt-4">
@@ -488,7 +654,14 @@ createApp({
                 marca_id: '',
                 cantidad: ''
             },
-            createModalInstance: null
+            createModalInstance: null,
+            
+            // Nueva propiedad para filtrar stock
+            stockFilter: 'todos',
+            
+            // Nuevas propiedades para la carga de imágenes
+            selectedImage: null,
+            uploading: false
         };
     },
     
@@ -531,6 +704,39 @@ createApp({
                 return this.newItem.cantidad && this.newItem.cantidad > 0;
             }
             return false;
+        },
+        
+        // Nuevas propiedades computadas para las vistas filtradas de stock
+        filteredStockImpresoras() {
+            let stockImpresoras = this.stockItems.filter(item => {
+                // Filtrar por tipo "impresora" (ajusta según tu estructura de datos)
+                return item.insumo.tipo && item.insumo.tipo.toLowerCase().includes('impresora');
+            });
+            
+            if (!this.searchStock) return stockImpresoras;
+            const searchLower = this.searchStock.toLowerCase();
+            return stockImpresoras.filter(item => 
+                item.insumo.nombre_completo.toLowerCase().includes(searchLower) ||
+                item.area.nombre.toLowerCase().includes(searchLower) ||
+                (item.codigo && item.codigo.toLowerCase().includes(searchLower)) ||
+                (item.insumo.toner && item.insumo.toner.toLowerCase().includes(searchLower))
+            );
+        },
+        
+        filteredStockUps() {
+            let stockUps = this.stockItems.filter(item => {
+                // Filtrar por tipo "ups" (ajusta según tu estructura de datos)
+                return item.insumo.tipo && item.insumo.tipo.toLowerCase().includes('ups');
+            });
+            
+            if (!this.searchStock) return stockUps;
+            const searchLower = this.searchStock.toLowerCase();
+            return stockUps.filter(item => 
+                item.insumo.nombre_completo.toLowerCase().includes(searchLower) ||
+                item.area.nombre.toLowerCase().includes(searchLower) ||
+                (item.codigo && item.codigo.toLowerCase().includes(searchLower)) ||
+                (item.insumo.bateria && item.insumo.bateria.toString().includes(searchLower))
+            );
         }
     },
     
@@ -880,6 +1086,76 @@ createApp({
                 marca_id: '',
                 cantidad: ''
             };
+        },
+        
+        // Nueva función para manejar errores de imagen
+        onImageError(event) {
+            event.target.src = 'https://via.placeholder.com/50x50?text=Sin+imagen';
+        },
+        
+        onImageSelected(event) {
+            const file = event.target.files[0];
+            if (file) {
+                this.selectedImage = file;
+            }
+        },
+        
+        async uploadImage() {
+            if (!this.selectedImage) return;
+            
+            this.uploading = true;
+            try {
+                const formData = new FormData();
+                formData.append('file', this.selectedImage);
+                
+                // Determinar categoría basada en el tipo seleccionado
+                let categoria = 'otros';
+                if (this.newInsumo.tipo_id) {
+                    const tipo = this.tiposProducto.find(t => t.id == this.newInsumo.tipo_id);
+                    if (tipo && tipo.nombre.toLowerCase().includes('impresora')) {
+                        categoria = 'impresoras';
+                    } else if (tipo && tipo.nombre.toLowerCase().includes('ups')) {
+                        categoria = 'ups';
+                    }
+                }
+                
+                formData.append('categoria', categoria);
+                
+                const response = await axios.post('/api/upload/imagen', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                
+                if (response.data.success) {
+                    this.newInsumo.url_imagen = response.data.url;
+                    this.selectedImage = null;
+                    this.$refs.imageFile.value = '';
+                    this.showToast('Éxito', 'Imagen subida correctamente', 'bg-success text-white');
+                } else {
+                    this.showToast('Error', response.data.message, 'bg-danger text-white');
+                }
+                
+            } catch (error) {
+                const message = error.response?.data?.message || 'Error al subir imagen';
+                this.showToast('Error', message, 'bg-danger text-white');
+            } finally {
+                this.uploading = false;
+            }
+        },
+        
+        async removeImage() {
+            if (this.newInsumo.url_imagen) {
+                try {
+                    // Extraer filename de la URL
+                    const filename = this.newInsumo.url_imagen.split('/').pop();
+                    await axios.delete(`/api/upload/imagen/${filename}`);
+                    this.newInsumo.url_imagen = '';
+                    this.showToast('Éxito', 'Imagen eliminada', 'bg-success text-white');
+                } catch (error) {
+                    console.error('Error al eliminar imagen:', error);
+                }
+            }
         }
     },
     
