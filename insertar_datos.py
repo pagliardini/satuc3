@@ -1,6 +1,7 @@
 from models import db, Marca, Modelo, TipoProducto, Sede, Area, UnidadOrganizativa
 from app import app
 from sqlalchemy import text
+from models import Insumo
 
 def insertar_marcas():
     marcas = [
@@ -167,9 +168,58 @@ def insertar_sedes_unidades_y_areas():
         db.session.commit()
 
 
+def insertar_insumos():
+    """
+    Inserta insumos de ejemplo según el modelo Insumo definido en models.py.
+    Relaciona insumos con tipo, marca y modelo existentes.
+    """
+    insumos = [
+        # (tipo, marca, modelo, descripcion, toner_id, bateria_id, url_imagen)
+        ("Impresora", "HP", "Color Laser 150a", "Impresora láser color", 1, None, None),
+        ("Impresora", "Epson", "EcoTank", "Impresora tanque de tinta", None, None, None),
+        ("Placa de Video", "Nvidia", "RTX 3060", "Placa de video dedicada", None, None, None),
+        ("Notebook", "Lenovo", "ThinkPad", "Notebook empresarial", None, None, None),
+        ("Monitor", "LG", "UltraWide", "Monitor panorámico", None, None, None),
+        ("UPS", "Energizer", "Energizer 1200VA", "UPS de respaldo", None, None, None),
+    ]
+
+
+    with app.app_context():
+        for tipo_nombre, marca_nombre, modelo_nombre, descripcion, toner_id, bateria_id, url_imagen in insumos:
+            tipo = TipoProducto.query.filter_by(nombre=tipo_nombre).first()
+            marca = Marca.query.filter_by(nombre=marca_nombre).first()
+            modelo = Modelo.query.filter_by(nombre=modelo_nombre).first()
+            if not (tipo and marca and modelo):
+                print(f"Insumo omitido: {tipo_nombre}, {marca_nombre}, {modelo_nombre} (faltan datos)")
+                continue
+
+            existente = Insumo.query.filter_by(
+                tipo_id=tipo.id,
+                marca_id=marca.id,
+                modelo_id=modelo.id,
+                descripcion=descripcion
+            ).first()
+            if existente:
+                print(f"Insumo ya existe: {descripcion} ({tipo_nombre}, {marca_nombre}, {modelo_nombre})")
+                continue
+
+            insumo = Insumo(
+                tipo_id=tipo.id,
+                marca_id=marca.id,
+                modelo_id=modelo.id,
+                descripcion=descripcion,
+                toner_id=toner_id,
+                bateria_id=bateria_id,
+                url_imagen=url_imagen
+            )
+            db.session.add(insumo)
+            print(f"Insumo insertado: {descripcion} ({tipo_nombre}, {marca_nombre}, {modelo_nombre})")
+        db.session.commit()
+
 
 if __name__ == '__main__':
     insertar_marcas()
     insertar_modelos()
     insertar_tipos()
     insertar_sedes_unidades_y_areas()
+    insertar_insumos()
