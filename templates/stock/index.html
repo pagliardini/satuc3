@@ -87,6 +87,7 @@
                                 <th>Código</th>
                                 <th>Estado</th>
                                 <th>Último Movimiento</th>
+                                <th>Acciones</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -133,6 +134,20 @@
                                     <span class="badge" :class="getEstadoBadgeClass(item.estado)">{{ item.estado }}</span>
                                 </td>
                                 <td class="small">{{ formatDate(item.ultimo_movimiento) }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-warning" 
+                                                @click="showMoveStockModal(item)" 
+                                                title="Mover stock">
+                                            <i class="bi bi-arrow-right-circle"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                @click="showBajaStockModal(item)" 
+                                                title="Dar de baja">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -154,6 +169,7 @@
                                 <th>Código</th>
                                 <th>Estado</th>
                                 <th>Último Movimiento</th>
+                                <th>Acciones</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -200,6 +216,20 @@
                                     <span class="badge" :class="getEstadoBadgeClass(item.estado)">{{ item.estado }}</span>
                                 </td>
                                 <td class="small">{{ formatDate(item.ultimo_movimiento) }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-warning" 
+                                                @click="showMoveStockModal(item)" 
+                                                title="Mover stock">
+                                            <i class="bi bi-arrow-right-circle"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                @click="showBajaStockModal(item)" 
+                                                title="Dar de baja">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -220,6 +250,7 @@
                                 <th>Estado</th>
                                 <th>Tipo</th>
                                 <th>Último Movimiento</th>
+                                <th>Acciones</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -249,6 +280,20 @@
                                     </span>
                                 </td>
                                 <td>{{ formatDate(item.ultimo_movimiento) }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-warning" 
+                                                @click="showMoveStockModal(item)" 
+                                                title="Mover stock">
+                                            <i class="bi bi-arrow-right-circle"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                @click="showBajaStockModal(item)" 
+                                                title="Dar de baja">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -637,150 +682,123 @@
         </div>
     </div>
 
-    <!-- Modal para editar insumo -->
-    <div class="modal fade" id="editInsumoModal" tabindex="-1" aria-labelledby="editInsumoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+    <!-- Modal para mover stock individual -->
+    <div class="modal fade" id="moveStockModal" tabindex="-1" aria-labelledby="moveStockModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editInsumoModalLabel">Editar Insumo</h5>
+                    <h5 class="modal-title" id="moveStockModalLabel">Mover Stock</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form @submit.prevent="updateInsumo" v-if="editingInsumo">
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Tipo *</label>
-                                <div class="input-group">
-                                    <select class="form-select" v-model="editingInsumo.tipo_id" required>
-                                        <option value="">Seleccionar tipo</option>
-                                        <option v-for="tipo in tiposProducto" :key="tipo.id" :value="tipo.id">{{ tipo.nombre }}</option>
-                                    </select>
-                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('tipo')" title="Agregar nuevo tipo">
-                                        <i class="bi bi-plus"></i>
+                <div class="modal-body" v-if="stockToMove">
+                    <div class="alert alert-info">
+                        <strong>{{ stockToMove.insumo.nombre_completo }}</strong><br>
+                        <small>Desde: {{ stockToMove.area.nombre }} | Cantidad: {{ stockToMove.cantidad }}</small>
+                        <span v-if="stockToMove.codigo" class="badge bg-secondary ms-2">{{ stockToMove.codigo }}</span>
+                    </div>
+                    
+                    <form @submit.prevent="moveStockFromModal">
+                        <div class="mb-3">
+                            <label class="form-label">Área destino *</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   v-model="areaSearch" 
+                                   @input="filterAreas"
+                                   placeholder="Escriba para buscar área..."
+                                   required>
+                            
+                            <!-- Lista filtrada de áreas -->
+                            <div v-if="filteredAreas.length > 0 && areaSearch" class="mt-2">
+                                <div class="list-group" style="max-height: 200px; overflow-y: auto;">
+                                    <button type="button" 
+                                            class="list-group-item list-group-item-action"
+                                            v-for="area in filteredAreas" 
+                                            :key="area.id"
+                                            @click="selectArea(area)">
+                                        {{ area.nombre }} 
+                                        <span v-if="area.es_deposito" class="badge bg-warning text-dark">Depósito</span>
                                     </button>
                                 </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Marca *</label>
-                                <div class="input-group">
-                                    <select class="form-select" v-model="editingInsumo.marca_id" required>
-                                        <option value="">Seleccionar marca</option>
-                                        <option v-for="marca in marcas" :key="marca.id" :value="marca.id">{{ marca.nombre }}</option>
-                                    </select>
-                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('marca')" title="Agregar nueva marca">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Modelo *</label>
-                                <div class="input-group">
-                                    <select class="form-select" v-model="editingInsumo.modelo_id" required>
-                                        <option value="">Seleccionar modelo</option>
-                                        <option v-for="modelo in modelosFilteredEdit" :key="modelo.id" :value="modelo.id">{{ modelo.nombre }}</option>
-                                    </select>
-                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('modelo')" title="Agregar nuevo modelo">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Descripción</label>
-                                <input type="text" class="form-control" v-model="editingInsumo.descripcion" placeholder="Descripción opcional">
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Tóner</label>
-                                <div class="input-group">
-                                    <select class="form-select" v-model="editingInsumo.toner_id" :disabled="!isImpresoraSelectedEdit">
-                                        <option value="">Sin tóner</option>
-                                        <option v-for="toner in toners" :key="toner.id" :value="toner.id">{{ toner.nombre }}</option>
-                                    </select>
-                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('toner')" 
-                                            title="Agregar nuevo tóner" :disabled="!isImpresoraSelectedEdit">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-                                </div>
-                                <div class="form-text" v-if="!isImpresoraSelectedEdit">
-                                    <small class="text-muted">Disponible solo para impresoras</small>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Batería</label>
-                                <div class="input-group">
-                                    <select class="form-select" v-model="editingInsumo.bateria_id" :disabled="!isUpsSelectedEdit">
-                                        <option value="">Sin batería</option>
-                                        <option v-for="bateria in baterias" :key="bateria.id" :value="bateria.id">Cantidad: {{ bateria.cantidad }}</option>
-                                    </select>
-                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('bateria')" 
-                                            title="Agregar nueva batería" :disabled="!isUpsSelectedEdit">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-                                </div>
-                                <div class="form-text" v-if="!isUpsSelectedEdit">
-                                    <small class="text-muted">Disponible solo para UPS</small>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Imagen del Producto</label>
-                                <div class="input-group">
-                                    <input type="file" class="form-control" ref="editImageFile" @change="onEditImageSelected" accept="image/*">
-                                    <button type="button" class="btn btn-outline-secondary" @click="uploadEditImage" :disabled="!selectedEditImage || uploadingEdit">
-                                        <i class="bi bi-cloud-upload" v-if="!uploadingEdit"></i>
-                                        <span class="spinner-border spinner-border-sm" v-if="uploadingEdit"></span>
-                                        {{ uploadingEdit ? 'Subiendo...' : 'Subir' }}
-                                    </button>
-                                </div>
-                                <div class="form-text">Formatos permitidos: PNG, JPG, JPEG, GIF, WEBP</div>
-                                
-                                <!-- Preview de la imagen -->
-                                <div v-if="editingInsumo.url_imagen" class="mt-2">
-                                    <img :src="editingInsumo.url_imagen" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
-                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" @click="removeEditImage">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <div class="form-check mt-4">
-                                    <input class="form-check-input" type="checkbox" v-model="editingInsumo.inventariable" id="editInventariable">
-                                    <label class="form-check-label" for="editInventariable">Inventariable</label>
-                                </div>
-                            </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Cantidad a mover *</label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   v-model="moveForm.cantidad" 
+                                   :max="stockToMove.cantidad"
+                                   min="1" 
+                                   required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Responsable</label>
+                            <input type="text" class="form-control" v-model="moveForm.responsable" placeholder="Nombre del responsable">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Observación</label>
+                            <input type="text" class="form-control" v-model="moveForm.observacion" placeholder="Observación opcional">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" @click="updateInsumo" :disabled="!editingInsumo">
-                        <i class="bi bi-check-lg"></i> Actualizar Insumo
+                    <button type="button" class="btn btn-warning" @click="moveStockFromModal" :disabled="!moveForm.area_destino_id">
+                        <i class="bi bi-arrow-right-circle"></i> Mover Stock
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de confirmación para eliminar -->
-    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <!-- Modal para dar de baja stock -->
+    <div class="modal fade" id="bajaStockModal" tabindex="-1" aria-labelledby="bajaStockModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteConfirmModalLabel">Confirmar Eliminación</h5>
+                    <h5 class="modal-title" id="bajaStockModalLabel">Dar de Baja Stock</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" v-if="insumoToDelete">
-                    <p>¿Está seguro de que desea eliminar el siguiente insumo?</p>
+                <div class="modal-body" v-if="stockToBaja">
                     <div class="alert alert-warning">
-                        <strong>{{ insumoToDelete.nombre_completo }}</strong>
-                        <br><small>{{ insumoToDelete.tipo.nombre }} - {{ insumoToDelete.marca.nombre }} - {{ insumoToDelete.modelo.nombre }}</small>
+                        <strong>{{ stockToBaja.insumo.nombre_completo }}</strong><br>
+                        <small>Área: {{ stockToBaja.area.nombre }} | Cantidad: {{ stockToBaja.cantidad }}</small>
+                        <span v-if="stockToBaja.codigo" class="badge bg-secondary ms-2">{{ stockToBaja.codigo }}</span>
                     </div>
-                    <p class="text-danger"><strong>Esta acción no se puede deshacer.</strong></p>
+                    
+                    <p class="text-danger">¿Está seguro de que desea dar de baja este stock?</p>
+                    
+                    <form @submit.prevent="darDeBajaStock">
+                        <div class="mb-3">
+                            <label class="form-label">Motivo de la baja *</label>
+                            <select class="form-select" v-model="bajaForm.motivo" required>
+                                <option value="">Seleccionar motivo</option>
+                                <option value="dañado">Dañado</option>
+                                <option value="obsoleto">Obsoleto</option>
+                                <option value="perdido">Perdido</option>
+                                <option value="robado">Robado</option>
+                                <option value="transferido">Transferido</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Responsable</label>
+                            <input type="text" class="form-control" v-model="bajaForm.responsable" placeholder="Nombre del responsable">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Observación</label>
+                            <textarea class="form-control" v-model="bajaForm.observacion" placeholder="Detalle del motivo de la baja" rows="3"></textarea>
+                        </div>
+                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" @click="deleteInsumo">
-                        <i class="bi bi-trash"></i> Eliminar
+                    <button type="button" class="btn btn-danger" @click="darDeBajaStock" :disabled="!bajaForm.motivo">
+                        <i class="bi bi-x-circle"></i> Dar de Baja
                     </button>
                 </div>
             </div>
@@ -861,11 +879,26 @@ createApp({
             selectedImage: null,
             uploading: false,
             
-            // Nueva propiedad para editar insumo
-            editingInsumo: null,
-            selectedEditImage: null,
-            uploadingEdit: false,
-            insumoToDelete: null
+            // Nuevas propiedades para mover stock
+            stockToMove: null,
+            moveStockModalInstance: null,
+            areaSearch: '',
+            filteredAreas: [],
+            moveForm: {
+                area_destino_id: '',
+                cantidad: 1,
+                responsable: '',
+                observacion: ''
+            },
+            
+            // Nuevas propiedades para dar de baja
+            stockToBaja: null,
+            bajaStockModalInstance: null,
+            bajaForm: {
+                motivo: '',
+                responsable: '',
+                observacion: ''
+            }
         };
     },
     
@@ -894,11 +927,6 @@ createApp({
         modelosFiltered() {
             if (!this.newInsumo.marca_id) return [];
             return this.modelos.filter(modelo => modelo.marca_id == this.newInsumo.marca_id);
-        },
-        
-        modelosFilteredEdit() {
-            if (!this.editingInsumo.marca_id) return [];
-            return this.modelos.filter(modelo => modelo.marca_id == this.editingInsumo.marca_id);
         },
         
         // Nueva propiedad computada para validar el formulario del modal
@@ -959,18 +987,6 @@ createApp({
             if (!this.newInsumo.tipo_id) return false;
             const tipoSeleccionado = this.tiposProducto.find(t => t.id == this.newInsumo.tipo_id);
             return tipoSeleccionado && tipoSeleccionado.nombre.toLowerCase().includes('ups');
-        },
-        
-        isImpresoraSelectedEdit() {
-            if (!this.editingInsumo.tipo_id) return false;
-            const tipoSeleccionado = this.tiposProducto.find(t => t.id == this.editingInsumo.tipo_id);
-            return tipoSeleccionado && tipoSeleccionado.nombre.toLowerCase().includes('impresora');
-        },
-        
-        isUpsSelectedEdit() {
-            if (!this.editingInsumo.tipo_id) return false;
-            const tipoSeleccionado = this.tiposProducto.find(t => t.id == this.editingInsumo.tipo_id);
-            return tipoSeleccionado && tipoSeleccionado.nombre.toLowerCase().includes('ups');
         }
     },
     
@@ -985,19 +1001,6 @@ createApp({
                 // Si no es UPS, limpiar batería
                 if (!this.isUpsSelected) {
                     this.newInsumo.bateria_id = '';
-                }
-            }
-        },
-        'editingInsumo.tipo_id'(newVal, oldVal) {
-            // Si cambió el tipo en edición, limpiar tóner y batería según corresponda
-            if (newVal !== oldVal) {
-                // Si no es impresora, limpiar tóner
-                if (!this.isImpresoraSelectedEdit) {
-                    this.editingInsumo.toner_id = '';
-                }
-                // Si no es UPS, limpiar batería
-                if (!this.isUpsSelectedEdit) {
-                    this.editingInsumo.bateria_id = '';
                 }
             }
         }
@@ -1049,25 +1052,6 @@ createApp({
                 }
             } catch (error) {
                 const message = error.response?.data?.message || 'Error al crear insumo';
-                this.showToast('Error', message, 'bg-danger text-white');
-            } finally {
-                this.loading = false;
-            }
-        },
-        
-        async updateInsumo() {
-            this.loading = true;
-            try {
-                const response = await axios.put(`/api/stock/insumos/${this.editingInsumo.id}`, this.editingInsumo);
-                if (response.data.success) {
-                    this.showToast('Éxito', 'Insumo actualizado correctamente', 'bg-success text-white');
-                    this.editingInsumo = null;
-                    await this.loadData();
-                } else {
-                    this.showToast('Error', response.data.message, 'bg-danger text-white');
-                }
-            } catch (error) {
-                const message = error.response?.data?.message || 'Error al actualizar insumo';
                 this.showToast('Error', message, 'bg-danger text-white');
             } finally {
                 this.loading = false;
@@ -1440,98 +1424,110 @@ createApp({
             }
         },
         
-        async uploadEditImage() {
-            if (!this.selectedEditImage) return;
+        showMoveStockModal(stockItem) {
+            this.stockToMove = stockItem;
+            this.areaSearch = '';
+            this.filteredAreas = [];
+            this.moveForm = {
+                area_destino_id: '',
+                cantidad: stockItem.cantidad,
+                responsable: '',
+                observacion: ''
+            };
             
-            this.uploadingEdit = true;
-            try {
-                const formData = new FormData();
-                formData.append('file', this.selectedEditImage);
-                
-                // Determinar categoría basada en el tipo seleccionado
-                let categoria = 'otros';
-                if (this.editingInsumo.tipo_id) {
-                    const tipo = this.tiposProducto.find(t => t.id == this.editingInsumo.tipo_id);
-                    if (tipo && tipo.nombre.toLowerCase().includes('impresora')) {
-                        categoria = 'impresoras';
-                    } else if (tipo && tipo.nombre.toLowerCase().includes('ups')) {
-                        categoria = 'ups';
-                    }
-                }
-                
-                formData.append('categoria', categoria);
-                
-                const response = await axios.post('/api/upload/imagen', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-                
-                if (response.data.success) {
-                    this.editingInsumo.url_imagen = response.data.url;
-                    this.selectedEditImage = null;
-                    this.$refs.editImageFile.value = '';
-                    this.showToast('Éxito', 'Imagen subida correctamente', 'bg-success text-white');
-                } else {
-                    this.showToast('Error', response.data.message, 'bg-danger text-white');
-                }
-                
-            } catch (error) {
-                const message = error.response?.data?.message || 'Error al subir imagen';
-                this.showToast('Error', message, 'bg-danger text-white');
-            } finally {
-                this.uploadingEdit = false;
+            if (!this.moveStockModalInstance) {
+                this.moveStockModalInstance = new bootstrap.Modal(document.getElementById('moveStockModal'));
             }
+            this.moveStockModalInstance.show();
         },
         
-        async removeEditImage() {
-            if (this.editingInsumo.url_imagen) {
-                try {
-                    // Extraer filename de la URL
-                    const filename = this.editingInsumo.url_imagen.split('/').pop();
-                    await axios.delete(`/api/upload/imagen/${filename}`);
-                    this.editingInsumo.url_imagen = '';
-                    this.showToast('Éxito', 'Imagen eliminada', 'bg-success text-white');
-                } catch (error) {
-                    console.error('Error al eliminar imagen:', error);
-                }
+        filterAreas() {
+            if (!this.areaSearch.trim()) {
+                this.filteredAreas = [];
+                this.moveForm.area_destino_id = '';
+                return;
             }
+            
+            const searchLower = this.areaSearch.toLowerCase();
+            this.filteredAreas = this.areas.filter(area => 
+                area.nombre.toLowerCase().includes(searchLower) && 
+                area.id !== this.stockToMove.area.id // Excluir el área actual
+            ).slice(0, 5); // Limitar a 5 resultados
         },
         
-        editInsumo(insumo) {
-            this.editingInsumo = { ...insumo };
-            
-            // Ajustar el formato de la fecha para la edición
-            this.editingInsumo.fecha_creacion = this.formatDate(insumo.fecha_creacion);
-            
-            // Mostrar el modal de edición
-            const modal = new bootstrap.Modal(document.getElementById('editInsumoModal'));
-            modal.show();
+        selectArea(area) {
+            this.areaSearch = area.nombre;
+            this.moveForm.area_destino_id = area.id;
+            this.filteredAreas = [];
         },
         
-        confirmDeleteInsumo(insumo) {
-            this.insumoToDelete = insumo;
-            
-            // Mostrar el modal de confirmación
-            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-            modal.show();
-        },
-        
-        async deleteInsumo() {
-            if (!this.insumoToDelete) return;
+        async moveStockFromModal() {
+            if (!this.stockToMove || !this.moveForm.area_destino_id) return;
             
             this.loading = true;
             try {
-                const response = await axios.delete(`/api/stock/insumos/${this.insumoToDelete.id}`);
+                const moveData = {
+                    stock_origen_id: this.stockToMove.id,
+                    area_destino_id: this.moveForm.area_destino_id,
+                    cantidad: this.moveForm.cantidad,
+                    responsable: this.moveForm.responsable,
+                    observacion: this.moveForm.observacion
+                };
+                
+                const response = await axios.post('/api/stock/mover', moveData);
                 if (response.data.success) {
-                    this.showToast('Éxito', 'Insumo eliminado correctamente', 'bg-success text-white');
-                    this.insumoToDelete = null;
+                    this.showToast('Éxito', response.data.message, 'bg-success text-white');
+                    this.moveStockModalInstance.hide();
+                    this.stockToMove = null;
                     await this.loadData();
                 } else {
                     this.showToast('Error', response.data.message, 'bg-danger text-white');
                 }
             } catch (error) {
-                const message = error.response?.data?.message || 'Error al eliminar insumo';
+                const message = error.response?.data?.message || 'Error al mover stock';
+                this.showToast('Error', message, 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        showBajaStockModal(stockItem) {
+            this.stockToBaja = stockItem;
+            this.bajaForm = {
+                motivo: '',
+                responsable: '',
+                observacion: ''
+            };
+            
+            if (!this.bajaStockModalInstance) {
+                this.bajaStockModalInstance = new bootstrap.Modal(document.getElementById('bajaStockModal'));
+            }
+            this.bajaStockModalInstance.show();
+        },
+        
+        async darDeBajaStock() {
+            if (!this.stockToBaja || !this.bajaForm.motivo) return;
+            
+            this.loading = true;
+            try {
+                const bajaData = {
+                    stock_id: this.stockToBaja.id,
+                    motivo: this.bajaForm.motivo,
+                    responsable: this.bajaForm.responsable,
+                    observacion: this.bajaForm.observacion
+                };
+                
+                const response = await axios.post('/api/stock/baja', bajaData);
+                if (response.data.success) {
+                    this.showToast('Éxito', response.data.message, 'bg-success text-white');
+                    this.bajaStockModalInstance.hide();
+                    this.stockToBaja = null;
+                    await this.loadData();
+                } else {
+                    this.showToast('Error', response.data.message, 'bg-danger text-white');
+                }
+            } catch (error) {
+                const message = error.response?.data?.message || 'Error al dar de baja stock';
                 this.showToast('Error', message, 'bg-danger text-white');
             } finally {
                 this.loading = false;

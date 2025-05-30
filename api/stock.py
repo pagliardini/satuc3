@@ -415,29 +415,104 @@ def update_insumo(insumo_id):
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
 
-@stock_bp.route('/stock/insumos/<int:insumo_id>', methods=['DELETE'])
-def delete_insumo(insumo_id):
-    """Eliminar un insumo (desactivar)"""
+@stock_bp.route('/stock/baja', methods=['POST'])
+def dar_baja_stock():
+    """Dar de baja una imputación de stock"""
+    data = request.get_json()
+    stock_id = data.get('stock_id')
+    motivo = data.get('motivo')
+    responsable = data.get('responsable')
+    observacion = data.get('observacion')
+    
+    if not stock_id or not motivo:
+        return jsonify({"success": False, "message": "Stock ID y motivo son requeridos"}), 400
+    
     try:
-        insumo = Insumo.query.get_or_404(insumo_id)
+        stock_item = StockUbicacion.query.get_or_404(stock_id)
         
-        # Verificar si tiene stock asociado
-        stock_asociado = StockUbicacion.query.filter_by(insumo_id=insumo_id).first()
-        if stock_asociado:
-            return jsonify({
-                "success": False, 
-                "message": "No se puede eliminar el insumo porque tiene stock asociado"
-            }), 400
+        # Actualizar estado a 'baja'
+        stock_item.estado = 'baja'
+        stock_item.ultimo_movimiento = datetime.utcnow()
         
-        # En lugar de eliminar, desactivar
-        insumo.activo = False
+        # Registrar movimiento de baja
+        movimiento = MovimientoStock(
+            stock_origen_id=stock_id,
+            stock_destino_id=None,
+            insumo_id=stock_item.insumo_id,
+            cantidad=stock_item.cantidad,
+            observacion=f"BAJA: {motivo}. {observacion or ''}",
+            responsable=responsable or "Sistema",
+            tipo_movimiento="baja"
+        )
+        db.session.add(movimiento)
+        
         db.session.commit()
         
         return jsonify({
             "success": True,
-            "message": "Insumo eliminado correctamente"
+            "message": f"Stock dado de baja correctamente. Motivo: {motivo}"
         }), 200
         
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
+
+@stock_bp.route('/stock/insumos/<int:insumo_id>', methods=['DELETE'])
+def delete_insumo(insumo_id):
+    """Eliminar un insumo solo si no tiene stock activo"""
+    try:
+        insumo = Insumo.query.get_or_404(insumo_id)
+        
+        # Verificar si tiene stock activo (no dado de baja)
+        stock_activo = StockUbicacion.query.filter(
+            StockUbicacion.insumo_id == insumo_id,
+            StockUbicacion.estado != 'baja'
+        ).first()
+        
+        if stock_activo:
+            return jsonify({
+                "success": False, 
+                "message": "No se puede eliminar el insumo porque tiene stock activo. Debe dar de baja todas las imputaciones primero."
+            }), 400
+        
+        # Verificar si tiene movimientos históricos
+        movimientos = MovimientoStock.query.filter_by(insumo_id=insumo_id).count()
+        
+        if movimientos > 0:
+            # Si tiene movimientos históricos, solo desactivar
+            insumo.activo = False
+            mensaje = "Insumo desactivado correctamente (se conserva el historial)"
+        else:
+            # Si no tiene movimientos, eliminar completamente
+            db.session.delete(insumo)
+            mensaje = "Insumo eliminado correctamente"
+        
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": mensaje
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@stock_bp.route('/stock/insumos', methods=['GET'])
+def get_insumos():
+    """Obtiene todos los insumos activos"""
+    # Filtrar solo insumos activos
+    insumos = Insumo.query.filter_by(activo=True).all()
+    return jsonify([{
+        "id": insumo.id,
+        "nombre_completo": insumo.nombre_completo,
+        "tipo": {"id": insumo.tipo.id, "nombre": insumo.tipo.nombre},
+        "marca": {"id": insumo.marca.id, "nombre": insumo.marca.nombre},
+        "modelo": {"id": insumo.modelo.id, "nombre": insumo.modelo.nombre},
+        "descripcion": insumo.descripcion,
+        "inventariable": insumo.inventariable,
+        "toner": {"id": insumo.toner.id, "nombre": insumo.toner.nombre} if insumo.toner else None,
+        "bateria": {"id": insumo.bateria.id, "cantidad": insumo.bateria.cantidad} if insumo.bateria else None,
+        "url_imagen": insumo.url_imagen,
+        "fecha_creacion": insumo.fecha_creacion.isoformat()
+    } for insumo in insumos])

@@ -122,6 +122,7 @@ class MovimientoStock(db.Model):
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     observacion = db.Column(db.String(200), nullable=True)
     responsable = db.Column(db.String(100), nullable=True)
+    tipo_movimiento = db.Column(db.String(20), default='movimiento')  # movimiento, baja, imputacion
 
     stock_origen = db.relationship('StockUbicacion', foreign_keys=[stock_origen_id], lazy=True)
     stock_destino = db.relationship('StockUbicacion', foreign_keys=[stock_destino_id], lazy=True)
