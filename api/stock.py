@@ -361,3 +361,83 @@ def get_baterias_from_stock():
     """Obtiene todas las baterías"""
     baterias = Bateria.query.all()
     return jsonify([{"id": b.id, "cantidad": b.cantidad} for b in baterias])
+
+@stock_bp.route('/stock/insumos/<int:insumo_id>', methods=['PUT'])
+def update_insumo(insumo_id):
+    """Actualizar un insumo existente"""
+    data = request.get_json()
+    
+    try:
+        insumo = Insumo.query.get_or_404(insumo_id)
+        
+        # Validar que los modelos existan
+        if data.get('tipo_id') and not TipoProducto.query.get(data['tipo_id']):
+            return jsonify({"success": False, "message": "Tipo de producto no válido"}), 400
+        if data.get('marca_id') and not Marca.query.get(data['marca_id']):
+            return jsonify({"success": False, "message": "Marca no válida"}), 400
+        if data.get('modelo_id') and not Modelo.query.get(data['modelo_id']):
+            return jsonify({"success": False, "message": "Modelo no válido"}), 400
+        if data.get('toner_id') and not Toner.query.get(data['toner_id']):
+            return jsonify({"success": False, "message": "Tóner no válido"}), 400
+        if data.get('bateria_id') and not Bateria.query.get(data['bateria_id']):
+            return jsonify({"success": False, "message": "Batería no válida"}), 400
+        
+        # Actualizar campos
+        if 'tipo_id' in data:
+            insumo.tipo_id = data['tipo_id']
+        if 'marca_id' in data:
+            insumo.marca_id = data['marca_id']
+        if 'modelo_id' in data:
+            insumo.modelo_id = data['modelo_id']
+        if 'descripcion' in data:
+            insumo.descripcion = data['descripcion']
+        if 'inventariable' in data:
+            insumo.inventariable = data['inventariable']
+        if 'toner_id' in data:
+            insumo.toner_id = data['toner_id'] if data['toner_id'] else None
+        if 'bateria_id' in data:
+            insumo.bateria_id = data['bateria_id'] if data['bateria_id'] else None
+        if 'url_imagen' in data:
+            insumo.url_imagen = data['url_imagen']
+        
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": "Insumo actualizado correctamente",
+            "insumo": {
+                "id": insumo.id,
+                "nombre_completo": insumo.nombre_completo
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@stock_bp.route('/stock/insumos/<int:insumo_id>', methods=['DELETE'])
+def delete_insumo(insumo_id):
+    """Eliminar un insumo (desactivar)"""
+    try:
+        insumo = Insumo.query.get_or_404(insumo_id)
+        
+        # Verificar si tiene stock asociado
+        stock_asociado = StockUbicacion.query.filter_by(insumo_id=insumo_id).first()
+        if stock_asociado:
+            return jsonify({
+                "success": False, 
+                "message": "No se puede eliminar el insumo porque tiene stock asociado"
+            }), 400
+        
+        # En lugar de eliminar, desactivar
+        insumo.activo = False
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": "Insumo eliminado correctamente"
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500

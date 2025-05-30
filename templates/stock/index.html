@@ -272,25 +272,51 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <!-- Reemplazar la tabla del catálogo de insumos -->
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                             <tr>
                                 <th>ID</th>
+                                <th>Imagen</th>
                                 <th>Nombre Completo</th>
                                 <th>Tipo</th>
                                 <th>Marca</th>
                                 <th>Modelo</th>
                                 <th>Inventariable</th>
                                 <th>Fecha Creación</th>
+                                <th>Acciones</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr v-for="insumo in filteredInsumos" :key="insumo.id">
                                 <td>{{ insumo.id }}</td>
                                 <td>
+                                    <div class="text-center" style="width: 40px;">
+                                        <img v-if="insumo.url_imagen" 
+                                             :src="insumo.url_imagen" 
+                                             :alt="insumo.nombre_completo"
+                                             class="img-thumbnail"
+                                             style="max-width: 30px; max-height: 30px; object-fit: cover;"
+                                             @error="onImageError($event)">
+                                        <div v-else class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                             style="width: 30px; height: 30px; font-size: 10px; color: #6c757d;">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
                                     <strong>{{ insumo.nombre_completo }}</strong>
                                     <small v-if="insumo.descripcion" class="text-muted d-block">{{ insumo.descripcion }}</small>
+                                    <!-- Mostrar tóner y batería si existen -->
+                                    <div class="mt-1">
+                                        <span v-if="insumo.toner" class="badge bg-info me-1" style="font-size: 0.7em;">
+                                            <i class="bi bi-printer"></i> {{ insumo.toner.nombre }}
+                                        </span>
+                                        <span v-if="insumo.bateria" class="badge bg-success" style="font-size: 0.7em;">
+                                            <i class="bi bi-battery"></i> {{ insumo.bateria.cantidad }} mAh
+                                        </span>
+                                    </div>
                                 </td>
                                 <td>{{ insumo.tipo.nombre }}</td>
                                 <td>{{ insumo.marca.nombre }}</td>
@@ -301,6 +327,20 @@
                                     </span>
                                 </td>
                                 <td>{{ formatDate(insumo.fecha_creacion) }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                @click="editInsumo(insumo)" 
+                                                title="Editar insumo">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                @click="confirmDeleteInsumo(insumo)" 
+                                                title="Eliminar insumo">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -361,25 +401,33 @@
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Tóner</label>
                                 <div class="input-group">
-                                    <select class="form-select" v-model="newInsumo.toner_id">
+                                    <select class="form-select" v-model="newInsumo.toner_id" :disabled="!isImpresoraSelected">
                                         <option value="">Sin tóner</option>
                                         <option v-for="toner in toners" :key="toner.id" :value="toner.id">{{ toner.nombre }}</option>
                                     </select>
-                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('toner')" title="Agregar nuevo tóner">
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('toner')" 
+                                            title="Agregar nuevo tóner" :disabled="!isImpresoraSelected">
                                         <i class="bi bi-plus"></i>
                                     </button>
+                                </div>
+                                <div class="form-text" v-if="!isImpresoraSelected">
+                                    <small class="text-muted">Disponible solo para impresoras</small>
                                 </div>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Batería</label>
                                 <div class="input-group">
-                                    <select class="form-select" v-model="newInsumo.bateria_id">
+                                    <select class="form-select" v-model="newInsumo.bateria_id" :disabled="!isUpsSelected">
                                         <option value="">Sin batería</option>
                                         <option v-for="bateria in baterias" :key="bateria.id" :value="bateria.id">Cantidad: {{ bateria.cantidad }}</option>
                                     </select>
-                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('bateria')" title="Agregar nueva batería">
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('bateria')" 
+                                            title="Agregar nueva batería" :disabled="!isUpsSelected">
                                         <i class="bi bi-plus"></i>
                                     </button>
+                                </div>
+                                <div class="form-text" v-if="!isUpsSelected">
+                                    <small class="text-muted">Disponible solo para UPS</small>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
@@ -402,7 +450,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-2 mb-3">
                                 <div class="form-check mt-4">
                                     <input class="form-check-input" type="checkbox" v-model="newInsumo.inventariable" id="inventariable">
                                     <label class="form-check-label" for="inventariable">Inventariable</label>
@@ -588,6 +636,156 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para editar insumo -->
+    <div class="modal fade" id="editInsumoModal" tabindex="-1" aria-labelledby="editInsumoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editInsumoModalLabel">Editar Insumo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="updateInsumo" v-if="editingInsumo">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Tipo *</label>
+                                <div class="input-group">
+                                    <select class="form-select" v-model="editingInsumo.tipo_id" required>
+                                        <option value="">Seleccionar tipo</option>
+                                        <option v-for="tipo in tiposProducto" :key="tipo.id" :value="tipo.id">{{ tipo.nombre }}</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('tipo')" title="Agregar nuevo tipo">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Marca *</label>
+                                <div class="input-group">
+                                    <select class="form-select" v-model="editingInsumo.marca_id" required>
+                                        <option value="">Seleccionar marca</option>
+                                        <option v-for="marca in marcas" :key="marca.id" :value="marca.id">{{ marca.nombre }}</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('marca')" title="Agregar nueva marca">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Modelo *</label>
+                                <div class="input-group">
+                                    <select class="form-select" v-model="editingInsumo.modelo_id" required>
+                                        <option value="">Seleccionar modelo</option>
+                                        <option v-for="modelo in modelosFilteredEdit" :key="modelo.id" :value="modelo.id">{{ modelo.nombre }}</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('modelo')" title="Agregar nuevo modelo">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Descripción</label>
+                                <input type="text" class="form-control" v-model="editingInsumo.descripcion" placeholder="Descripción opcional">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Tóner</label>
+                                <div class="input-group">
+                                    <select class="form-select" v-model="editingInsumo.toner_id" :disabled="!isImpresoraSelectedEdit">
+                                        <option value="">Sin tóner</option>
+                                        <option v-for="toner in toners" :key="toner.id" :value="toner.id">{{ toner.nombre }}</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('toner')" 
+                                            title="Agregar nuevo tóner" :disabled="!isImpresoraSelectedEdit">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text" v-if="!isImpresoraSelectedEdit">
+                                    <small class="text-muted">Disponible solo para impresoras</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Batería</label>
+                                <div class="input-group">
+                                    <select class="form-select" v-model="editingInsumo.bateria_id" :disabled="!isUpsSelectedEdit">
+                                        <option value="">Sin batería</option>
+                                        <option v-for="bateria in baterias" :key="bateria.id" :value="bateria.id">Cantidad: {{ bateria.cantidad }}</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary" type="button" @click="showCreateModal('bateria')" 
+                                            title="Agregar nueva batería" :disabled="!isUpsSelectedEdit">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text" v-if="!isUpsSelectedEdit">
+                                    <small class="text-muted">Disponible solo para UPS</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Imagen del Producto</label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" ref="editImageFile" @change="onEditImageSelected" accept="image/*">
+                                    <button type="button" class="btn btn-outline-secondary" @click="uploadEditImage" :disabled="!selectedEditImage || uploadingEdit">
+                                        <i class="bi bi-cloud-upload" v-if="!uploadingEdit"></i>
+                                        <span class="spinner-border spinner-border-sm" v-if="uploadingEdit"></span>
+                                        {{ uploadingEdit ? 'Subiendo...' : 'Subir' }}
+                                    </button>
+                                </div>
+                                <div class="form-text">Formatos permitidos: PNG, JPG, JPEG, GIF, WEBP</div>
+                                
+                                <!-- Preview de la imagen -->
+                                <div v-if="editingInsumo.url_imagen" class="mt-2">
+                                    <img :src="editingInsumo.url_imagen" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" @click="removeEditImage">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" v-model="editingInsumo.inventariable" id="editInventariable">
+                                    <label class="form-check-label" for="editInventariable">Inventariable</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @click="updateInsumo" :disabled="!editingInsumo">
+                        <i class="bi bi-check-lg"></i> Actualizar Insumo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" v-if="insumoToDelete">
+                    <p>¿Está seguro de que desea eliminar el siguiente insumo?</p>
+                    <div class="alert alert-warning">
+                        <strong>{{ insumoToDelete.nombre_completo }}</strong>
+                        <br><small>{{ insumoToDelete.tipo.nombre }} - {{ insumoToDelete.marca.nombre }} - {{ insumoToDelete.modelo.nombre }}</small>
+                    </div>
+                    <p class="text-danger"><strong>Esta acción no se puede deshacer.</strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" @click="deleteInsumo">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     {% endraw %}
 </div>
 
@@ -661,7 +859,13 @@ createApp({
             
             // Nuevas propiedades para la carga de imágenes
             selectedImage: null,
-            uploading: false
+            uploading: false,
+            
+            // Nueva propiedad para editar insumo
+            editingInsumo: null,
+            selectedEditImage: null,
+            uploadingEdit: false,
+            insumoToDelete: null
         };
     },
     
@@ -690,6 +894,11 @@ createApp({
         modelosFiltered() {
             if (!this.newInsumo.marca_id) return [];
             return this.modelos.filter(modelo => modelo.marca_id == this.newInsumo.marca_id);
+        },
+        
+        modelosFilteredEdit() {
+            if (!this.editingInsumo.marca_id) return [];
+            return this.modelos.filter(modelo => modelo.marca_id == this.editingInsumo.marca_id);
         },
         
         // Nueva propiedad computada para validar el formulario del modal
@@ -737,6 +946,60 @@ createApp({
                 (item.codigo && item.codigo.toLowerCase().includes(searchLower)) ||
                 (item.insumo.bateria && item.insumo.bateria.toString().includes(searchLower))
             );
+        },
+        
+        // Nuevas propiedades computadas para habilitar/deshabilitar campos según selección
+        isImpresoraSelected() {
+            if (!this.newInsumo.tipo_id) return false;
+            const tipoSeleccionado = this.tiposProducto.find(t => t.id == this.newInsumo.tipo_id);
+            return tipoSeleccionado && tipoSeleccionado.nombre.toLowerCase().includes('impresora');
+        },
+        
+        isUpsSelected() {
+            if (!this.newInsumo.tipo_id) return false;
+            const tipoSeleccionado = this.tiposProducto.find(t => t.id == this.newInsumo.tipo_id);
+            return tipoSeleccionado && tipoSeleccionado.nombre.toLowerCase().includes('ups');
+        },
+        
+        isImpresoraSelectedEdit() {
+            if (!this.editingInsumo.tipo_id) return false;
+            const tipoSeleccionado = this.tiposProducto.find(t => t.id == this.editingInsumo.tipo_id);
+            return tipoSeleccionado && tipoSeleccionado.nombre.toLowerCase().includes('impresora');
+        },
+        
+        isUpsSelectedEdit() {
+            if (!this.editingInsumo.tipo_id) return false;
+            const tipoSeleccionado = this.tiposProducto.find(t => t.id == this.editingInsumo.tipo_id);
+            return tipoSeleccionado && tipoSeleccionado.nombre.toLowerCase().includes('ups');
+        }
+    },
+    
+    watch: {
+        'newInsumo.tipo_id'(newVal, oldVal) {
+            // Si cambió el tipo, limpiar tóner y batería según corresponda
+            if (newVal !== oldVal) {
+                // Si no es impresora, limpiar tóner
+                if (!this.isImpresoraSelected) {
+                    this.newInsumo.toner_id = '';
+                }
+                // Si no es UPS, limpiar batería
+                if (!this.isUpsSelected) {
+                    this.newInsumo.bateria_id = '';
+                }
+            }
+        },
+        'editingInsumo.tipo_id'(newVal, oldVal) {
+            // Si cambió el tipo en edición, limpiar tóner y batería según corresponda
+            if (newVal !== oldVal) {
+                // Si no es impresora, limpiar tóner
+                if (!this.isImpresoraSelectedEdit) {
+                    this.editingInsumo.toner_id = '';
+                }
+                // Si no es UPS, limpiar batería
+                if (!this.isUpsSelectedEdit) {
+                    this.editingInsumo.bateria_id = '';
+                }
+            }
         }
     },
     
@@ -786,6 +1049,25 @@ createApp({
                 }
             } catch (error) {
                 const message = error.response?.data?.message || 'Error al crear insumo';
+                this.showToast('Error', message, 'bg-danger text-white');
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        async updateInsumo() {
+            this.loading = true;
+            try {
+                const response = await axios.put(`/api/stock/insumos/${this.editingInsumo.id}`, this.editingInsumo);
+                if (response.data.success) {
+                    this.showToast('Éxito', 'Insumo actualizado correctamente', 'bg-success text-white');
+                    this.editingInsumo = null;
+                    await this.loadData();
+                } else {
+                    this.showToast('Error', response.data.message, 'bg-danger text-white');
+                }
+            } catch (error) {
+                const message = error.response?.data?.message || 'Error al actualizar insumo';
                 this.showToast('Error', message, 'bg-danger text-white');
             } finally {
                 this.loading = false;
@@ -1155,6 +1437,104 @@ createApp({
                 } catch (error) {
                     console.error('Error al eliminar imagen:', error);
                 }
+            }
+        },
+        
+        async uploadEditImage() {
+            if (!this.selectedEditImage) return;
+            
+            this.uploadingEdit = true;
+            try {
+                const formData = new FormData();
+                formData.append('file', this.selectedEditImage);
+                
+                // Determinar categoría basada en el tipo seleccionado
+                let categoria = 'otros';
+                if (this.editingInsumo.tipo_id) {
+                    const tipo = this.tiposProducto.find(t => t.id == this.editingInsumo.tipo_id);
+                    if (tipo && tipo.nombre.toLowerCase().includes('impresora')) {
+                        categoria = 'impresoras';
+                    } else if (tipo && tipo.nombre.toLowerCase().includes('ups')) {
+                        categoria = 'ups';
+                    }
+                }
+                
+                formData.append('categoria', categoria);
+                
+                const response = await axios.post('/api/upload/imagen', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                
+                if (response.data.success) {
+                    this.editingInsumo.url_imagen = response.data.url;
+                    this.selectedEditImage = null;
+                    this.$refs.editImageFile.value = '';
+                    this.showToast('Éxito', 'Imagen subida correctamente', 'bg-success text-white');
+                } else {
+                    this.showToast('Error', response.data.message, 'bg-danger text-white');
+                }
+                
+            } catch (error) {
+                const message = error.response?.data?.message || 'Error al subir imagen';
+                this.showToast('Error', message, 'bg-danger text-white');
+            } finally {
+                this.uploadingEdit = false;
+            }
+        },
+        
+        async removeEditImage() {
+            if (this.editingInsumo.url_imagen) {
+                try {
+                    // Extraer filename de la URL
+                    const filename = this.editingInsumo.url_imagen.split('/').pop();
+                    await axios.delete(`/api/upload/imagen/${filename}`);
+                    this.editingInsumo.url_imagen = '';
+                    this.showToast('Éxito', 'Imagen eliminada', 'bg-success text-white');
+                } catch (error) {
+                    console.error('Error al eliminar imagen:', error);
+                }
+            }
+        },
+        
+        editInsumo(insumo) {
+            this.editingInsumo = { ...insumo };
+            
+            // Ajustar el formato de la fecha para la edición
+            this.editingInsumo.fecha_creacion = this.formatDate(insumo.fecha_creacion);
+            
+            // Mostrar el modal de edición
+            const modal = new bootstrap.Modal(document.getElementById('editInsumoModal'));
+            modal.show();
+        },
+        
+        confirmDeleteInsumo(insumo) {
+            this.insumoToDelete = insumo;
+            
+            // Mostrar el modal de confirmación
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            modal.show();
+        },
+        
+        async deleteInsumo() {
+            if (!this.insumoToDelete) return;
+            
+            this.loading = true;
+            try {
+                const response = await axios.delete(`/api/stock/insumos/${this.insumoToDelete.id}`);
+                if (response.data.success) {
+                    this.showToast('Éxito', 'Insumo eliminado correctamente', 'bg-success text-white');
+                    this.insumoToDelete = null;
+                    await this.loadData();
+                } else {
+                    this.showToast('Error', response.data.message, 'bg-danger text-white');
+                }
+            } catch (error) {
+                const message = error.response?.data?.message || 'Error al eliminar insumo';
+                this.showToast('Error', message, 'bg-danger text-white');
+            } finally {
+                this.loading = false;
             }
         }
     },
