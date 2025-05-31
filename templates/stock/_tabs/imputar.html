@@ -1,0 +1,64 @@
+<div v-show="tab==='imputar'">
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Imputar Stock (Ingreso de Nuevos Insumos)</h5>
+        </div>
+        <div class="card-body">
+            <form @submit.prevent="imputarStock">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Insumo *</label>
+                        <select class="form-select" v-model="imputacion.insumo_id" required>
+                            <option value="">Seleccionar insumo</option>
+                            <option v-for="insumo in insumos" :key="insumo.id" :value="insumo.id">
+                                ${ insumo.nombre_completo }
+                                <span v-if="insumo.inventariable">[Inventariable]</span>
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Área destino *</label>
+                        <select class="form-select" v-model="imputacion.area_id" required>
+                            <option value="">Seleccionar área</option>
+                            <option v-for="area in areas" :key="area.id" :value="area.id">
+                                ${ area.nombre }
+                                <span v-if="area.es_deposito">[Depósito]</span>
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Cantidad *</label>
+                        <input type="number" class="form-control" v-model="imputacion.cantidad" min="1" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Código (Inventario)</label>
+                        <input type="text" class="form-control" v-model="imputacion.codigo" 
+                               :required="insumos.find(i => i.id == imputacion.insumo_id)?.inventariable"
+                               placeholder="Ej: IMP-001">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Responsable</label>
+                        <input type="text" class="form-control" v-model="imputacion.responsable" placeholder="Nombre del responsable">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Observación</label>
+                        <input type="text" class="form-control" v-model="imputacion.observacion" placeholder="Observación opcional">
+                    </div>
+                </div>
+                
+                <div class="alert alert-info" v-if="imputacion.insumo_id && insumos.find(i => i.id == imputacion.insumo_id)?.inventariable">
+                    <i class="bi bi-info-circle"></i> Este insumo es <strong>inventariable</strong>. El código de inventario es obligatorio.
+                </div>
+                
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success" :disabled="loading">
+                        <i class="bi bi-plus-circle"></i> Imputar Stock
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

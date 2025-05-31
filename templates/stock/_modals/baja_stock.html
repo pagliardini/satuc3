@@ -1,0 +1,50 @@
+<div class="modal fade" id="bajaStockModal" tabindex="-1" aria-labelledby="bajaStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bajaStockModalLabel">Dar de Baja Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" v-if="stockToBaja">
+                <div class="alert alert-warning">
+                    <strong>${ stockToBaja.insumo.nombre_completo }</strong><br>
+                    <small>Área: ${ stockToBaja.area.nombre } | Cantidad: ${ stockToBaja.cantidad }</small>
+                    <span v-if="stockToBaja.codigo" class="badge bg-secondary ms-2">${ stockToBaja.codigo }</span>
+                </div>
+                
+                <p class="text-danger">¿Está seguro de que desea dar de baja este stock?</p>
+                
+                <form @submit.prevent="darDeBajaStock">
+                    <div class="mb-3">
+                        <label class="form-label">Motivo de la baja *</label>
+                        <select class="form-select" v-model="bajaForm.motivo" required>
+                            <option value="">Seleccionar motivo</option>
+                            <option value="dañado">Dañado</option>
+                            <option value="obsoleto">Obsoleto</option>
+                            <option value="perdido">Perdido</option>
+                            <option value="robado">Robado</option>
+                            <option value="transferido">Transferido</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Responsable</label>
+                        <input type="text" class="form-control" v-model="bajaForm.responsable" placeholder="Nombre del responsable">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Observación</label>
+                        <textarea class="form-control" v-model="bajaForm.observacion" placeholder="Detalle del motivo de la baja" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" @click="darDeBajaStock" :disabled="!bajaForm.motivo">
+                    <i class="bi bi-x-circle"></i> Dar de Baja
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

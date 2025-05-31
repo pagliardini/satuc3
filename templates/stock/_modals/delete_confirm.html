@@ -1,0 +1,58 @@
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <i class="bi bi-exclamation-triangle text-warning"></i>
+                    Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" v-if="insumoToDelete">
+                <div class="alert alert-warning">
+                    <h6 class="alert-heading">¿Está seguro de que desea eliminar este insumo?</h6>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-3" v-if="insumoToDelete.url_imagen">
+                            <img :src="insumoToDelete.url_imagen" 
+                                 class="img-thumbnail" 
+                                 style="max-width: 80px; max-height: 80px; object-fit: cover;">
+                        </div>
+                        <div class="col">
+                            <p class="mb-1"><strong>${ insumoToDelete.nombre_completo }</strong></p>
+                            <small class="text-muted">
+                                ${ insumoToDelete.tipo.nombre } - 
+                                ${ insumoToDelete.marca.nombre } - 
+                                ${ insumoToDelete.modelo.nombre }
+                            </small>
+                            <div class="mt-2">
+                                <span v-if="insumoToDelete.toner" class="badge bg-info me-1">
+                                    <i class="bi bi-printer"></i> ${ insumoToDelete.toner.nombre }
+                                </span>
+                                <span v-if="insumoToDelete.bateria" class="badge bg-success">
+                                    <i class="bi bi-battery"></i> ${ insumoToDelete.bateria.cantidad } mAh
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                    <br><small>Solo se puede eliminar si no tiene stock activo asociado.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" @click="deleteInsumo" :disabled="loading">
+                    <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+                    <i v-else class="bi bi-trash"></i>
+                    ${ loading ? 'Eliminando...' : 'Eliminar Insumo' }
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
