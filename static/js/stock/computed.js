@@ -70,5 +70,15 @@ const stockComputed = {
         if (!this.newInsumo.tipo_id) return false;
         const tipoSeleccionado = this.tiposProducto.find(t => t.id == this.newInsumo.tipo_id);
         return tipoSeleccionado && tipoSeleccionado.nombre.toLowerCase().includes('ups');
+    },
+    
+    isEditingImpresoraSelected() {
+        return this.editingInsumo && this.tiposProducto.find(t => 
+            t.id === this.editingInsumo.tipo_id)?.nombre.toLowerCase().includes('impresora');
+    },
+    
+    isEditingUpsSelected() {
+        return this.editingInsumo && this.tiposProducto.find(t => 
+            t.id === this.editingInsumo.tipo_id)?.nombre.toLowerCase().includes('ups');
     }
 };

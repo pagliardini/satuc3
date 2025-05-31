@@ -31,16 +31,12 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link" :class="{active: tab==='imputar'}" @click="tab='imputar'" type="button">Imputar Stock</button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" :class="{active: tab==='mover'}" @click="tab='mover'" type="button">Mover Stock</button>
-            </li>
         </ul>
 
         <!-- Contenido de pestañas -->
         {% include 'stock/_tabs/stock.html' %}
         {% include 'stock/_tabs/insumos.html' %}
         {% include 'stock/_tabs/imputar.html' %}
-        {% include 'stock/_tabs/mover.html' %}
         
         {% raw %}
         <!-- Toast para mensajes -->
@@ -60,6 +56,7 @@
         {% include 'stock/_modals/move_stock.html' %}
         {% include 'stock/_modals/baja_stock.html' %}
         {% include 'stock/_modals/delete_confirm.html' %}
+        {% include 'stock/_modals/edit_insumo.html' %}
     </div>
 </div>
 
