@@ -2,6 +2,7 @@ from models import db, Marca, Modelo, TipoProducto, Sede, Area, UnidadOrganizati
 from app import app
 from sqlalchemy import text
 from models import Insumo
+from models import Toner
 
 def insertar_marcas():
     marcas = [
@@ -28,14 +29,19 @@ def insertar_marcas():
         db.session.commit()
 
 def insertar_modelos():
-    # Mapeo de modelos a sus marcas correspondientes
     modelos_por_marca = {
         "HP": [
+            "P1102w", "p2035", "p1006", "M1132", "1212", "2055", "2600", "2014N", "1320",
+            "P3005", "1022", "1020", "M1120", "P2030", "1005", "2100", "P4014", "400",
+            "1606", "5200", "2410", "1018", "1505", "1015", "1025", "1160", "1200",
+            "OTRA", "M127FN", "5", "1150", "5000", "M201", "M401N", "1000", "DESKJET 3545",
+            "100 MFP", "M175A", "7110", "MFP M426FDW", "MF130", "M402", "M102W", "1100",
+            "M203", "NEVSTOP 1000w", "M428FDW", "MFP 137FNW", "107W", "M203DW", "M402DNE", "107A",
             "Color Laser 150a", "Color Laser 150nw", "Color Laser MFP 178nw",
             "LaserJet Pro MFP M428fdn (W1A29A)"
         ],
         "Epson": [
-            "EcoTank", "WorkForce", "Expression", "SureColor", "L-Series"
+            "EcoTank", "WorkForce", "L3250", "L575", "L3110", "L8180"
         ],
         "Lexmark": [
             "B2236dw", "MB2236adw", "C3224dw", "C3326dw", "C3326adw"
@@ -44,16 +50,22 @@ def insertar_modelos():
             "PIXMA", "imageCLASS", "MAXIFY", "imagePROGRAF", "SELPHY"
         ],
         "Ricoh": [
-            "SP C261DNW", "SP C360DNW", "SP C440DNW", "MP C307", "MP C4504"
+            "SP C261DNW", "SP C360DNW", "SP C440DNW", "MP C307", "MP C4504", "MC251FW", "M250FW"
         ],
         "Brother": [
-            "HL-L2350DW", "MFC-L2710DW", "DCP-T720DW"
+            "HL-L2350DW", "MFC-L2710DW", "DCP-T720DW", "DCP-7065DN", "DCP-T220"
         ],
         "Samsung": [
-            "ProXpress", "MultiXpress", "CLP-680"
+            "M2070FW", "M2020W", "M2880"
+        ],
+        "Minolta": [
+            "MINOLTA MAGIC", "bizhub C308", "bizhub C368", "bizhub 227"
         ],
         "Xerox": [
             "VersaLink", "WorkCentre", "AltaLink"
+        ],
+        "Evolis": [
+            "Primacy", "Zenius", "Quantum", "Kiosk", "Avansia"
         ],
         "Nvidia": [
             "GT 710", "GT 730", "GT 1030", "GTX 750 Ti", "GTX 1050", "GTX 1050 Ti",
@@ -61,7 +73,7 @@ def insertar_modelos():
             "RTX 2060", "RTX 2070", "RTX 2080", "RTX 3060", "RTX 3070", "RTX 3080",
             "RTX 3090", "RTX 4060", "RTX 4070", "RTX 4080", "RTX 4090"
         ]
-    }
+}
 
     with app.app_context():
         for marca_nombre, modelos in modelos_por_marca.items():
@@ -167,6 +179,44 @@ def insertar_sedes_unidades_y_areas():
 
         db.session.commit()
 
+def insertar_toners():
+            toners = [
+                "12A",
+                "85A",
+                "78A",
+                "CF244A",
+                "CF217A",
+                "05A",
+                "30A",
+                "58A",
+                "83A",
+                "80A",
+                "105A",
+                "DRUM CE314A",
+                "26A",
+                "58A sin chip",
+                "16A",
+                "49A",
+                "D111S",
+                "D115",
+                "17A con chip",
+                "35A",
+                "Tinta HP 933xl Magenta",
+                "MC250H (CYAN Y NEGRO)",
+                "D115L",
+                "MC250H (CYAN)"
+            ]
+
+            with app.app_context():
+                for nombre in toners:
+                    existente = Toner.query.filter_by(nombre=nombre).first()
+                    if not existente:
+                        toner = Toner(nombre=nombre)
+                        db.session.add(toner)
+                        print(f"Toner '{nombre}' insertado correctamente.")
+                    else:
+                        print(f"El toner '{nombre}' ya existe.")
+                db.session.commit()
 
 def insertar_insumos():
     """
@@ -223,3 +273,4 @@ if __name__ == '__main__':
     insertar_tipos()
     insertar_sedes_unidades_y_areas()
     insertar_insumos()
+    insertar_toners()
