@@ -1,0 +1,63 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-pc-display"></i> SATUCC3
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" 
+                aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.path == '/' else '' }}" href="/">
+                        <i class="bi bi-house"></i> Inicio
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.path == '/stock' else '' }}" href="/stock">
+                        <i class="bi bi-box-seam"></i> Gestión de Stock
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ 'active' if '/catalogos/' in request.path else '' }}" 
+                       href="#" id="catalogosDropdown" role="button" 
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-card-list"></i> Catálogos
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="catalogosDropdown">
+                        <li>
+                            <a class="dropdown-item {{ 'active' if request.path == '/catalogos/lugares' else '' }}" 
+                               href="/catalogos/lugares">
+                                <i class="bi bi-geo-alt"></i> Lugares
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {{ 'active' if request.path == '/catalogos/marcas-modelos' else '' }}" 
+                               href="/catalogos/marcas-modelos">
+                                <i class="bi bi-tag"></i> Marcas y Modelos
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-light">
+                        <i class="bi bi-person-circle"></i> Usuario
+                    </button>
+                    <button type="button" class="btn btn-outline-light dropdown-toggle dropdown-toggle-split" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Configuración</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

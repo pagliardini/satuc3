@@ -1,0 +1,65 @@
+<div v-show="tab==='mover'">
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Mover Stock Entre Áreas</h5>
+        </div>
+        <div class="card-body">
+            <form @submit.prevent="moverStock">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Stock Origen *</label>
+                        <select class="form-select" v-model="movimiento.stock_origen_id" required>
+                            <option value="">Seleccionar origen</option>
+                            <option v-for="item in stockItems" :key="item.id" :value="item.id" 
+                                    :disabled="item.estado === 'baja'">
+                                ${ item.insumo.nombre_completo } - ${ item.area.nombre } - 
+                                Cant: ${ item.cantidad } 
+                                <span v-if="item.codigo">[${ item.codigo }]</span>
+                                <span v-if="item.estado === 'baja'">[BAJA]</span>
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Área destino *</label>
+                        <select class="form-select" v-model="movimiento.area_destino_id" required>
+                            <option value="">Seleccionar destino</option>
+                            <option v-for="area in areas" :key="area.id" :value="area.id"
+                                    :disabled="stockItems.find(s => s.id == movimiento.stock_origen_id)?.area.id === area.id">
+                                ${ area.nombre }
+                                <span v-if="area.es_deposito">[Depósito]</span>
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Cantidad *</label>
+                        <input type="number" class="form-control" v-model="movimiento.cantidad" min="1" 
+                               :max="stockItems.find(s => s.id == movimiento.stock_origen_id)?.cantidad || 1" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Responsable</label>
+                        <input type="text" class="form-control" v-model="movimiento.responsable" placeholder="Nombre del responsable">
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label class="form-label">Observación</label>
+                        <input type="text" class="form-control" v-model="movimiento.observacion" placeholder="Observación opcional">
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning" v-if="movimiento.stock_origen_id && movimiento.area_destino_id && 
+                     stockItems.find(s => s.id == movimiento.stock_origen_id)?.insumo.inventariable">
+                    <i class="bi bi-exclamation-triangle"></i> Está moviendo un insumo <strong>inventariable</strong>. 
+                    El código de inventario se mantendrá.
+                </div>
+                
+                <div class="text-end">
+                    <button type="submit" class="btn btn-warning" :disabled="loading">
+                        <i class="bi bi-arrow-right-circle"></i> Mover Stock
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="modal fade" id="moveStockModal" tabindex="-1" aria-labelledby="moveStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="moveStockModalLabel">Mover Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" v-if="stockToMove">
+                <div class="alert alert-info">
+                    <strong>${ stockToMove.insumo.nombre_completo }</strong><br>
+                    <small>Desde: ${ stockToMove.area.nombre } | Cantidad: ${ stockToMove.cantidad }</small>
+                    <span v-if="stockToMove.codigo" class="badge bg-secondary ms-2">${ stockToMove.codigo }</span>
+                </div>
+                
+                <form @submit.prevent="moveStockFromModal">
+                    <div class="mb-3">
+                        <label class="form-label">Área destino *</label>
+                        <input type="text" 
+                               class="form-control" 
+                               v-model="areaSearch" 
+                               @input="filterAreas"
+                               placeholder="Escriba para buscar área..."
+                               required>
+                        
+                        <!-- Lista filtrada de áreas -->
+                        <div v-if="filteredAreas.length > 0 && areaSearch" class="mt-2">
+                            <div class="list-group" style="max-height: 200px; overflow-y: auto;">
+                                <button type="button" 
+                                        class="list-group-item list-group-item-action"
+                                        v-for="area in filteredAreas" 
+                                        :key="area.id"
+                                        @click="selectArea(area)">
+                                    ${ area.nombre }
+                                    <span v-if="area.es_deposito" class="badge bg-warning text-dark">Depósito</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad a mover *</label>
+                        <input type="number" 
+                               class="form-control" 
+                               v-model="moveForm.cantidad" 
+                               :max="stockToMove.cantidad"
+                               min="1" 
+                               required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Responsable</label>
+                        <input type="text" class="form-control" v-model="moveForm.responsable" placeholder="Nombre del responsable">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Observación</label>
+                        <input type="text" class="form-control" v-model="moveForm.observacion" placeholder="Observación opcional">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" @click="moveStockFromModal" :disabled="!moveForm.area_destino_id">
+                    <i class="bi bi-arrow-right-circle"></i> Mover Stock
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

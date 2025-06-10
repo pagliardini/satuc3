@@ -1,0 +1,39 @@
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">${ modalTitle }</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form @submit.prevent="createNewItem">
+                    <div class="mb-3" v-if="modalType !== 'bateria'">
+                        <label class="form-label">Nombre *</label>
+                        <input type="text" class="form-control" v-model="newItem.nombre" required 
+                               :placeholder="`Nombre del ${modalTypeName}`">
+                    </div>
+                    
+                    <div class="mb-3" v-if="modalType === 'modelo'">
+                        <label class="form-label">Marca *</label>
+                        <select class="form-select" v-model="newItem.marca_id" required>
+                            <option value="">Seleccionar marca</option>
+                            <option v-for="marca in marcas" :key="marca.id" :value="marca.id">${ marca.nombre }</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3" v-if="modalType === 'bateria'">
+                        <label class="form-label">Capacidad (mAh) *</label>
+                        <input type="number" class="form-control" v-model="newItem.cantidad" required min="1" 
+                               placeholder="Ej: 5000">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" @click="createNewItem" :disabled="!isFormValid">
+                    <i class="bi bi-plus-circle"></i> Crear ${ modalTypeName }
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,208 @@
+{% raw %}
+<div v-show="tab==='insumos'">
+    <div class="card">
+        <div class="card-header bg-light">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0">Catálogo de Insumos</h5>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" v-model="searchInsumos" class="form-control" placeholder="Buscar insumo...">
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Imagen</th>
+                        <th>Nombre Completo</th>
+                        <th>Tipo</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Inventariable</th>
+                        <th>Fecha Creación</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="insumo in filteredInsumos" :key="insumo.id">
+                        <td>${ insumo.id }</td>
+                        <td>
+                            <div class="text-center" style="width: 40px;">
+                                <img v-if="insumo.url_imagen" 
+                                     :src="insumo.url_imagen" 
+                                     :alt="insumo.nombre_completo"
+                                     class="img-thumbnail"
+                                     style="max-width: 30px; max-height: 30px; object-fit: cover;"
+                                     @error="onImageError($event)">
+                                <div v-else class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                     style="width: 30px; height: 30px; font-size: 10px; color: #6c757d;">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <strong>${ insumo.nombre_completo }</strong>
+                            <small v-if="insumo.descripcion" class="text-muted d-block">${ insumo.descripcion }</small>
+                            <!-- Mostrar tóner y batería si existen -->
+                            <div class="mt-1">
+                                <span v-if="insumo.toner" class="badge bg-info me-1" style="font-size: 0.7em;">
+                                    <i class="bi bi-printer"></i> ${ insumo.toner.nombre }
+                                </span>
+                                <span v-if="insumo.bateria" class="badge bg-success" style="font-size: 0.7em;">
+                                    <i class="bi bi-battery"></i> ${ insumo.bateria.cantidad } mAh
+                                </span>
+                            </div>
+                        </td>
+                        <td>${ insumo.tipo.nombre }</td>
+                        <td>${ insumo.marca.nombre }</td>
+                        <td>${ insumo.modelo.nombre }</td>
+                        <td>
+                            <span class="badge" :class="insumo.inventariable ? 'badge-inventariable' : 'badge-no-inventariable'">
+                                ${ insumo.inventariable ? 'Sí' : 'No' }
+                            </span>
+                        </td>
+                        <td>${ formatDate(insumo.fecha_creacion) }</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                        @click="editInsumo(insumo)" 
+                                        title="Editar insumo">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        @click="confirmDeleteInsumo(insumo)" 
+                                        title="Eliminar insumo">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Nuevo Insumo</h5>
+        </div>
+        <div class="card-body">
+            <form @submit.prevent="createInsumo">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Tipo *</label>
+                        <div class="input-group">
+                            <select class="form-select" v-model="newInsumo.tipo_id" required>
+                                <option value="">Seleccionar tipo</option>
+                                <option v-for="tipo in tiposProducto" :key="tipo.id" :value="tipo.id">${ tipo.nombre }</option>
+                            </select>
+                            <button class="btn btn-outline-primary" type="button" @click="showCreateModal('tipo')" title="Agregar nuevo tipo">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Marca *</label>
+                        <div class="input-group">
+                            <select class="form-select" v-model="newInsumo.marca_id" required>
+                                <option value="">Seleccionar marca</option>
+                                <option v-for="marca in marcas" :key="marca.id" :value="marca.id">${ marca.nombre }</option>
+                            </select>
+                            <button class="btn btn-outline-primary" type="button" @click="showCreateModal('marca')" title="Agregar nueva marca">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Modelo *</label>
+                        <div class="input-group">
+                            <select class="form-select" v-model="newInsumo.modelo_id" required>
+                                <option value="">Seleccionar modelo</option>
+                                <option v-for="modelo in modelosFiltered" :key="modelo.id" :value="modelo.id">${ modelo.nombre }</option>
+                            </select>
+                            <button class="btn btn-outline-primary" type="button" @click="showCreateModal('modelo')" title="Agregar nuevo modelo">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Descripción</label>
+                        <input type="text" class="form-control" v-model="newInsumo.descripcion" placeholder="Descripción opcional">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Tóner</label>
+                        <div class="input-group">
+                            <select class="form-select" v-model="newInsumo.toner_id" :disabled="!isImpresoraSelected">
+                                <option value="">Sin tóner</option>
+                                <option v-for="toner in toners" :key="toner.id" :value="toner.id">${ toner.nombre }</option>
+                            </select>
+                            <button class="btn btn-outline-primary" type="button" @click="showCreateModal('toner')" 
+                                    title="Agregar nuevo tóner" :disabled="!isImpresoraSelected">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                        <div class="form-text" v-if="!isImpresoraSelected">
+                            <small class="text-muted">Disponible solo para impresoras</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Batería</label>
+                        <div class="input-group">
+                            <select class="form-select" v-model="newInsumo.bateria_id" :disabled="!isUpsSelected">
+                                <option value="">Sin batería</option>
+                                <option v-for="bateria in baterias" :key="bateria.id" :value="bateria.id">Cantidad: ${ bateria.cantidad }</option>
+                            </select>
+                            <button class="btn btn-outline-primary" type="button" @click="showCreateModal('bateria')" 
+                                    title="Agregar nueva batería" :disabled="!isUpsSelected">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                        <div class="form-text" v-if="!isUpsSelected">
+                            <small class="text-muted">Disponible solo para UPS</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Imagen del Producto</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control" ref="imageFile" @change="onImageSelected" accept="image/*">
+                            <button type="button" class="btn btn-outline-secondary" @click="uploadImage" :disabled="!selectedImage || uploading">
+                                <i class="bi bi-cloud-upload" v-if="!uploading"></i>
+                                <span class="spinner-border spinner-border-sm" v-if="uploading"></span>
+                                ${ uploading ? 'Subiendo...' : 'Subir' }
+                            </button>
+                        </div>
+                        <div class="form-text">Formatos permitidos: PNG, JPG, JPEG, GIF, WEBP</div>
+                        
+                        <!-- Preview de la imagen -->
+                        <div v-if="newInsumo.url_imagen" class="mt-2">
+                            <img :src="newInsumo.url_imagen" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-2" @click="removeImage">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" v-model="newInsumo.inventariable" id="inventariable">
+                            <label class="form-check-label" for="inventariable">Inventariable</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary" :disabled="loading">
+                        <i class="bi bi-plus-circle"></i> Crear Insumo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endraw %}

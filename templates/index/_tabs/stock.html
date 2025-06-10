@@ -1,0 +1,226 @@
+<div v-show="tab==='stock'">
+    <div class="card">
+        <div class="card-header bg-light">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0">Stock Actual por Ubicación</h5>
+                </div>
+                <div class="col-md-3">
+                    <!-- Radio buttons para filtrar por tipo -->
+                    <div class="btn-group" role="group" aria-label="Filtro de tipo">
+                        <input type="radio" class="btn-check" name="tipoFiltro" id="impresoras" value="impresoras" v-model="stockFilter">
+                        <label class="btn btn-outline-primary" for="impresoras">Impresoras</label>
+                        
+                        <input type="radio" class="btn-check" name="tipoFiltro" id="ups" value="ups" v-model="stockFilter">
+                        <label class="btn btn-outline-primary" for="ups">UPS</label>
+                        
+                        <input type="radio" class="btn-check" name="tipoFiltro" id="todos" value="todos" v-model="stockFilter" checked>
+                        <label class="btn btn-outline-primary" for="todos">Todos</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" v-model="searchStock" class="form-control" placeholder="Buscar en stock...">
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Vista para Impresoras -->
+            <div v-if="stockFilter === 'impresoras'" class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Impresora</th>
+                        <th>Área</th>
+                        <th>Tóner</th>
+                        <th>Cantidad</th>
+                        <th>Código</th>
+                        <th>Estado</th>
+                        <th>Último Movimiento</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="item in filteredStockImpresoras" :key="item.id">
+                        <td>
+                            <div class="text-center" style="width: 40px;">
+                                <img v-if="item.insumo.url_imagen" 
+                                     :src="item.insumo.url_imagen" 
+                                     :alt="item.insumo.nombre_completo"
+                                     class="img-thumbnail"
+                                     style="max-width: 30px; max-height: 30px; object-fit: cover;"
+                                     @error="onImageError($event)">
+                                <div v-else class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                     style="width: 30px; height: 30px; font-size: 10px; color: #6c757d;">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${ item.insumo.nombre_completo }</td>
+                        <td>${ item.area.nombre }</td>
+                        <td>${ item.insumo.toner ? item.insumo.toner.nombre : '—' }</td>
+                        <td>${ item.cantidad }</td>
+                        <td>
+                            <span v-if="item.codigo" class="badge bg-secondary">${ item.codigo }</span>
+                            <span v-else>—</span>
+                        </td>
+                        <td>
+                            <span class="badge" :class="getEstadoBadgeClass(item.estado)">
+                                ${ item.estado }
+                            </span>
+                        </td>
+                        <td>${ formatDate(item.ultimo_movimiento) }</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-warning" 
+                                        @click="showMoveStockModal(item)" 
+                                        title="Mover stock">
+                                    <i class="bi bi-arrow-right-circle"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        @click="showBajaStockModal(item)" 
+                                        title="Dar de baja">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Vista para UPS -->
+            <div v-else-if="stockFilter === 'ups'" class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>UPS</th>
+                        <th>Área</th>
+                        <th>Batería</th>
+                        <th>Cantidad</th>
+                        <th>Código</th>
+                        <th>Estado</th>
+                        <th>Último Movimiento</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="item in filteredStockUps" :key="item.id">
+                        <td>
+                            <div class="text-center" style="width: 40px;">
+                                <img v-if="item.insumo.url_imagen" 
+                                     :src="item.insumo.url_imagen" 
+                                     :alt="item.insumo.nombre_completo"
+                                     class="img-thumbnail"
+                                     style="max-width: 30px; max-height: 30px; object-fit: cover;"
+                                     @error="onImageError($event)">
+                                <div v-else class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                     style="width: 30px; height: 30px; font-size: 10px; color: #6c757d;">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${ item.insumo.nombre_completo }</td>
+                        <td>${ item.area.nombre }</td>
+                        <td>${ item.insumo.bateria ? item.insumo.bateria.cantidad + ' mAh' : '—' }</td>
+                        <td>${ item.cantidad }</td>
+                        <td>
+                            <span v-if="item.codigo" class="badge bg-secondary">${ item.codigo }</span>
+                            <span v-else>—</span>
+                        </td>
+                        <td>
+                            <span class="badge" :class="getEstadoBadgeClass(item.estado)">
+                                ${ item.estado }
+                            </span>
+                        </td>
+                        <td>${ formatDate(item.ultimo_movimiento) }</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-warning" 
+                                        @click="showMoveStockModal(item)" 
+                                        title="Mover stock">
+                                    <i class="bi bi-arrow-right-circle"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        @click="showBajaStockModal(item)" 
+                                        title="Dar de baja">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Vista General (Todos) -->
+            <div v-else class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Insumo</th>
+                        <th>Área</th>
+                        <th>Cantidad</th>
+                        <th>Código</th>
+                        <th>Estado</th>
+                        <th>Tipo</th>
+                        <th>Último Movimiento</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="item in filteredStock" :key="item.id">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="me-2" style="width: 30px;">
+                                    <img v-if="item.insumo.url_imagen" 
+                                         :src="item.insumo.url_imagen" 
+                                         :alt="item.insumo.nombre_completo"
+                                         class="img-thumbnail"
+                                         style="max-width: 30px; max-height: 30px; object-fit: cover;"
+                                         @error="onImageError($event)">
+                                    <div v-else class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                         style="width: 30px; height: 30px; font-size: 10px; color: #6c757d;">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    ${ item.insumo.nombre_completo }
+                                </div>
+                            </div>
+                        </td>
+                        <td>${ item.area.nombre }</td>
+                        <td>${ item.cantidad }</td>
+                        <td>
+                            <span v-if="item.codigo" class="badge bg-secondary">${ item.codigo }</span>
+                            <span v-else>—</span>
+                        </td>
+                        <td>
+                            <span class="badge" :class="getEstadoBadgeClass(item.estado)">
+                                ${ item.estado }
+                            </span>
+                        </td>
+                        <td>${ item.insumo.tipo.nombre }</td>
+                        <td>${ formatDate(item.ultimo_movimiento) }</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-warning" 
+                                        @click="showMoveStockModal(item)" 
+                                        title="Mover stock">
+                                    <i class="bi bi-arrow-right-circle"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        @click="showBajaStockModal(item)" 
+                                        title="Dar de baja">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

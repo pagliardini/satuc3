@@ -1,0 +1,84 @@
+{% raw %}
+<div class="modal fade" id="editInsumoModal" tabindex="-1" aria-labelledby="editInsumoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editInsumoModalLabel">Editar Insumo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" v-if="editingInsumo">
+                <form @submit.prevent="updateInsumo">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Tipo *</label>
+                            <select class="form-select" v-model="editingInsumo.tipo_id" required>
+                                <option value="">Seleccionar tipo</option>
+                                <option v-for="tipo in tiposProducto" :key="tipo.id" :value="tipo.id">${ tipo.nombre }</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Marca *</label>
+                            <select class="form-select" v-model="editingInsumo.marca_id" required>
+                                <option value="">Seleccionar marca</option>
+                                <option v-for="marca in marcas" :key="marca.id" :value="marca.id">${ marca.nombre }</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Modelo *</label>
+                            <select class="form-select" v-model="editingInsumo.modelo_id" required>
+                                <option value="">Seleccionar modelo</option>
+                                <option v-for="modelo in modelosFiltered" :key="modelo.id" :value="modelo.id">${ modelo.nombre }</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Descripción</label>
+                            <input type="text" class="form-control" v-model="editingInsumo.descripcion" placeholder="Descripción opcional">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Tóner</label>
+                            <select class="form-select" v-model="editingInsumo.toner_id" :disabled="!isEditingImpresoraSelected">
+                                <option value="">Sin tóner</option>
+                                <option v-for="toner in toners" :key="toner.id" :value="toner.id">${ toner.nombre }</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Batería</label>
+                            <select class="form-select" v-model="editingInsumo.bateria_id" :disabled="!isEditingUpsSelected">
+                                <option value="">Sin batería</option>
+                                <option v-for="bateria in baterias" :key="bateria.id" :value="bateria.id">Cantidad: ${ bateria.cantidad }</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Imagen URL</label>
+                            <input type="text" class="form-control" v-model="editingInsumo.url_imagen" placeholder="URL de la imagen (opcional)">
+                            
+                            <!-- Preview de la imagen -->
+                            <div v-if="editingInsumo.url_imagen" class="mt-2">
+                                <img :src="editingInsumo.url_imagen" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" v-model="editingInsumo.inventariable" id="editInventariable">
+                                <label class="form-check-label" for="editInventariable">Inventariable</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" @click="updateInsumo" :disabled="loading">
+                    <i class="bi bi-save"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endraw %}

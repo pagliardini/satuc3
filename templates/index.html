@@ -1,189 +1,127 @@
-{% extends "base.html" %}
-
-{% block title %}Inicio{% endblock %}
-
-{% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4 text-center">📦 Bienvenido a SATUCC 3.0</h1>
-
-    <!-- Resumen del Dashboard -->
-    <div class="container">
-        <div class="row mb-4">
-            <!-- Stock Crítico -->
-            <div class="col-md-3">
-                <div class="card border-danger">
-                    <div class="card-header bg-danger text-white">
-                        Stock Crítico
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Pilas AA
-                                <span class="badge bg-danger">5 unidades</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Cartuchos de tinta
-                                <span class="badge bg-danger">2 unidades</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Papel A4
-                                <span class="badge bg-danger">10 paquetes</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Equipos en Reparación -->
-            <div class="col-md-3">
-                <div class="card border-warning">
-                    <div class="card-header bg-warning text-dark">
-                        Equipos en Reparación
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Laptop Dell XPS 13
-                                <span class="badge bg-warning text-dark">En taller</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Impresora HP LaserJet
-                                <span class="badge bg-warning text-dark">Pendiente diagnóstico</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Monitor Samsung 24"
-                                <span class="badge bg-warning text-dark">Reparación en curso</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Compras Recientes o Pendientes -->
-            <div class="col-md-3">
-                <div class="card border-info">
-                    <div class="card-header bg-info text-white">
-                        Compras Recientes o Pendientes
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Teclados Logitech
-                                <span class="badge bg-info text-white">Recibido</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Mouses inalámbricos
-                                <span class="badge bg-info text-white">Pendiente</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Sillas ergonómicas
-                                <span class="badge bg-info text-white">En tránsito</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Últimos Movimientos -->
-            <div class="col-md-3">
-                <div class="card border-secondary">
-                    <div class="card-header bg-secondary text-white">
-                        Últimos Movimientos
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Transferencia: Oficina A → Oficina B
-                                <span class="badge bg-secondary text-white">5 unidades</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Entrada: Pilas AA
-                                <span class="badge bg-secondary text-white">20 unidades</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Salida: Cartuchos de tinta
-                                <span class="badge bg-secondary text-white">3 unidades</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Widgets con gráficos -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATUCC3 - Sistema de Administración</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+<div id="app">
+    <!-- Navbar (incluida desde archivo separado) -->
+    {% include 'partials/_navbar.html' %}
+    
+    <!-- Contenido principal -->
+    <div class="container mt-4">
         <div class="row">
-            <!-- Gráfico de Stock -->
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        Gráfico de Stock
-                    </div>
+            <div class="col-md-8">
+                <div class="card mb-4">
                     <div class="card-body">
-                        <canvas id="stockChart"></canvas>
+                        <h2 class="card-title">Bienvenido a SATUCC3</h2>
+                        <p class="card-text">Sistema de Administración de Tecnología de la UCC. Utilice el menú de navegación para acceder a las diferentes secciones del sistema.</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <i class="bi bi-box-seam"></i> Gestión de Stock
+                            </div>
+                            <div class="card-body">
+                                <p>Administre el inventario de insumos, impresoras, equipos y más.</p>
+                                <a href="/stock" class="btn btn-primary">Ir a Stock</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <i class="bi bi-card-list"></i> Catálogos
+                            </div>
+                            <div class="card-body">
+                                <p>Administre los catálogos del sistema: lugares, marcas, modelos, etc.</p>
+                                <div class="btn-group">
+                                    <a href="/catalogos/lugares" class="btn btn-success">Lugares</a>
+                                    <a href="/catalogos/marcas-modelos" class="btn btn-success">Marcas/Modelos</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Gráfico de Movimientos -->
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-header bg-success text-white">
-                        Gráfico de Movimientos
+            
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <i class="bi bi-info-circle"></i> Información del Sistema
                     </div>
                     <div class="card-body">
-                        <canvas id="movimientosChart"></canvas>
+                        <p><strong>Versión:</strong> 1.0.0</p>
+                        <p><strong>Última actualización:</strong> {{ current_date }}</p>
+                        <p><strong>Estado:</strong> <span class="badge bg-success">Activo</span></p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-warning">
+                        <i class="bi bi-graph-up"></i> Resumen de Stock
+                    </div>
+                    <div class="card-body">
+                        <canvas id="stockChart" width="100%" height="200"></canvas>
+                        <div class="text-center mt-2">
+                            <a href="/stock" class="btn btn-sm btn-outline-warning">Ver detalles</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Footer -->
+    <footer class="bg-light text-center text-muted py-4 mt-5">
+        <div class="container">
+            <p>SATUCC3 &copy; {{ current_year }} Universidad Católica de Córdoba</p>
+        </div>
+    </footer>
 </div>
 
-<!-- Agregar Chart.js -->
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Gráfico de Stock
-    const stockCtx = document.getElementById('stockChart').getContext('2d');
-    const stockChart = new Chart(stockCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Pilas AA', 'Cartuchos de tinta', 'Papel A4'],
-            datasets: [{
-                label: 'Cantidad',
-                data: [5, 2, 10],
-                backgroundColor: ['#dc3545', '#dc3545', '#dc3545']
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                title: { display: true, text: 'Stock Crítico' }
-            }
-        }
-    });
 
-    // Gráfico de Movimientos
-    const movimientosCtx = document.getElementById('movimientosChart').getContext('2d');
-    const movimientosChart = new Chart(movimientosCtx, {
-        type: 'line',
+<!-- Inicialización del gráfico de ejemplo -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ejemplo de gráfico para la página principal
+    const ctx = document.getElementById('stockChart').getContext('2d');
+    const stockChart = new Chart(ctx, {
+        type: 'doughnut',
         data: {
-            labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'],
+            labels: ['Impresoras', 'Toners', 'UPS', 'Otros'],
             datasets: [{
-                label: 'Movimientos',
-                data: [10, 15, 8, 12, 20],
-                borderColor: '#28a745',
-                backgroundColor: 'rgba(40, 167, 69, 0.2)',
-                fill: true
+                data: [30, 50, 15, 20],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)'
+                ],
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
             plugins: {
-                legend: { display: true },
-                title: { display: true, text: 'Movimientos Semanales' }
+                legend: {
+                    position: 'bottom',
+                }
             }
         }
     });
+});
 </script>
-{% endblock %}
+</body>
+</html>
