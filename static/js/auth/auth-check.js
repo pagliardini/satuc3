@@ -1,18 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Verificar si el usuario está autenticado
+    // Solo verificar token y mostrar usuario, NO hacer redirecciones
     const token = localStorage.getItem('token');
-    
-    // Si estamos en la página de login y hay un token, redirigir al index
-    if (window.location.pathname.includes('/login') && token) {
-        window.location.href = '/';
-        return;
-    }
-    
-    // Si no estamos en login y no hay token, redirigir a login
-    if (!window.location.pathname.includes('/login') && !token) {
-        window.location.href = '/login';
-        return;
-    }
     
     // Si hay un token y no estamos en login, mostrar el nombre de usuario
     if (token && !window.location.pathname.includes('/login')) {
@@ -24,9 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Verificar si el token ha expirado
             const currentTime = Date.now() / 1000;
             if (payload.exp && payload.exp < currentTime) {
+                console.log('Token expirado, limpiando...');
                 localStorage.removeItem('token');
-                window.location.href = '/login';
-                return;
+                return; // NO redirigir aquí
             }
             
             // Mostrar el nombre de usuario en el navbar
@@ -37,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (e) {
             console.error('Error al procesar el token:', e);
             localStorage.removeItem('token');
-            window.location.href = '/login';
         }
     }
 });

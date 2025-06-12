@@ -301,6 +301,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<!-- Primero los scripts de autenticación y configuración -->
+<script src="{{ url_for('static', filename='js/auth/auth.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/axios-config.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/auth-check.js') }}"></script>
+
+<!-- Después tu Vue app -->
 <script>
 const { createApp } = Vue;
 createApp({
@@ -354,6 +361,22 @@ createApp({
         }
     },
     methods: {
+        // Agregar este método
+        initializeData() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                this.showToast('Error', 'No hay sesión activa. Redirigiendo...', 'bg-warning text-white');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
+                return;
+            }
+            
+            // Si hay token, cargar datos
+            this.loadSedes();
+            this.loadUnidades();
+            this.loadAreas();
+        },
         // --- SEDES ---
         async loadSedes() {
             this.loading = true;
@@ -361,7 +384,11 @@ createApp({
                 const res = await axios.get('/api/sedes');
                 this.sedes = res.data;
             } catch (e) {
-                this.showToast('Error', 'No se pudieron cargar las sedes.', 'bg-danger text-white');
+                // NO manejes 401 aquí, déjalo al interceptor
+                if (e.response && e.response.status !== 401) {
+                    this.showToast('Error', 'No se pudieron cargar las sedes.', 'bg-danger text-white');
+                }
+                // Si es 401, el interceptor se encargará de redirigir
             } finally {
                 this.loading = false;
             }
@@ -622,15 +649,12 @@ createApp({
         }
     },
     mounted() {
-        this.loadSedes();
-        this.loadUnidades();
-        this.loadAreas();
+        // Esperar que los interceptors estén listos
+        setTimeout(() => {
+            this.initializeData();
+        }, 100);
     }
 }).mount('#app');
 </script>
-<!-- Agregar justo después de los otros scripts -->
-<script src="{{ url_for('static', filename='js/auth/auth.js') }}"></script>
-<script src="{{ url_for('static', filename='js/auth/axios-config.js') }}"></script>
-<script src="{{ url_for('static', filename='js/auth/auth-check.js') }}"></script>
 </body>
 </html>
