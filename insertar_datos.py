@@ -266,6 +266,8 @@ def insertar_insumos():
             print(f"Insumo insertado: {descripcion} ({tipo_nombre}, {marca_nombre}, {modelo_nombre})")
         db.session.commit()
 
+        
+
 
 if __name__ == '__main__':
     insertar_marcas()

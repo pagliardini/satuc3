@@ -3,7 +3,7 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 from flask_migrate import Migrate
 from models import db
-#from productos import productos_bp
+from auth import auth_bp
 from api.stock import stock_bp  
 from api.sedes import sedes_bp
 from api.areas import areas_bp
@@ -13,14 +13,11 @@ from api.marcas import marcas_bp
 from api.modelos import modelos_bp
 from api.toners_baterias import tonersbaterias_bp
 from api.upload import upload_bp
-
 from doc import swagger_config
 import os
 
-
 app = Flask(__name__)
 CORS(app)
-
 
 ### Swagger UI Configuration ###
 SWAGGER_URL = '/api/docs'
@@ -60,6 +57,7 @@ app.register_blueprint(modelos_bp)
 app.register_blueprint(tipos_bp)
 app.register_blueprint(tonersbaterias_bp)
 app.register_blueprint(upload_bp)
+app.register_blueprint(auth_bp)
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 @app.route('/')
@@ -77,6 +75,7 @@ def catalogos_lugares():
 @app.route('/catalogos/marcas-modelos')
 def catalogos_marcas():
     return render_template('/catalogos/marcas-modelos.html')
+
 
 @app.route(API_URL)
 def serve_swagger():

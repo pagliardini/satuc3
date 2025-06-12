@@ -1,13 +1,18 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 from models import db, Sede, UnidadOrganizativa
 from sqlalchemy.exc import IntegrityError
+from auth import require_role
 
 sedes_bp = Blueprint('sedes_api', __name__, url_prefix='/api')
 
 
 @sedes_bp.route('/sedes', methods=['GET', 'POST'])
+@require_role(['admin', 'user'])  # permite que ambos accedan, luego filtramos
 def sedes():
     if request.method == 'POST':
+        if g.user_role != 'admin':
+            return jsonify({"success": False, "message": "No autorizado"}), 403
+
         data = request.get_json()
         nombre = data.get('nombre')
 
@@ -27,6 +32,7 @@ def sedes():
             db.session.rollback()
             return jsonify({"success": False, "message": str(e)}), 500
     
+    # GET: permitido para admin y user
     sedes = Sede.query.all()
     return jsonify([{"id": s.id, "nombre": s.nombre} for s in sedes])
 
