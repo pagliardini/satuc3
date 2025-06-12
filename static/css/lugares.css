@@ -1,0 +1,144 @@
+/* Estilos para la página de catálogo de lugares (sedes, unidades y áreas) */
+
+/* Estilos generales */
+body { 
+    background: #f8f9fa; 
+}
+
+/* Tarjetas */
+.card { 
+    margin-bottom: 20px; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+/* Pestañas de navegación */
+.nav-tabs .nav-link.active { 
+    font-weight: bold; 
+    border-bottom: 3px solid #0d6efd;
+}
+
+/* Tablas responsivas */
+.table-responsive { 
+    max-height: 500px; 
+    overflow-y: auto;
+}
+
+.table th { 
+    position: sticky; 
+    top: 0; 
+    background-color: white; 
+    z-index: 1;
+}
+
+/* Overlay de carga */
+#loading-overlay { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(255,255,255,0.8); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 9999;
+}
+
+.spinner-border { 
+    width: 3rem; 
+    height: 3rem;
+}
+
+/* Estilos adicionales para mejorar la experiencia */
+.card-header {
+    border-bottom: 2px solid #e9ecef;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Hover effects para las filas de tabla */
+.table-hover tbody tr:hover {
+    background-color: rgba(0,123,255,.075);
+}
+
+/* Estilos para los badges */
+.badge {
+    font-size: 0.75em;
+}
+
+/* Formularios en las tarjetas */
+.card-body form .row {
+    align-items: end;
+}
+
+/* Toast container positioning */
+.toast-container {
+    z-index: 10000;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .table-responsive {
+        max-height: 400px;
+    }
+    
+    .card-header .row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .card-header .col-md-4,
+    .card-header .col-md-8 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    /* Botones más pequeños en móvil */
+    .btn-sm {
+        padding: 0.125rem 0.25rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Mejoras visuales adicionales */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Animaciones suaves */
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.btn {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Estados de los botones */
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
