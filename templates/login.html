@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - SATUCC3</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body class="bg-light">
+    <div id="login-app">
+        <div class="container">
+            <div class="row justify-content-center vh-100 align-items-center">
+                <div class="col-md-5">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-white text-center py-3">
+                            <img src="{{ url_for('static', filename='img/ucc_logo.png') }}" alt="UCC Logo" class="img-fluid mb-2" style="max-height: 70px;">
+                            <h4 class="mb-0 text-primary">SATUCC3</h4>
+                            <p class="text-muted small">Sistema de Administración de Tecnología UCC</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form @submit.prevent="login">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Usuario</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                        <input type="text" class="form-control" id="username" v-model="credentials.username" required>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="password" class="form-label">Contraseña</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                        <input type="password" class="form-control" id="password" v-model="credentials.password" required>
+                                    </div>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary" :disabled="loading">
+                                        <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        Ingresar
+                                    </button>
+                                </div>
+                                <div class="alert alert-danger mt-3" v-if="error" role="alert">
+                                    ${ error }
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Toast para mostrar mensajes -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div class="toast" id="errorToast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header bg-danger text-white">
+                    <strong class="me-auto">Error</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" v-text="toastMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="{{ url_for('static', filename='js/auth/auth.js') }}"></script>
+    
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            delimiters: ['${', '}'],
+            data() {
+                return {
+                    credentials: {
+                        username: '',
+                        password: ''
+                    },
+                    loading: false,
+                    error: '',
+                    toastMessage: '',
+                    errorToast: null
+                };
+            },
+            mounted() {
+                // Verificar si ya está autenticado
+                if (localStorage.getItem('token')) {
+                    window.location.href = '/';
+                }
+                
+                this.errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
+            },
+            methods: {
+                async login() {
+                    this.loading = true;
+                    this.error = '';
+                    
+                    try {
+                        const response = await axios.post('/login', this.credentials);
+                        
+                        if (response.data && response.data.token) {
+                            localStorage.setItem('token', response.data.token);
+                            window.location.href = '/'; // Redireccionar a la página principal
+                        } else {
+                            this.error = 'Error de autenticación: Respuesta inválida del servidor';
+                        }
+                    } catch (error) {
+                        if (error.response && error.response.data && error.response.data.error) {
+                            this.error = error.response.data.error;
+                        } else {
+                            this.error = 'Error al iniciar sesión. Intente nuevamente.';
+                        }
+                        console.error('Error de login:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                showToast(message) {
+                    this.toastMessage = message;
+                    this.errorToast.show();
+                }
+            }
+        }).mount('#login-app');
+    </script>
+</body>
+</html>

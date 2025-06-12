@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Verificar autenticación primero
+    if (!authMethods.isAuthenticated()) {
+        window.location.href = '/login';
+        return;
+    }
+    
     // Crear aplicación Vue
     const { createApp } = Vue;
     
@@ -28,6 +34,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.resultToast = new bootstrap.Toast(document.getElementById('resultToast'));
                 }
                 this.resultToast.show();
+            },
+            
+            // Método de logout
+            logout() {
+                authMethods.logout();
             },
             
             // Formateo de fechas
@@ -87,6 +98,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Montaje del componente
         mounted() {
             this.loadData();
+            
+            // Verificar rol para permisos específicos
+            const userRole = authMethods.getUserRole();
+            if (userRole) {
+                this.isAdmin = userRole === 'admin';
+            }
         }
     });
     

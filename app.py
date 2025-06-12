@@ -1,9 +1,9 @@
-from flask import Flask, render_template, jsonify, send_from_directory
+from flask import Flask, render_template, jsonify, send_from_directory, redirect, url_for
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 from flask_migrate import Migrate
 from models import db
-from auth import auth_bp
+from auth import auth_bp, require_role  # Importa tu blueprint de autenticación
 from api.stock import stock_bp  
 from api.sedes import sedes_bp
 from api.areas import areas_bp
@@ -60,13 +60,19 @@ app.register_blueprint(upload_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
+# Ruta para la página de login
+@app.route('/login')
+def login_page():
+    return render_template('login.html')
+
+# Proteger rutas que requieren autenticación
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/stock')
 def stock():
-    return render_template('/stock/index.html')
+    return render_template('stock/index.html')
 
 @app.route('/catalogos/lugares')
 def catalogos_lugares():
@@ -85,6 +91,20 @@ def serve_swagger():
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+# Rutas de API que requieren autenticación
+@app.route('/api/stock', methods=['GET'])
+@require_role(['admin', 'user'])  # Permite acceso a admin y usuarios normales
+def get_stock():
+    # Tu código existente...
+    pass
+
+# Rutas que requieren ser administrador
+@app.route('/api/admin/users', methods=['GET'])
+@require_role(['admin'])  # Solo administradores
+def admin_users():
+    # Tu código para administrar usuarios...
+    pass
 
 if __name__ == '__main__':
     with app.app_context():
