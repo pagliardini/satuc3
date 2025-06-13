@@ -3,6 +3,7 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 from flask_migrate import Migrate
 from models import db
+from reports import reports_bp
 from auth import auth_bp, require_role  # Importa tu blueprint de autenticación
 from api.stock import stock_bp  
 from api.sedes import sedes_bp
@@ -59,6 +60,7 @@ app.register_blueprint(tipos_bp)
 app.register_blueprint(tonersbaterias_bp)
 app.register_blueprint(upload_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(reports_bp)
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 # Ruta para la página de login

@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+
+{% block title %}Inventario por Área - SATUCC3{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-card {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0047AB;
+    }
+    .report-header {
+        background: linear-gradient(135deg, #0047AB 0%, #3973ba 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .table th {
+        background-color: #0047AB;
+        color: white;
+    }
+    .badge-deposito {
+        background-color: #198754;
+        color: white;
+    }
+    .badge-area {
+        background-color: #0dcaf0;
+        color: white;
+    }
+    .badge-disponible {
+        background-color: #198754;
+    }
+    .badge-asignado {
+        background-color: #0d6efd;
+    }
+    .badge-en_reparacion {
+        background-color: #fd7e14;
+    }
+    .badge-baja {
+        background-color: #dc3545;
+    }
+    .export-buttons {
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="reportApp">
+    <!-- Overlay de carga -->
+    <div id="loading-overlay" v-if="loading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+    
+    <div class="report-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Inventario por Área</h1>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <span v-if="totalItems > 0" class="badge bg-light text-dark">
+                    ${ totalItems } elementos encontrados
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="card filter-card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="sedeSelect" class="form-label">Sede</label>
+                        <select id="sedeSelect" v-model="filtros.sede_id" class="form-select" @change="onSedeChange">
+                            <option value="">Todas las sedes</option>
+                            <option v-for="sede in sedes" :key="sede.id" :value="sede.id">${ sede.nombre }</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="unidadSelect" class="form-label">Unidad Organizativa</label>
+                        <select id="unidadSelect" v-model="filtros.unidad_id" class="form-select" @change="onUnidadChange" :disabled="!filtros.sede_id">
+                            <option value="">Todas las unidades</option>
+                            <option v-for="unidad in unidades" :key="unidad.id" :value="unidad.id">${ unidad.nombre }</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="areaSelect" class="form-label">Área</label>
+                        <select id="areaSelect" v-model="filtros.area_id" class="form-select" :disabled="!filtros.unidad_id">
+                            <option value="">Todas las áreas</option>
+                            <option v-for="area in areas" :key="area.id" :value="area.id">
+                                ${ area.nombre } 
+                                <template v-if="area.es_deposito">(Depósito)</template>
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Acciones</label>
+                        <div class="d-flex">
+                            <button @click="cargarInventario" class="btn btn-primary me-2 w-100">
+                                <i class="bi bi-search me-1"></i> Buscar
+                            </button>
+                            <button @click="limpiarFiltros" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-x-circle me-1"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botones de exportación -->
+    <div class="export-buttons" v-if="inventario.length > 0">
+        <div class="btn-group">
+            <button class="btn btn-success" @click="exportarReporte('excel')">
+                <i class="bi bi-file-earmark-excel me-1"></i> Exportar a Excel
+            </button>
+            <button class="btn btn-danger" @click="exportarReporte('pdf')">
+                <i class="bi bi-file-earmark-pdf me-1"></i> Exportar a PDF
+            </button>
+        </div>
+    </div>
+    
+    <!-- Tabla de resultados -->
+    <div class="card" v-if="inventario.length > 0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Sede</th>
+                            <th>Unidad</th>
+                            <th>Área</th>
+                            <th>Tipo</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Producto</th>
+                            <th>Código</th>
+                            <th>Cantidad</th>
+                            <th>Estado</th>
+                            <th>Último Movimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in inventario" :key="item.stock_id">
+                            <td>${ item.sede_nombre }</td>
+                            <td>${ item.unidad_nombre }</td>
+                            <td>
+                                ${ item.area_nombre }
+                                <span v-if="item.es_deposito" class="badge badge-deposito ms-1">Depósito</span>
+                                <span v-else class="badge badge-area ms-1">Área</span>
+                            </td>
+                            <td>${ item.tipo_nombre }</td>
+                            <td>${ item.marca_nombre }</td>
+                            <td>${ item.modelo_nombre }</td>
+                            <td>${ item.insumo_nombre }</td>
+                            <td>${ item.codigo }</td>
+                            <td>${ item.cantidad }</td>
+                            <td>
+                                <span :class="'badge badge-' + item.estado">${ formatearEstado(item.estado) }</span>
+                            </td>
+                            <td>${ item.ultimo_movimiento }</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mensaje de no resultados -->
+    <div class="alert alert-info" v-else-if="busquedaRealizada">
+        <i class="bi bi-info-circle me-2"></i> No se encontraron resultados con los filtros seleccionados.
+    </div>
+    
+    {% raw %}
+    <!-- Toast para mensajes -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="resultToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header" :class="toastClass">
+                <strong class="me-auto" v-text="toastTitle"></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" v-text="toastMessage"></div>
+        </div>
+    </div>
+    {% endraw %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const { createApp } = Vue;
+
+createApp({
+    delimiters: ['${', '}'],
+    data() {
+        return {
+            sedes: JSON.parse('{{ sedes|tojson|safe }}'),
+            unidades: [],
+            areas: [],
+            inventario: [],
+            totalItems: 0,
+            filtros: {
+                sede_id: '',
+                unidad_id: '',
+                area_id: ''
+            },
+            loading: false,
+            busquedaRealizada: false,
+            toastTitle: '',
+            toastMessage: '',
+            toastClass: '',
+            resultToast: null
+        };
+    },
+    methods: {
+        async onSedeChange() {
+            if (!this.filtros.sede_id) {
+                this.unidades = [];
+                this.areas = [];
+                this.filtros.unidad_id = '';
+                this.filtros.area_id = '';
+                return;
+            }
+            
+            try {
+                this.loading = true;
+                const response = await axios.get(`/api/reportes/unidades-por-sede/${this.filtros.sede_id}`);
+                this.unidades = response.data;
+                this.areas = [];
+                this.filtros.unidad_id = '';
+                this.filtros.area_id = '';
+            } catch (error) {
+                this.showToast('Error', 'No se pudieron cargar las unidades organizativas', 'bg-danger');
+                console.error('Error al cargar unidades:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        async onUnidadChange() {
+            if (!this.filtros.unidad_id) {
+                this.areas = [];
+                this.filtros.area_id = '';
+                return;
+            }
+            
+            try {
+                this.loading = true;
+                const response = await axios.get(`/api/reportes/areas-por-unidad/${this.filtros.unidad_id}`);
+                this.areas = response.data;
+                this.filtros.area_id = '';
+            } catch (error) {
+                this.showToast('Error', 'No se pudieron cargar las áreas', 'bg-danger');
+                console.error('Error al cargar áreas:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        async cargarInventario() {
+            try {
+                this.loading = true;
+                
+                // Construir query params para la URL
+                const params = new URLSearchParams();
+                if (this.filtros.sede_id) params.append('sede_id', this.filtros.sede_id);
+                if (this.filtros.unidad_id) params.append('unidad_id', this.filtros.unidad_id);
+                if (this.filtros.area_id) params.append('area_id', this.filtros.area_id);
+                
+                const response = await axios.get(`/api/reportes/inventario-area?${params.toString()}`);
+                this.inventario = response.data;
+                this.totalItems = response.data.length;
+                this.busquedaRealizada = true;
+                
+                // Mostrar toast con resultados
+                if (this.inventario.length > 0) {
+                    this.showToast('Éxito', `Se encontraron ${this.totalItems} elementos`, 'bg-success');
+                } else {
+                    this.showToast('Información', 'No se encontraron resultados con los filtros seleccionados', 'bg-info');
+                }
+            } catch (error) {
+                this.showToast('Error', 'No se pudo cargar el inventario', 'bg-danger');
+                console.error('Error al cargar inventario:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        limpiarFiltros() {
+            this.filtros = {
+                sede_id: '',
+                unidad_id: '',
+                area_id: ''
+            };
+            this.unidades = [];
+            this.areas = [];
+            this.inventario = [];
+            this.totalItems = 0;
+            this.busquedaRealizada = false;
+        },
+        
+        formatearEstado(estado) {
+            const formatos = {
+                'disponible': 'Disponible',
+                'asignado': 'Asignado',
+                'en_reparacion': 'En Reparación',
+                'baja': 'Baja'
+            };
+            return formatos[estado] || estado;
+        },
+        
+        exportarReporte(formato) {
+            try {
+                // Construir query params para la URL
+                const params = new URLSearchParams();
+                params.append('formato', formato);
+                if (this.filtros.sede_id) params.append('sede_id', this.filtros.sede_id);
+                if (this.filtros.unidad_id) params.append('unidad_id', this.filtros.unidad_id);
+                if (this.filtros.area_id) params.append('area_id', this.filtros.area_id);
+                
+                // Redireccionar a la URL de descarga
+                window.location.href = `/api/reportes/exportar-inventario-area?${params.toString()}`;
+                
+                this.showToast('Éxito', `Se está generando el archivo en formato ${formato}`, 'bg-success');
+            } catch (error) {
+                this.showToast('Error', `No se pudo exportar el reporte a ${formato}`, 'bg-danger');
+                console.error('Error al exportar reporte:', error);
+            }
+        },
+        
+        showToast(title, message, headerClass = '') {
+            this.toastTitle = title;
+            this.toastMessage = message;
+            this.toastClass = headerClass;
+            
+            if (!this.resultToast) {
+                this.resultToast = new bootstrap.Toast(document.getElementById('resultToast'));
+            }
+            
+            this.resultToast.show();
+        }
+    },
+    mounted() {
+        // Cargar datos iniciales si es necesario
+    }
+}).mount('#reportApp');
+</script>
+{% endblock %}

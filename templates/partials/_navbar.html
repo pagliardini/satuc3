@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="/">
-            <img src="{{ url_for('static', filename='img/ucc_logo.png') }}" alt="UCC Logo" class="me-2" height="120">
+            <img src="{{ url_for('static', filename='img/ucc_logo.png') }}" alt="UCC Logo" class="me-2" height="50">
             <span class="text-primary fw-bold">SATUCC3</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" 
@@ -29,42 +29,13 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="impresorasDropdown">
                         <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/impresoras/cambio-toner' else '' }}" 
-                               href="/impresoras/cambio-toner">
-                                Cambio de toner
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-printer-fill"></i> Gestión de Impresoras
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/impresoras/toner-adeudado' else '' }}" 
-                               href="/impresoras/toner-adeudado">
-                                Toner adeudado
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/impresoras/baja-toner' else '' }}" 
-                               href="/impresoras/baja-toner">
-                                Baja de toner
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ 'active fw-bold' if '/insumos/' in request.path else '' }}" 
-                       href="#" id="insumosDropdown" role="button" 
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-battery-full"></i> UPS
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="insumosDropdown">
-                        <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/insumos/cambio-bateria' else '' }}" 
-                               href="/insumos/cambio-bateria">
-                                Cambio de batería
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/insumos/proximos-cambios-bateria' else '' }}" 
-                               href="/insumos/proximos-cambios-bateria">
-                                Ver próximos cambios de batería
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-tools"></i> Mantenimiento
                             </a>
                         </li>
                     </ul>
@@ -73,7 +44,7 @@
                     <a class="nav-link dropdown-toggle {{ 'active fw-bold' if '/catalogos/' in request.path else '' }}" 
                        href="#" id="catalogosDropdown" role="button" 
                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-collection"></i> Catálogos
+                        <i class="bi bi-card-list"></i> Catálogos
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="catalogosDropdown">
                         <li>
@@ -90,58 +61,52 @@
                         </li>
                     </ul>
                 </li>
-                                <li class="nav-item dropdown">
+                <!-- Nuevo menú de Reportes -->
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{ 'active fw-bold' if '/reportes/' in request.path else '' }}" 
-                       href="#" id="catalogosDropdown" role="button" 
+                       href="#" id="reportesDropdown" role="button" 
                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-bar-chart"></i> Reportes
+                        <i class="bi bi-file-earmark-bar-graph"></i> Reportes
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="catalogosDropdown">
+                    <ul class="dropdown-menu" aria-labelledby="reportesDropdown">
                         <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/reportes/inventario-area' else '' }}"
+                            <a class="dropdown-item {{ 'active' if request.path == '/reportes/inventario-area' else '' }}" 
                                href="/reportes/inventario-area">
-                                <i class="bi bi-geo"></i> Inventario por área
+                                <i class="bi bi-geo-alt"></i> Inventario por Área
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/reportes/stock-bajo' else '' }}"
-                               href="/reportes/stock-bajo">
-                                <i class="bi bi-exclamation-triangle"></i> Stock bajo
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-boxes"></i> Estado del Inventario
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/reportes/movimientos' else '' }}"
-                               href="/reportes/movimientos">
-                                <i class="bi bi-arrow-left-right"></i> Movimientos de stock
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-hourglass-split"></i> Movimientos Recientes
                             </a>
                         </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/reportes/insumos-inactivos' else '' }}"
-                               href="/reportes/insumos-inactivos">
-                                <i class="bi bi-x-circle"></i> Insumos inactivos
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/reportes/toners-baterias' else '' }}"
-                               href="/reportes/toners-baterias">
-                                <i class="bi bi-droplet"></i> Toners y baterías
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-wrench"></i> Mantenimientos
                             </a>
                         </li>
                     </ul>
                 </li>
             </ul>
             <div class="d-flex">
-                <a href="#" class="btn btn-outline-primary me-2">
-                    <i class="bi bi-question-circle"></i> Ayuda
-                </a>
-                <div class="dropdown" id="auth-dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i> <span id="username-display">Mi UCC</span>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary">
+                        <i class="bi bi-person-circle"></i> Usuario
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Configuración</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" onclick="authMethods.logout()"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                     </ul>
                 </div>
             </div>
