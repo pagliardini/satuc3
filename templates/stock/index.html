@@ -6,12 +6,15 @@
     <title>Gestión de Stock - SATUCC3</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/stock.css') }}">
+    {% endblock %}
 </head>
 <body>
 <!-- Navbar (incluida desde archivo separado) -->
 {% include 'partials/_navbar.html' %}
 
+{% block content %}
 <div id="app">
     <!-- Overlay de carga -->
     <div id="loading-overlay" v-if="loading">
@@ -35,7 +38,7 @@
                 <button class="nav-link" :class="{active: tab==='imputar'}" @click="tab='imputar'" type="button">Imputar Stock</button>
             </li>
         </ul>
-
+        
         <!-- Contenido de pestañas -->
         {% include 'stock/_tabs/stock.html' %}
         {% include 'stock/_tabs/insumos.html' %}
@@ -62,13 +65,15 @@
         {% include 'stock/_modals/edit_insumo.html' %}
     </div>
 </div>
+{% endblock %}
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-<!-- Módulos JS -->
+{% block scripts %}
+<!-- Módulos JS específicos para Stock -->
 <script src="{{ url_for('static', filename='js/stock/data.js') }}"></script>
 <script src="{{ url_for('static', filename='js/stock/computed.js') }}"></script>
 <script src="{{ url_for('static', filename='js/stock/methods/common.js') }}"></script>
@@ -79,6 +84,7 @@
 <script src="{{ url_for('static', filename='js/stock/methods/upload.js') }}"></script>
 <script src="{{ url_for('static', filename='js/stock/watch.js') }}"></script>
 <script src="{{ url_for('static', filename='js/stock/app.js') }}"></script>
+{% endblock %}
 <!-- Agregar justo después de los otros scripts -->
 <script src="{{ url_for('static', filename='js/auth/auth.js') }}"></script>
 <script src="{{ url_for('static', filename='js/auth/axios-config.js') }}"></script>

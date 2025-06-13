@@ -14,6 +14,7 @@ from api.modelos import modelos_bp
 from api.toners_baterias import tonersbaterias_bp
 from api.upload import upload_bp
 from doc import swagger_config
+from datetime import datetime
 import os
 
 app = Flask(__name__)
@@ -105,6 +106,10 @@ def get_stock():
 def admin_users():
     # Tu código para administrar usuarios...
     pass
+
+@app.context_processor
+def inject_now():
+    return {'now': datetime.now()}
 
 if __name__ == '__main__':
     with app.app_context():
