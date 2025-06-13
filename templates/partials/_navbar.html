@@ -21,10 +21,53 @@
                         <i class="bi bi-box-seam"></i> Gestión de Stock
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ 'active fw-bold' if request.path == '/insumos' else '' }}" href="/insumos">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ 'active fw-bold' if '/impresoras/' in request.path else '' }}" 
+                       href="#" id="impresorasDropdown" role="button" 
+                       data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-printer"></i> Impresoras
                     </a>
+                    <ul class="dropdown-menu" aria-labelledby="impresorasDropdown">
+                        <li>
+                            <a class="dropdown-item {{ 'active' if request.path == '/impresoras/cambio-toner' else '' }}" 
+                               href="/impresoras/cambio-toner">
+                                Cambio de toner
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {{ 'active' if request.path == '/impresoras/toner-adeudado' else '' }}" 
+                               href="/impresoras/toner-adeudado">
+                                Toner adeudado
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {{ 'active' if request.path == '/impresoras/baja-toner' else '' }}" 
+                               href="/impresoras/baja-toner">
+                                Baja de toner
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ 'active fw-bold' if '/insumos/' in request.path else '' }}" 
+                       href="#" id="insumosDropdown" role="button" 
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-battery-full"></i> UPS
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="insumosDropdown">
+                        <li>
+                            <a class="dropdown-item {{ 'active' if request.path == '/insumos/cambio-bateria' else '' }}" 
+                               href="/insumos/cambio-bateria">
+                                Cambio de batería
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {{ 'active' if request.path == '/insumos/proximos-cambios-bateria' else '' }}" 
+                               href="/insumos/proximos-cambios-bateria">
+                                Ver próximos cambios de batería
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{ 'active fw-bold' if '/catalogos/' in request.path else '' }}" 
@@ -55,15 +98,33 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="catalogosDropdown">
                         <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/catalogos/lugares' else '' }}" 
-                               href="/catalogos/lugares">
-                                <i class="bi bi-geo-alt"></i> Lugares
+                            <a class="dropdown-item {{ 'active' if request.path == '/reportes/inventario-area' else '' }}"
+                               href="/reportes/inventario-area">
+                                <i class="bi bi-geo"></i> Inventario por área
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item {{ 'active' if request.path == '/catalogos/marcas-modelos' else '' }}" 
-                               href="/catalogos/marcas-modelos">
-                                <i class="bi bi-tag"></i> Marcas y Modelos
+                            <a class="dropdown-item {{ 'active' if request.path == '/reportes/stock-bajo' else '' }}"
+                               href="/reportes/stock-bajo">
+                                <i class="bi bi-exclamation-triangle"></i> Stock bajo
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {{ 'active' if request.path == '/reportes/movimientos' else '' }}"
+                               href="/reportes/movimientos">
+                                <i class="bi bi-arrow-left-right"></i> Movimientos de stock
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {{ 'active' if request.path == '/reportes/insumos-inactivos' else '' }}"
+                               href="/reportes/insumos-inactivos">
+                                <i class="bi bi-x-circle"></i> Insumos inactivos
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {{ 'active' if request.path == '/reportes/toners-baterias' else '' }}"
+                               href="/reportes/toners-baterias">
+                                <i class="bi bi-droplet"></i> Toners y baterías
                             </a>
                         </li>
                     </ul>
