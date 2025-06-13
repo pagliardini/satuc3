@@ -37,6 +37,8 @@
                         <th>Código</th>
                         <th>Estado</th>
                         <th>Último Movimiento</th>
+                        <th>Usuario Imputación</th>
+                        <th>Último Movimiento Por</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
@@ -70,6 +72,8 @@
                             </span>
                         </td>
                         <td>${ formatDate(item.ultimo_movimiento) }</td>
+                        <td>${ item.usuario_imputacion }</td>
+                        <td>${ item.usuario_ultimo_movimiento }</td>
                         <td>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-outline-warning" 
@@ -102,6 +106,8 @@
                         <th>Código</th>
                         <th>Estado</th>
                         <th>Último Movimiento</th>
+                        <th>Usuario Imputación</th>
+                        <th>Último Movimiento Por</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
@@ -135,6 +141,8 @@
                             </span>
                         </td>
                         <td>${ formatDate(item.ultimo_movimiento) }</td>
+                        <td>${ item.usuario_imputacion }</td>
+                        <td>${ item.usuario_ultimo_movimiento }</td>
                         <td>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-outline-warning" 
@@ -166,6 +174,8 @@
                         <th>Estado</th>
                         <th>Tipo</th>
                         <th>Último Movimiento</th>
+                        <th>Usuario Imputación</th>
+                        <th>Último Movimiento Por</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
@@ -203,6 +213,8 @@
                         </td>
                         <td>${ item.insumo.tipo.nombre }</td>
                         <td>${ formatDate(item.ultimo_movimiento) }</td>
+                        <td>${ item.usuario_imputacion }</td>
+                        <td>${ item.usuario_ultimo_movimiento }</td>
                         <td>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-outline-warning" 

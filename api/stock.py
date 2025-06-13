@@ -3,6 +3,7 @@ from models import db, Area, StockUbicacion, MovimientoStock
 from models import TipoProducto, Marca, Modelo, Insumo, Toner, Bateria
 from datetime import datetime
 import uuid
+from auth import get_current_user
 
 stock_bp = Blueprint('stock_api', __name__, url_prefix='/api')
 
@@ -39,7 +40,9 @@ def get_stock():
         "codigo": item.codigo,
         "estado": item.estado,
         "fecha_imputacion": item.fecha_imputacion.isoformat() if item.fecha_imputacion else None,
-        "ultimo_movimiento": item.ultimo_movimiento.isoformat() if item.ultimo_movimiento else None
+        "ultimo_movimiento": item.ultimo_movimiento.isoformat() if item.ultimo_movimiento else None,
+        "usuario_imputacion": item.usuario_imputacion.username if item.usuario_imputacion else "N/A",
+        "usuario_ultimo_movimiento": item.usuario_ultimo_movimiento.username if item.usuario_ultimo_movimiento else "N/A"
     } for item in stock_items])
 
 @stock_bp.route('/stock/insumos', methods=['GET', 'POST'])
@@ -149,6 +152,11 @@ def imputar_stock():
     if not all([insumo_id, area_id, cantidad]):
         return jsonify({"success": False, "message": "Insumo, área y cantidad son requeridos"}), 400
 
+    # Obtener usuario actual
+    usuario_actual = get_current_user()
+    if not usuario_actual:
+        return jsonify({"success": False, "message": "Usuario no autenticado"}), 401
+
     try:
         insumo = Insumo.query.get_or_404(insumo_id)
         area = Area.query.get_or_404(area_id)
@@ -169,7 +177,9 @@ def imputar_stock():
                     area_id=area_id,
                     cantidad=1,
                     codigo=codigo,
-                    fecha_imputacion=datetime.utcnow()
+                    fecha_imputacion=datetime.utcnow(),
+                    usuario_imputacion_id=usuario_actual.id,  # NUEVO
+                    usuario_ultimo_movimiento_id=usuario_actual.id  # NUEVO
                 )
                 db.session.add(stock)
                 codigos_creados.append(codigo)
@@ -184,13 +194,16 @@ def imputar_stock():
             if stock_existente:
                 stock_existente.cantidad += cantidad
                 stock_existente.ultimo_movimiento = datetime.utcnow()
+                stock_existente.usuario_ultimo_movimiento_id = usuario_actual.id  # NUEVO
             else:
                 stock = StockUbicacion(
                     insumo_id=insumo_id,
                     area_id=area_id,
                     cantidad=cantidad,
                     codigo=None,
-                    fecha_imputacion=datetime.utcnow()
+                    fecha_imputacion=datetime.utcnow(),
+                    usuario_imputacion_id=usuario_actual.id,  # NUEVO
+                    usuario_ultimo_movimiento_id=usuario_actual.id  # NUEVO
                 )
                 db.session.add(stock)
 
@@ -200,7 +213,9 @@ def imputar_stock():
             insumo_id=insumo_id,
             cantidad=cantidad,
             observacion=observacion or f"Imputación inicial a {area.nombre}",
-            responsable=responsable
+            responsable=responsable or usuario_actual.username,  # Usar username como responsable
+            usuario_id=usuario_actual.id,  # NUEVO
+            tipo_movimiento="imputacion"
         )
         db.session.add(movimiento)
 
@@ -214,7 +229,8 @@ def imputar_stock():
                 "area": area.nombre,
                 "cantidad": cantidad,
                 "inventariable": insumo.inventariable,
-                "codigos": codigos_creados if insumo.inventariable else None
+                "codigos": codigos_creados if insumo.inventariable else None,
+                "usuario": usuario_actual.username  # NUEVO
             }
         }), 201
 
@@ -235,6 +251,11 @@ def mover_stock():
     if not all([stock_origen_id, area_destino_id]):
         return jsonify({"success": False, "message": "Stock origen y área destino son requeridos"}), 400
 
+    # Obtener usuario actual
+    usuario_actual = get_current_user()
+    if not usuario_actual:
+        return jsonify({"success": False, "message": "Usuario no autenticado"}), 401
+
     try:
         stock_origen = StockUbicacion.query.get_or_404(stock_origen_id)
         area_destino = Area.query.get_or_404(area_destino_id)
@@ -251,6 +272,7 @@ def mover_stock():
             area_origen = stock_origen.area
             stock_origen.area_id = area_destino_id
             stock_origen.ultimo_movimiento = datetime.utcnow()
+            stock_origen.usuario_ultimo_movimiento_id = usuario_actual.id  # NUEVO
 
             # Registrar movimiento
             movimiento = MovimientoStock(
@@ -259,7 +281,8 @@ def mover_stock():
                 insumo_id=stock_origen.insumo_id,
                 cantidad=1,
                 observacion=observacion or f"Movimiento de {area_origen.nombre} a {area_destino.nombre}",
-                responsable=responsable
+                responsable=responsable or usuario_actual.username,
+                usuario_id=usuario_actual.id  # NUEVO
             )
             db.session.add(movimiento)
 
@@ -271,6 +294,7 @@ def mover_stock():
             # Reducir cantidad en origen
             stock_origen.cantidad -= cantidad_mover
             stock_origen.ultimo_movimiento = datetime.utcnow()
+            stock_origen.usuario_ultimo_movimiento_id = usuario_actual.id  # NUEVO
 
             # Buscar o crear stock en destino
             stock_destino = StockUbicacion.query.filter_by(
@@ -282,13 +306,16 @@ def mover_stock():
             if stock_destino:
                 stock_destino.cantidad += cantidad_mover
                 stock_destino.ultimo_movimiento = datetime.utcnow()
+                stock_destino.usuario_ultimo_movimiento_id = usuario_actual.id  # NUEVO
             else:
                 stock_destino = StockUbicacion(
                     insumo_id=stock_origen.insumo_id,
                     area_id=area_destino_id,
                     cantidad=cantidad_mover,
                     codigo=None,
-                    fecha_imputacion=datetime.utcnow()
+                    fecha_imputacion=datetime.utcnow(),
+                    usuario_imputacion_id=usuario_actual.id,  # NUEVO
+                    usuario_ultimo_movimiento_id=usuario_actual.id  # NUEVO
                 )
                 db.session.add(stock_destino)
 
@@ -303,7 +330,8 @@ def mover_stock():
                 insumo_id=stock_origen.insumo_id,
                 cantidad=cantidad_mover,
                 observacion=observacion or f"Movimiento de {stock_origen.area.nombre} a {area_destino.nombre}",
-                responsable=responsable
+                responsable=responsable or usuario_actual.username,
+                usuario_id=usuario_actual.id  # NUEVO
             )
             db.session.add(movimiento)
 
@@ -316,7 +344,8 @@ def mover_stock():
                 "insumo": stock_origen.insumo.nombre_completo,
                 "cantidad": cantidad_mover,
                 "destino": area_destino.nombre,
-                "responsable": responsable
+                "responsable": responsable or usuario_actual.username,
+                "usuario": usuario_actual.username  # NUEVO
             }
         }), 200
 

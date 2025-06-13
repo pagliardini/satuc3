@@ -37,3 +37,27 @@ footer {
     align-items: center;
     z-index: 9999;
 }
+
+/* Estilos para el navbar de usuario */
+.navbar-username {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dropdown-header {
+    color: #0047AB !important;
+    font-weight: bold;
+}
+
+.dropdown-item.text-danger:hover {
+    background-color: #dc3545;
+    color: white !important;
+}
+
+@media (max-width: 768px) {
+    .navbar-username {
+        max-width: 80px;
+    }
+}

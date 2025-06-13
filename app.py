@@ -4,7 +4,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from models import db
 from reports import reports_bp
-from auth import auth_bp, require_role  # Importa tu blueprint de autenticación
+from auth import auth_bp, require_role, require_auth  # Agregar require_auth a las importaciones
 from api.stock import stock_bp  
 from api.sedes import sedes_bp
 from api.areas import areas_bp

@@ -106,8 +106,16 @@ class StockUbicacion(db.Model):
     fecha_imputacion = db.Column(db.DateTime, default=datetime.utcnow)
     ultimo_movimiento = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     estado = db.Column(db.String(20), default='disponible')  # disponible, asignado, en_reparacion, baja
+    
+    # NUEVO: Agregar referencia al usuario que realizó la imputación
+    usuario_imputacion_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    usuario_ultimo_movimiento_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
 
-    # Constraints
+    # Relaciones
+    usuario_imputacion = db.relationship('User', foreign_keys=[usuario_imputacion_id], backref='imputaciones_realizadas')
+    usuario_ultimo_movimiento = db.relationship('User', foreign_keys=[usuario_ultimo_movimiento_id], backref='movimientos_realizados')
+
+    # Constraints existentes
     __table_args__ = (
         db.Index('idx_insumo_area', 'insumo_id', 'area_id'),
         db.Index('idx_codigo', 'codigo'),
@@ -122,12 +130,17 @@ class MovimientoStock(db.Model):
     cantidad = db.Column(db.Integer, nullable=False)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     observacion = db.Column(db.String(200), nullable=True)
-    responsable = db.Column(db.String(100), nullable=True)
+    responsable = db.Column(db.String(100), nullable=True)  # Mantener por compatibilidad
     tipo_movimiento = db.Column(db.String(20), default='movimiento')  # movimiento, baja, imputacion
+    
+    # NUEVO: Agregar referencia al usuario que realizó el movimiento
+    usuario_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
 
+    # Relaciones
     stock_origen = db.relationship('StockUbicacion', foreign_keys=[stock_origen_id], lazy=True)
     stock_destino = db.relationship('StockUbicacion', foreign_keys=[stock_destino_id], lazy=True)
     insumo = db.relationship('Insumo', backref='movimientos')
+    usuario = db.relationship('User', backref='movimientos_usuario')
 
 class Toner(db.Model):
     __tablename__ = 'toners'
