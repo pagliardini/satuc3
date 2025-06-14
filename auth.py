@@ -2,13 +2,10 @@
 
 import jwt
 from datetime import datetime, timedelta
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User  # Importa tu instancia de db de tu app principal
-
-# Configuración
-SECRET_KEY = 'tu_clave_secreta_super_segura'  # En producción, usar variable de entorno
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -25,7 +22,7 @@ def require_auth(f):
                 return jsonify({'error': 'Token de autorización requerido'}), 401
             
             token = auth_header.split(" ")[1]
-            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            payload = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
             
             # Verificar que el usuario existe
             user = User.query.get(payload['user_id'])
@@ -42,9 +39,9 @@ def require_auth(f):
     
     return decorated_function
 
-def require_role(required_role):
+def require_role(allowed_roles):
     """
-    Decorador que requiere un rol específico
+    Decorador que requiere uno o más roles específicos
     """
     def decorator(f):
         @wraps(f)
@@ -55,16 +52,26 @@ def require_role(required_role):
                     return jsonify({'error': 'Token de autorización requerido'}), 401
                 
                 token = auth_header.split(" ")[1]
-                payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+                payload = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
                 
                 # Verificar que el usuario existe
                 user = User.query.get(payload['user_id'])
                 if not user:
                     return jsonify({'error': 'Usuario no encontrado'}), 401
                 
-                # Verificar el rol
-                if user.role != required_role:
-                    return jsonify({'error': 'Permisos insuficientes'}), 403
+                # Verificar el rol - permitir lista o string
+                if isinstance(allowed_roles, list):
+                    if user.role not in allowed_roles:
+                        return jsonify({'error': 'Permisos insuficientes'}), 403
+                else:
+                    if user.role != allowed_roles:
+                        return jsonify({'error': 'Permisos insuficientes'}), 403
+                
+                # Agregar información del usuario al contexto global de Flask
+                from flask import g
+                g.user_id = user.id
+                g.user_role = user.role
+                g.username = user.username
                 
                 return f(*args, **kwargs)
             except jwt.ExpiredSignatureError:
@@ -72,6 +79,7 @@ def require_role(required_role):
             except jwt.InvalidTokenError:
                 return jsonify({'error': 'Token inválido'}), 401
             except Exception as e:
+                print(f"Error en require_role: {e}")  # Debug
                 return jsonify({'error': 'Error de autenticación'}), 401
         
         return decorated_function
@@ -97,7 +105,7 @@ def login():
             'role': user.role,
             'exp': datetime.utcnow() + timedelta(hours=8)
         }
-        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+        token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
         
         return jsonify({
             'token': token,
@@ -136,7 +144,7 @@ def get_current_user():
             return None
         
         token = auth_header.split(" ")[1]
-        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        payload = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         
         return User.query.get(payload['user_id'])
     except:

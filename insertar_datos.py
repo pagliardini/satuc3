@@ -3,6 +3,7 @@ from app import app
 from sqlalchemy import text
 from models import Insumo
 from models import Toner
+from models import User
 
 def insertar_marcas():
     marcas = [
@@ -266,9 +267,29 @@ def insertar_insumos():
             print(f"Insumo insertado: {descripcion} ({tipo_nombre}, {marca_nombre}, {modelo_nombre})")
         db.session.commit()
 
-        
+def insertar_usuarios():
+    """
+    Inserta usuarios de ejemplo según el modelo User definido en models.py.
+    """
+    usuarios = [
+        ("admin", "admin123", "admin"),
+        ("user1", "user123", "general"),
+        ("user2", "user123", "general"),
+        ("user3", "user123", "general"),
+    ]
+    with app.app_context():
+        for username, password, role in usuarios:
+            existente = User.query.filter_by(username=username).first()
+            if existente:
+                print(f"Usuario '{username}' ya existe.")
+                continue
 
+            user = User(username=username, role=role)
+            user.set_password(password)
+            db.session.add(user)
+            print(f"Usuario '{username}' insertado correctamente.")
 
+        db.session.commit()
 if __name__ == '__main__':
     insertar_marcas()
     insertar_modelos()
@@ -276,3 +297,4 @@ if __name__ == '__main__':
     insertar_sedes_unidades_y_areas()
     insertar_insumos()
     insertar_toners()
+    insertar_usuarios()
